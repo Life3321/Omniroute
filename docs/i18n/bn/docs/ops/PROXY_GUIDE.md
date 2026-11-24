@@ -269,114 +269,114 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ---
 
-## 1proxy বিনামূল্যের প্রক্সি মার্কেটপ্লেস
+## 1প্রক্সি ফ্রি প্রক্সি মার্কেটপ্লেস
 
-> 🆕 **[@oyi77](https://github.com/oyi77) কর্তৃক অবদানকৃত** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (ইস্যু [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** [@oyi77](https://github.com/oyi77) দ্বারা অবদান** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (ইস্যু [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-বিশ্বজুড়ে **শত শত বিনামূল্যের, যাচাইকৃত প্রক্সিতে** প্রবেশাধিকার দিতে OmniRoute **[1proxy](https://1proxy-api.aitradepulse.com)** কমিউনিটি প্ল্যাটফর্মের সঙ্গে ইন্টিগ্রেট করে। যেসব ব্যবহারকারীর নিজস্ব প্রক্সি অবকাঠামো নেই, তাঁদের জন্য এটি আদর্শ।
+OmniRoute এর সাথে একীভূত হয়** [1 প্রক্সি](https://1proxy-api.aitradepulse.com)** কমিউনিটি প্ল্যাটফর্ম অ্যাক্সেস প্রদান করতে** শত শত বিনামূল্যে, বৈধ প্রক্সি** সারা বিশ্ব থেকে এটি এমন ব্যবহারকারীদের জন্য উপযুক্ত যাদের নিজস্ব প্রক্সি অবকাঠামো নেই৷
 
-### এটি যেভাবে কাজ করে
+### কিভাবে এটা কাজ করে
 
 ```
-┌─────────────┐    সিঙ্ক      ┌─────────────────┐   রোটেট      ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ প্রদানকারী │
-│  (বাহ্যিক)   │ সর্বোচ্চ 500  │  source=oneproxy │ গুণমান অনুযায়ী│   API    │
-└─────────────┘    প্রক্সি     └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **সিঙ্ক** — OmniRoute 1proxy API থেকে যাচাইকৃত প্রক্সি সংগ্রহ করে
-2. **সংরক্ষণ** — প্রক্সিগুলো একই `proxy_registry` টেবিলে `source = 'oneproxy'` সহ সংরক্ষণ করা হয়
-3. **ফিল্টার** — প্রোটোকল, দেশ ও গুণমানের স্কোর অনুযায়ী ফিল্টার করুন
-4. **রোটেট** — গুণমানভিত্তিক, র্যান্ডম বা ধারাবাহিক কৌশল ব্যবহার করে সেরা প্রক্সি বেছে নিন
-5. **স্বয়ংক্রিয় অবনমন** — ব্যর্থ প্রক্সিগুলোর গুণমানের স্কোর কমে যায়; থ্রেশহোল্ডের নিচে গেলে → নিষ্ক্রিয় হিসেবে চিহ্নিত হয়
+1. **সিঙ্ক** — OmniRoute 1proxy API থেকে বৈধ প্রক্সি আনে
+2. **দোকান** — প্রক্সিগুলি `source = 'oneproxy'` সাথে একই `proxy_registry` টেবিলে সংরক্ষিত হয়
+3. **ফিল্টার** প্রোটোকল, দেশ, মানের স্কোর দ্বারা — ফিল্টার
+4. **ঘোরান** — গুণমান, এলোমেলো, বা অনুক্রমিক কৌশল ব্যবহার করে সেরা প্রক্সি বেছে নিন
+5. **অটো-ডিগ্রেড** — ব্যর্থ প্রক্সিরা তাদের মানের স্কোর হ্রাস পায়; থ্রেশহোল্ডের নীচে → নিষ্ক্রিয় হিসাবে চিহ্নিত৷
 
-### প্রক্সি সিঙ্ক করা
+### প্রক্সি সিঙ্ক করা হচ্ছে
 
 **ড্যাশবোর্ডের মাধ্যমে:**
 
-1. **Settings → 1proxy** ট্যাবে যান
-2. **"Sync Now"**-এ ক্লিক করুন
-3. পরিসংখ্যান দেখুন: মোট প্রক্সি, সক্রিয় সংখ্যা, গড় গুণমান এবং দেশভিত্তিক বিভাজন
+1. যান** সেটিংস → 1proxy** ট্যাব
+2. ক্লিক করুন** "এখনই সিঙ্ক করুন"**
+3. পরিসংখ্যান দেখুন: মোট প্রক্সি, সক্রিয় গণনা, গড় গুণমান, দেশ অনুসারে ভাঙ্গন
 
-**API-এর মাধ্যমে:**
+**API এর মাধ্যমে:**
 
 ```bash
-# সিঙ্ক শুরু করুন
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# প্রতিক্রিয়া:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### প্রক্সি ফিল্টার করা
+### ফিল্টারিং প্রক্সি
 
 ```bash
-# প্রোটোকল অনুযায়ী ফিল্টার করুন
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# দেশ অনুযায়ী ফিল্টার করুন
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# ন্যূনতম গুণমানের স্কোর অনুযায়ী ফিল্টার করুন
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# ফিল্টারগুলো একত্রে ব্যবহার করুন
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### প্রক্সির গুণমানের স্কোর
+### প্রক্সি কোয়ালিটি স্কোর
 
-প্রতিটি 1proxy প্রক্সির সঙ্গে মেটাডেটা থাকে:
+প্রতিটি 1 প্রক্সি প্রক্সি মেটাডেটা সহ আসে:
 
-| ফিল্ড           | বিবরণ                                              |
-| --------------- | -------------------------------------------------- |
-| `qualityScore`  | 1proxy-এর যাচাইকরণ থেকে প্রাপ্ত 0-100 রেটিং        |
-| `latencyMs`     | পরিমাপ করা নেটওয়ার্ক ল্যাটেন্সি                   |
-| `anonymity`     | `transparent`, `anonymous` অথবা `elite`            |
-| `googleAccess`  | প্রক্সিটি Google পরিষেবা অ্যাক্সেস করতে পারে কি না |
-| `countryCode`   | দুই অক্ষরের ISO দেশ কোড                            |
-| `lastValidated` | সর্বশেষ যাচাইকরণের টাইমস্ট্যাম্প                   |
+| মাঠ             | বর্ণনা                                               |
+| --------------- | ---------------------------------------------------- |
+| `qualityScore`  | 1প্রক্সি বৈধতা থেকে 0-100 রেটিং                      |
+| `latencyMs`     | পরিমাপ করা নেটওয়ার্ক লেটেন্সি                       |
+| `anonymity`     | `transparent`, `anonymous`, বা `elite`               |
+| `googleAccess`  | প্রক্সি Google পরিষেবাগুলি অ্যাক্সেস করতে পারে কিনা৷ |
+| `countryCode`   | দুই-অক্ষরের ISO কান্ট্রি কোড                         |
+| `lastValidated` | শেষ বৈধতার টাইমস্ট্যাম্প                             |
 
 গুণমানের স্কোর গতিশীলভাবে সমন্বয় করা হয়:
 
-- **ব্যর্থ অনুরোধ** স্কোর 10 পয়েন্ট কমিয়ে দেয়
-- **স্কোর ≤10-এ নেমে গেলে** → প্রক্সিটি `inactive` হিসেবে চিহ্নিত হয়
-- নিষ্ক্রিয় প্রক্সিগুলো রোটেশন থেকে বাদ দেওয়া হয়
+- **ব্যর্থ অনুরোধ** 10 পয়েন্ট দ্বারা স্কোর কমাতে
+- **স্কোর ≤ 10 এ নেমে গেছে** → প্রক্সি `inactive` চিহ্নিত করা হয়েছে
+- নিষ্ক্রিয় প্রক্সি ঘূর্ণন থেকে বাদ দেওয়া হয়
 
-### রোটেশন কৌশল
+### ঘূর্ণন কৌশল
 
 ```bash
-# গুণমান অনুযায়ী রোটেট করুন (সেরা প্রক্সি প্রথমে) — ডিফল্ট
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# র্যান্ডম রোটেশন
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# ধারাবাহিক (সবচেয়ে আগে যাচাই করা প্রক্সি প্রথমে)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### সার্কিট ব্রেকার
 
-1proxy সিঙ্কে একটি বিল্ট-ইন সার্কিট ব্রেকার রয়েছে:
+1প্রক্সি সিঙ্কে একটি অন্তর্নির্মিত সার্কিট ব্রেকার রয়েছে:
 
-- **পরপর 5টি সিঙ্ক ব্যর্থতার** পরে পরবর্তী সিঙ্ক প্রচেষ্টাগুলো ব্লক করা হয়
-- এটি দিয়ে রিসেট করুন: `resetOneproxyCircuitBreaker()` অথবা সার্ভার পুনরায় চালু করুন
-- সিঙ্কের স্ট্যাটাস `GET /api/settings/oneproxy?action=status`-এ পাওয়া যায়
+- পরে** 5 টানা সিঙ্ক ব্যর্থতা** , আরও সিঙ্ক প্রচেষ্টা ব্লক করা হয়েছে
+- এর সাথে রিসেট করুন: `resetOneproxyCircuitBreaker()` বা সার্ভার পুনরায় চালু করুন
+- সিঙ্ক স্ট্যাটাস `GET /api/settings/oneproxy?action=status` এ উপলব্ধ
 
-### 1proxy প্রক্সি মুছে ফেলা
+### 1 প্রক্সি প্রক্সি সাফ করা হচ্ছে
 
 ```bash
-# একটি 1proxy প্রক্সি মুছুন
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# সব 1proxy প্রক্সি মুছুন (ম্যানুয়াল প্রক্সিগুলো অপরিবর্তিত থাকবে)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

@@ -270,150 +270,150 @@ Ez a frissítés utáni első indításkor egyszer történik meg. Az újbóli f
 
 ---
 
-## 1proxy ingyenes proxy piactér
+## 1proxy Ingyenes proxy piactér
 
-> 🆕 **Közreműködő: [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Hibajegy: [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Közreműködött: [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) ( [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) probléma)
 
-Az OmniRoute integrálható a **[1proxy](https://1proxy-api.aitradepulse.com)** közösségi platformmal, így hozzáférést biztosít **több száz ingyenes, ellenőrzött proxyhoz** a világ minden tájáról. Ez tökéletes megoldás azoknak a felhasználóknak, akik nem rendelkeznek saját proxyinfrastruktúrával.
+OmniRoute integrálódik a** [1 proxy](https://1proxy-api.aitradepulse.com)** közösségi platform, amelyhez hozzáférést biztosít** több száz ingyenes, ellenőrzött proxy** a világ minden tájáról. Ez tökéletes azoknak a felhasználóknak, akik nem rendelkeznek saját proxy infrastruktúrával.
 
-### Működés
+### Hogyan működik
 
 ```
-┌─────────────┐  Szinkronizálás  ┌─────────────────┐   Váltás    ┌─────────────┐
-│  1proxy API │ ───────────────▶ │  proxy_registry  │ ──────────▶ │ Szolgáltató │
-│   (külső)   │   legfeljebb 500 │  source=oneproxy │  minőség    │     API     │
-└─────────────┘       proxy      └─────────────────┘   alapján    └─────────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Szinkronizálás** — Az OmniRoute lekéri az ellenőrzött proxykat a 1proxy API-ból
-2. **Tárolás** — A proxyk ugyanabban a `proxy_registry` táblában lesznek mentve, `source = 'oneproxy'` értékkel
-3. **Szűrés** — Szűrés protokoll, ország és minőségi pontszám alapján
-4. **Váltás** — A legjobb proxy kiválasztása minőségi, véletlenszerű vagy szekvenciális stratégia használatával
-5. **Automatikus leminősítés** — A sikertelen proxyk minőségi pontszáma csökken; a küszöbérték alatt → inaktívként lesznek megjelölve
+1. **Szinkronizál** — OmniRoute lekéri az érvényesített proxykat az 1proxy API ről
+2. **Bolt** — A proxy-k ugyanabba a `proxy_registry` táblába kerülnek mentésre `source = 'oneproxy'`
+3. **Szűrő** — Szűrés protokoll, ország, minőségi pontszám szerint
+4. **Forog** — Válassza ki a legjobb proxyt minőségi, véletlenszerű vagy szekvenciális stratégiák használatával
+5. **Automatikus lebontás** — A sikertelen proxyk minőségi pontszámuk csökken; küszöb alatti → inaktívként van megjelölve
 
 ### Proxyk szinkronizálása
 
-**A vezérlőpulton keresztül:**
+**Az irányítópulton keresztül:**
 
-1. Lépjen a **Beállítások → 1proxy** lapra
-2. Kattintson a **„Szinkronizálás most”** gombra
-3. Tekintse meg a statisztikákat: proxyk teljes száma, aktív proxyk száma, átlagos minőség és országonkénti bontás
+1. Menj ide** Beállítások → 1proxy** lapon
+2. Kattintson** "Szinkronizálás most"**
+3. Statisztikák megtekintése: összes proxy, aktív szám, átlagos minőség, országonkénti bontás
 
-**API-n keresztül:**
+**API keresztül:**
 
 ```bash
-# Szinkronizálás indítása
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Válasz:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### Proxyk szűrése
 
 ```bash
-# Szűrés protokoll alapján
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Szűrés ország alapján
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Szűrés minimális minőségi pontszám alapján
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Szűrők kombinálása
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Proxyk minőségi pontszámai
+### Proxy minőségi pontszámok
 
-Minden 1proxy-proxyhoz metaadatok tartoznak:
+Minden 1proxy proxyhoz metaadatok tartoznak:
 
-| Mező            | Leírás                                            |
-| --------------- | ------------------------------------------------- |
-| `qualityScore`  | A 1proxy ellenőrzése alapján adott 0–100-as érték |
-| `latencyMs`     | Mért hálózati késleltetés                         |
-| `anonymity`     | `transparent`, `anonymous` vagy `elite`           |
-| `googleAccess`  | A proxy hozzáfér-e a Google szolgáltatásaihoz     |
-| `countryCode`   | Kétbetűs ISO-országkód                            |
-| `lastValidated` | A legutóbbi ellenőrzés időbélyege                 |
+| Mező            | Leírás                                      |
+| --------------- | ------------------------------------------- |
+| `qualityScore`  | 0-100 értékelés 1proxy érvényesítésből      |
+| `latencyMs`     | Mért hálózati késleltetés                   |
+| `anonymity`     | `transparent`, `anonymous` vagy `elite`     |
+| `googleAccess`  | A proxy hozzáfér-e Google szolgáltatásokhoz |
+| `countryCode`   | Kétbetűs ISO országkód                      |
+| `lastValidated` | Az utolsó érvényesítés időbélyege           |
 
-A minőségi pontszámok dinamikusan változnak:
+A minőségi pontszámok dinamikusan korrigálódnak:
 
-- A **sikertelen kérések** 10 ponttal csökkentik a pontszámot
-- Ha a **pontszám ≤10-re csökken** → a proxy `inactive` jelölést kap
-- Az inaktív proxyk kimaradnak a váltásból
+- **Sikertelen kérések** csökkentse a pontszámot 10 ponttal
+- **A pontszám ≤ 10-re csökken** → proxy `inactive` jelölésű
+- Az inaktív proxyk ki vannak zárva a forgatásból
 
-### Váltási stratégiák
+### Rotációs stratégiák
 
 ```bash
-# Váltás minőség alapján (először a legjobb proxy) — alapértelmezett
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Véletlenszerű váltás
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Szekvenciális (először a legrégebben ellenőrzött)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### Megszakító
+### Áramköri megszakító
 
-A 1proxy szinkronizálása beépített megszakítóval rendelkezik:
+Az 1proxy szinkron beépített megszakítóval rendelkezik:
 
-- **5 egymást követő szinkronizálási hiba** után a további szinkronizálási kísérletek blokkolva lesznek
-- Visszaállítás: `resetOneproxyCircuitBreaker()`, vagy indítsa újra a szervert
-- A szinkronizálás állapota a `GET /api/settings/oneproxy?action=status` címen érhető el
+- Után** 5 egymást követő szinkronizálási hiba** , a további szinkronizálási kísérletek le vannak tiltva
+- Állítsa vissza a következővel: `resetOneproxyCircuitBreaker()` vagy indítsa újra a szervert
+- A szinkronizálási állapot a `GET /api/settings/oneproxy?action=status` oldalon érhető el
 
-### 1proxy-proxyk törlése
+### 1proxy proxyk törlése
 
 ```bash
-# Egyetlen 1proxy-proxy törlése
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Az ÖSSZES 1proxy-proxy törlése (a manuális proxyk érintetlenek maradnak)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## Észlelés elleni védelem és rejtőzködés
+## Anti-Detection & Stealth
 
-Az OmniRoute nem csupán proxyn keresztül irányítja a forgalmat — hitelesnek is láttatja azt:
+OmniRoute nem csak egy proxy — keresztül irányítja a forgalmat, hanem legitimnek tűnik:
 
-### TLS-ujjlenyomat meghamisítása
+### TLS Ujjlenyomat-hamisítás
 
-A `wreq-js` használatával böngészőszerű TLS-ujjlenyomatokat generál, megkerülve azokat a botészlelő rendszereket, amelyek megjelölik a nem böngészőből származó TLS-kézfogásokat.
+`wreq-js` segítségével böngészőszerű TLS ujjlenyomatokat generál, megkerülve a nem böngésző TLS kézfogásait jelző botészlelő rendszereket.
 
-### CLI-ujjlenyomat egyeztetése
+### CLI Ujjlenyomat-illesztés
 
-A **CLI-ujjlenyomat kapcsoló** (`Beállítások → Biztonság`) átrendezi a HTTP-fejléceket és a JSON-törzs mezőit, hogy azok pontosan megfeleljenek a natív CLI-binárisok (Claude Code, Codex stb.) aláírásának. Ez a proxy használatán **felül** működik:
+A**CLI ujjlenyomat kapcsoló** (`Settings → Security`) átrendezi HTTP fejléceket és JSON törzsmezőket, hogy megfeleljenek a natív CLI binárisok (Claude kód, Codex stb.) pontos aláírásának. Ez működik** tetején** a proxy:
 
 ```
-Az Ön IP-je (blokkolva) → Proxy IP-je (USA) → Szolgáltatói API
-                           + TLS-hamisítás
-                           + CLI-ujjlenyomat
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-Így egyszerre kap **IP-maszkolást** és **hiteles kéréseket**.
+Mindkettőt megkapod**IP maszkolás** és** hitelességet kérni** egyidejűleg.
 
-### A proxy IP-címének megőrzése
+### Proxy IP megőrzése
 
 Az irányítópulton színkódolt jelvények mutatják, hogy melyik proxyszint aktív:
 
-| Jelvény | Szint       | Jelentés                                              |
-| ------- | ----------- | ----------------------------------------------------- |
-| 🟢      | Globális    | Minden forgalom ezen a proxyn keresztül halad         |
-| 🟡      | Szolgáltató | Csak ezen szolgáltató forgalma halad proxyn keresztül |
-| 🔵      | Kapcsolat   | Ez a konkrét kulcs/fiók ezt a proxyt használja        |
+| Jelvény | Szint       | Jelentése                                                 |
+| ------- | ----------- | --------------------------------------------------------- |
+| 🟢      | Globális    | Az összes forgalom ezen a proxyn keresztül megy keresztül |
+| 🟡      | Szolgáltató | Csak ennek a szolgáltatónak a forgalma proxyzott          |
+| 🔵      | Kapcsolat   | Ez a konkrét key/account ezt a proxyt használja           |
 
-A jelvény az ellenőrzéshez a feloldott proxy IP-címét is megjeleníti.
+A jelvényen az ellenőrzéshez szükséges megoldott proxy IP is látható.
 
 ---
 

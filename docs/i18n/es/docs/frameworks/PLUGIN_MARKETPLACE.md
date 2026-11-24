@@ -87,18 +87,19 @@ una advertencia y recurre a la lista semilla.
 
 Todos los puntos finales requieren autenticación de administración (`requireManagementAuth`)** y** son de bucle invertido — `/api/plugins` y `/api/plugins/` se enumeran en `LOCAL_ONLY_API_PREFIXES` (`src/server/authz/routeGuard.ts`).
 
-| Punto final                      | Método | Descripción                                                             |
-| -------------------------------- | ------ | ----------------------------------------------------------------------- |
-| `/api/plugins`                   | GET    | Lista de complementos instalados (filtro `?status=` opcional)           |
-| `/api/plugins`                   | POST   | Instale un complemento desde el directorio de fuentes de complementos   |
-| `/api/plugins/scan`              | POST   | Escanee el directorio de complementos y registre nuevos complementos    |
-| `/api/plugins/marketplace`       | GET    | Enumerar entradas del catálogo del mercado                              |
-| `/api/plugins/[name]`            | GET    | Obtener detalles del complemento instalado                              |
-| `/api/plugins/[name]`            | DELETE | Desinstalar un complemento                                              |
-| `/api/plugins/[name]/activate`   | POST   | Activar (cargar ganchos de registro + )                                 |
-| `/api/plugins/[name]/deactivate` | POST   | Desactivar (disparar `onDeactivate`, cancelar el registro de ganchos)   |
-| `/api/plugins/[name]/config`     | GET    | Obtener el esquema de configuración + de configuración del complemento  |
-| `/api/plugins/[name]/config`     | PUT    | Actualizar la configuración del complemento (validado según el esquema) |
+| Punto final                        | Método | Descripción                                                             |
+| ---------------------------------- | ------ | ----------------------------------------------------------------------- |
+| `/api/plugins`                     | GET    | Lista de complementos instalados (filtro `?status=` opcional)           |
+| `/api/plugins`                     | POST   | Instale un complemento desde el directorio de fuentes de complementos   |
+| `/api/plugins/scan`                | POST   | Escanee el directorio de complementos y registre nuevos complementos    |
+| `/api/plugins/marketplace`         | GET    | Enumerar entradas del catálogo del mercado                              |
+| `/api/plugins/marketplace/install` | POST   | Instalar un complemento de mercado por nombre                           |
+| `/api/plugins/[name]`              | GET    | Obtener detalles del complemento instalado                              |
+| `/api/plugins/[name]`              | DELETE | Desinstalar un complemento                                              |
+| `/api/plugins/[name]/activate`     | POST   | Activar (cargar ganchos de registro + )                                 |
+| `/api/plugins/[name]/deactivate`   | POST   | Desactivar (disparar `onDeactivate`, cancelar el registro de ganchos)   |
+| `/api/plugins/[name]/config`       | GET    | Obtener el esquema de configuración + de configuración del complemento  |
+| `/api/plugins/[name]/config`       | PUT    | Actualizar la configuración del complemento (validado según el esquema) |
 
 El filtro `GET /api/plugins` `status` acepta uno de `installed` / `active` / `inactive` / `error`. Un valor no válido devuelve `400`.
 
@@ -120,7 +121,7 @@ curl -X POST http://localhost:20128/api/plugins \
 
 La `path` debe ser una** absoluto** ruta a un directorio** dentro del directorio de fuentes del complemento** : `plugin-sources` al lado de la raíz del complemento, por lo que `~/.omniroute/plugin-sources/` de forma predeterminada, o `<parent of OMNIROUTE_PLUGINS_DIR>/plugin-sources/` cuando esa variable está configurada (`getPluginSourcesDir()` en `src/lib/plugins/installSource.ts`). Copie o clone el complemento allí primero. La instalación se rechaza con `400` cuando la ruta contiene `..` o un byte nulo, se encuentra fuera de ese directorio, se resuelve fuera de él a través de un enlace simbólico, contiene un enlace simbólico cuyo destino está fuera de él o cuando el directorio no existe. El directorio de origen debe contener un `plugin.json` válido (o ser padre de uno). En caso de éxito, la respuesta es `201` con la fila del complemento instalado.
 
-A diferencia de otras rutas de complementos, esta requiere la credencial de administración (una sesión de panel o una clave API con alcance de administración) incluso cuando el inicio de sesión está deshabilitado (`requireLogin=false`): la instalación del código nunca es una acción anónima.
+A diferencia de otras rutas de complementos, esta requiere la credencial de administración (una sesión de panel o una clave API con alcance de administración) incluso cuando el inicio de sesión está deshabilitado (`requireLogin=false`): la instalación del código nunca es una acción anónima. Lo mismo se aplica a `POST /api/plugins/marketplace/install` (cuerpo `{ "name": "<plugin>" }`).
 
 ### Navegar por el mercado
 
@@ -138,7 +139,7 @@ curl -X PUT http://localhost:20128/api/plugins/my-plugin/config \
   -d '{ "config": { "level": "debug", "maxItems": 100 } }'
 ```
 
-`PUT .../config` valida cada valor proporcionado con el `configSchema` del complemento (declarado en el manifiesto): los campos `number` respetan `min`/`max`, los campos `select` deben coincidir con el `enum` declarado. Se permiten las claves que no están presentes en el esquema.
+`PUT .../config` valida el cuerpo con el `configSchema` del complemento (declarado en el manifiesto) con `validatePluginConfig()` de `src/lib/plugins/manifest.ts`: cada clave debe declararse en el esquema, los valores deben coincidir con el tipo declarado, los campos `number` respetan `min`/`max` y los campos `select` deben coincidir con el `enum` declarado. Cualquier infracción devuelve `400` y no se almacena nada. Un complemento que no declara `configSchema` no tiene claves configurables, por lo que la solicitud se rechaza con `400` ("El complemento no declara ninguna clave configurable").
 
 ## Configuración
 
@@ -207,7 +208,7 @@ Un registro personalizado URL es una configuración influenciable por el atacant
 
 1. **`isSafeMarketplaceUrl(url)`** (`src/lib/plugins/marketplace.ts`):
    - Rechaza todo lo que no sea `http:` / `https:`.
-   - Rechaza hosts private/loopback/link-local/ULA literales (IPv4** y** IPv6, incluido IPv4-mapped) a través del canónico `isPrivateHost` (`src/shared/network/outboundUrlGuard.ts`).
+   - Rechaza hosts private/loopback/link-local/ULA literales (IPv4** y** IPv6, incluido IPv4-mapped) a través del `isPrivateHost` canónico (`src/shared/network/outboundUrlGuard.ts`).
    - Resuelve** ambos** `A` y `AAAA` registran y rechazan si** cualquier** la dirección resuelta es privada — cerrando el nombre de host público → omisión de IP privada.
    - **Falla cerrada** : un fallo en la resolución DNS rechaza el URL.
 2. **`safeOutboundFetch(url, { guard: "public-only", timeoutMs: 5000 })`** (`src/shared/network/safeOutboundFetch.ts`): vuelve a aplicar la protección URL solo pública en el momento de la recuperación y** bloquea redirecciones** (sin pivot `30x` público → privado).
@@ -218,9 +219,9 @@ Un URL que falla en cualquiera de las capas no cancela la solicitud — el merca
 
 ### Aislamiento de ejecución de complementos
 
-> **Los complementos no están protegidos.** El hijo es un proceso Node.js ordinario que se ejecuta como usuario OmniRoute, sin contexto VM ni indicadores de permiso Node.js, por lo que el código del complemento puede leer y escribir cualquier archivo que el usuario pueda, ejecutar programas y acceder a la red. `requires.permissions` solo decide qué variables de entorno recibe el niño; los demás permisos no se aplican. Instale solo complementos en los que confíe. El límite del proceso siguiente contiene bloqueos y bloqueos; no es una frontera de seguridad.
+> **Los complementos no están protegidos de forma predeterminada.** El hijo es un proceso Node.js ordinario que se ejecuta como usuario OmniRoute, sin contexto VM ni indicadores de permiso Node.js, por lo que el código del complemento puede leer y escribir cualquier archivo que el usuario pueda, ejecutar programas y acceder a la red. `requires.permissions` solo decide qué variables de entorno recibe el niño; los demás permisos no se aplican. El indicador de función `PLUGIN_PERMISSION_MODEL_ENABLED` opcional (desactivado de forma predeterminada) ejecuta cada complemento bajo el modelo de permisos Node.js creado a partir de esos permisos, excepto `network`, que Node.js no puede restringir (consulte [`PLUGIN_SDK.md`](./PLUGIN_SDK.md#permission-system) ). Instale solo complementos en los que confíe. El límite del proceso siguiente contiene bloqueos y bloqueos; no es una frontera de seguridad.
 
-- **Aislamiento de procesos** — `loadPlugin()` (`src/lib/plugins/loader.ts`) genera cada complemento en un proceso secundario Node.js separado y se comunica a través de IPC. Las llamadas de gancho tienen un tiempo de espera con escalada `SIGTERM` → `SIGKILL`.
+- **Aislamiento de procesos** — `loadPlugin()` (`src/lib/plugins/loader.ts`) genera cada complemento en un proceso secundario Node.js separado y se comunica a través de IPC. Las llamadas de gancho tienen un tiempo de espera con `SIGTERM` → `SIGKILL` escalada.
 - **Lista de entorno permitido** — el niño recibe solo un conjunto de variables de entorno incluidas en la lista permitida; el conjunto más amplio solo se otorga cuando el manifiesto solicita el permiso `env`.
 - **Instalar contención de fuente** — `POST /api/plugins` solo lee desde el directorio de fuentes del complemento (consulte "Instalar desde una ruta local"): la ruta se canonicaliza con `realpath`, debe permanecer estrictamente dentro de ese directorio, y un árbol de fuentes que lleva un enlace simbólico que se escapa se rechaza antes de copiar algo.
 - **Contención de camino** — install/upgrade/uninstall afirma que el directorio de complementos y `manifest.main` se resuelven** dentro** la raíz del complemento administrado antes de cualquier copia o eliminación recursiva (protege contra rutas DB manipuladas y recorrido `../` en `manifest.main`). La activación resuelve enlaces simbólicos a través de `realpath` y se niega a cargar un punto de entrada que escapa del directorio del complemento.

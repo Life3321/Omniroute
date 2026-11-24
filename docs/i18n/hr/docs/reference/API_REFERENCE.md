@@ -49,7 +49,7 @@ Svaka implementacija poslužuje vlastitu kopiju specifikacije na `/openapi.yaml`
 
 ---
 
-## Dovršavanja razgovora
+## Završeci razgovora
 
 ```bash
 POST /v1/chat/completions
@@ -67,33 +67,32 @@ Content-Type: application/json
 
 ### Prilagođena zaglavlja
 
-| Header                   | Smjer   | Opis                                                                                                                                                                                                                                         |
-| ------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `X-OmniRoute-No-Cache`   | Zahtjev | Postavite na `true` za zaobilaženje predmemorije                                                                                                                                                                                             |
-| `x-omniroute-no-memory`  | Zahtjev | Postavite na `true` kako biste za ovaj zahtjev preskočili ubrizgavanje memorije + vještina (preslikava no-cache; izbjegava režijske troškove tokena/troška po pozivu)                                                                        |
-| `X-OmniRoute-Progress`   | Zahtjev | Postavite na `true` za događaje napretka                                                                                                                                                                                                     |
-| `X-Session-Id`           | Zahtjev | Ključ ljepljive sesije za afinitet prema vanjskoj sesiji                                                                                                                                                                                     |
-| `x_session_id`           | Zahtjev | Varijanta s podvlakom također je podržana (izravni HTTP)                                                                                                                                                                                     |
-| `X-OmniRoute-Session-Id` | Zahtjev | Oznaka sesije/razgovora koju je zadao pozivatelj (također se prosljeđuje u memoriju). Kada je prisutna, pohranjuje se doslovno u `call_logs.session_tag` za pripisivanje troškova po sesiji (#8249) — nikad se ne generira ako nije prisutna |
-| `Idempotency-Key`        | Zahtjev | Ključ za uklanjanje duplikata (prozor od 5 s)                                                                                                                                                                                                |
-| `X-Request-Id`           | Zahtjev | Alternativni ključ za uklanjanje duplikata                                                                                                                                                                                                   |
-| `x-omniroute-connection` | Zahtjev | Prikvačite zahtjev za jedan model na jednu vezu pružatelja (račun) prema njezinu ID-u — pogledajte [Prikvačivanje računa po zahtjevu](#account-pinning-per-request)                                                                          |
-| `X-OmniRoute-Cache`      | Odgovor | `HIT` ili `MISS` (bez strujanja)                                                                                                                                                                                                             |
-| `X-OmniRoute-Idempotent` | Odgovor | `true` ako je uklonjen duplikat                                                                                                                                                                                                              |
-| `X-OmniRoute-Progress`   | Odgovor | `enabled` ako je praćenje napretka uključeno                                                                                                                                                                                                 |
-| `X-OmniRoute-Session-Id` | Odgovor | Učinkoviti ID sesije koji koristi OmniRoute                                                                                                                                                                                                  |
-| `X-OmniRoute-Request-Id` | Odgovor | ID korelacije zahtjeva (kada je poznat)                                                                                                                                                                                                      |
-| `X-OmniRoute-Version`    | Odgovor | Verzija međuverzije OmniRoute (uvijek prisutna)                                                                                                                                                                                              |
-| `X-OmniRoute-Cost-Saved` | Odgovor | Iznos u USD koji je predmemorija uštedjela pri `HIT`-u (samo pogodci predmemorije)                                                                                                                                                           |
-| `X-OmniRoute-Decision`   | Odgovor | Trag usmjeravanja: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` je kombinirana strategija ili `single` za zahtjev koji nije kombiniran) — uvijek prisutan u odgovorima po završetku                                         |
+| Zaglavlje                | Smjer   | Opis                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `X-OmniRoute-No-Cache`   | Zahtjev | Postavite na `true` za zaobilaženje predmemorije                                                                                                                                                                                                                                                                                                                                  |
+| `x-omniroute-no-memory`  | Zahtjev | Postavite na `true` da biste preskočili ubacivanje + vještina u memoriju za ovaj zahtjev (zrcali bez predmemorije; izbjegava token/cost opterećenje po pozivu)                                                                                                                                                                                                                    |
+| `x-omniroute-no-log`     | Zahtjev | Postavite na `true` da izostavite request/response korisni teret iz zapisa poziva za ovaj zahtjev za zaključivanje (sve rute chat-family: dovršeci razgovora, odgovori, poruke, dovršeci, Gemini). Vremenska oznaka, model, status, trajanje i broj tokena i dalje se bilježe. Kombinirajte sa `x-omniroute-no-memory` i `x-omniroute-no-cache` za potpuno isključivanje sadržaja |
+| `X-OmniRoute-Progress`   | Zahtjev | Postavite na `true` za događaje napretka                                                                                                                                                                                                                                                                                                                                          |
+| `X-Session-Id`           | Zahtjev | Ljepljivi ključ sesije za vanjski afinitet sesije                                                                                                                                                                                                                                                                                                                                 |
+| `x_session_id`           | Zahtjev | Prihvaćena je i varijanta podvlake (izravni HTTP)                                                                                                                                                                                                                                                                                                                                 |
+| `X-OmniRoute-Session-Id` | Zahtjev | session/conversation oznaku koju dobiva pozivatelj (također hrani memoriju). Kada je prisutan, ustrajan doslovce u `call_logs.session_tag` za atribuciju troškova po sesiji (#8249) — nikad ne sintetizira kada je odsutan                                                                                                                                                        |
+| `Idempotency-Key`        | Zahtjev | Ključ za uklanjanje (5 s prozor)                                                                                                                                                                                                                                                                                                                                                  |
+| `X-Request-Id`           | Zahtjev | Alternativni ključ za uklanjanje                                                                                                                                                                                                                                                                                                                                                  |
+| `x-omniroute-connection` | Zahtjev | Prikvačite zahtjev s jednim modelom na jednu vezu pružatelja (račun) prema njegovom ID-u — pogledajte [Prikvačivanje računa po zahtjevu](#account-pinning-per-request)                                                                                                                                                                                                            |
+| `X-OmniRoute-Cache`      | Odgovor | `HIT` ili `MISS` (bez strujanja)                                                                                                                                                                                                                                                                                                                                                  |
+| `X-OmniRoute-Idempotent` | Odgovor | `true` ako se deduplicira                                                                                                                                                                                                                                                                                                                                                         |
+| `X-OmniRoute-Progress`   | Odgovor | `enabled` ako je uključeno praćenje napretka                                                                                                                                                                                                                                                                                                                                      |
+| `X-OmniRoute-Session-Id` | Odgovor | Efektivna sesija ID koju koristi OmniRoute                                                                                                                                                                                                                                                                                                                                        |
+| `X-OmniRoute-Request-Id` | Odgovor | ID korelacije zahtjeva (ako je poznat)                                                                                                                                                                                                                                                                                                                                            |
+| `X-OmniRoute-Version`    | Odgovor | OmniRoute build verzija (uvijek prisutna)                                                                                                                                                                                                                                                                                                                                         |
+| `X-OmniRoute-Cost-Saved` | Odgovor | USD predmemorija izbjegnuta na HIT (samo pogoci predmemorije)                                                                                                                                                                                                                                                                                                                     |
+| `X-OmniRoute-Decision`   | Odgovor | Praćenje usmjeravanja: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` je kombinirana strategija ili `single` za nekombinirani zahtjev) — uvijek prisutan na odgovorima završetka                                                                                                                                                                                   |
 
-> Napomena za Nginx: ako se oslanjate na zaglavlja s podvlakom (na primjer `x_session_id`), omogućite `underscores_in_headers on;`.
+> Nginx napomena: ako se oslanjate na zaglavlja podvlake (na primjer `x_session_id`), omogućite `underscores_in_headers on;`.
 
 #### Prikvačivanje računa po zahtjevu
 
-Kada pružatelj ima više veza (računa ili ključeva), OmniRoute obično odabire jednu
-putem svoje strategije odabira računa. Zahtjev umjesto toga može prikvačiti jednu određenu vezu
-pomoću zaglavlja `x-omniroute-connection`:
+Kada pružatelj usluga ima nekoliko veza (računa ili ključeva), OmniRoute obično odabire jednu kroz svoju strategiju odabira računa. Zahtjev umjesto toga može prikvačiti jednu specifičnu vezu sa `x-omniroute-connection` zaglavljem:
 
 ```bash
 curl http://localhost:20128/v1/chat/completions \
@@ -103,25 +102,13 @@ curl http://localhost:20128/v1/chat/completions \
   -d '{"model": "codex/gpt-5.5", "messages": [{"role": "user", "content": "hi"}]}'
 ```
 
-- **Gdje pronaći id.** Otvorite stranicu pružatelja na nadzornoj ploči
-  (**Nadzorna ploča → Pružatelji → <provider>**) i kliknite čip s id-jem `xxxxxxxx…` u retku
-  veze — time se kopira puni id veze.
-- **Koji ga zahtjevi poštuju.** Zahtjevi s jednim modelom (`provider/model`) na
-  `/v1/chat/completions`, `/v1/messages` i `/v1/responses`. Kombinacije zanemaruju zaglavlje: prikvačite
-  račun za svaki korak kombinacije putem vlastite veze tog koraka.
-- **Prikvačivanje je strogo, a ne preferencija.** Prikvačena veza koristi se isključivo. Ako
-  unutar zahtjeva dođe do pogreške, bilježi se vrijeme čekanja računa, ali se zahtjev **ne**
-  preusmjerava na susjedni račun istog pružatelja.
-- **Vrijeme čekanja i kvota oslobađaju prikvačivanje.** Dok se za prikvačenu vezu primjenjuje
-  vrijeme čekanja, kada je kvota iscrpljena ili je veza blokirana pravilom kvote, naknadni zahtjevi
-  vraćaju se na druge veze pružatelja, baš kao i promet bez prikvačivanja.
-- **Nepoznati ili onemogućeni id-ovi uzrokuju pogrešku.** Id koji nije u aktivnom skupu pružatelja
-  (obrisan je, deaktiviran ili pripada drugom pružatelju) ne ostavlja nijedan prihvatljiv račun, pa
-  zahtjev ne uspijeva umjesto da se neprimjetno preusmjeri drugamo.
+- **Gdje pronaći id.** Otvorite stranicu pružatelja usluga na nadzornoj ploči (** Nadzorna ploča → pružatelji → <provider>** ) i kliknite `xxxxxxxx…` id čip na retku veze — kopira cijeli ID veze.
+- **Koji zahtjevi to poštuju.** Zahtjevi s jednim modelom (`provider/model`) na `/v1/chat/completions`, `/v1/messages` i `/v1/responses`. Kombinacije ignoriraju zaglavlje: umjesto toga prikvačite račun po koraku kombinacije kroz vlastitu vezu koraka.
+- **Oznaka je stroga, a ne preferencija.** Koristi se isključivo zakačena veza. Kvar unutar zahtjeva bilježi hlađenje računa, ali ne** ne** rotirajte na srodni račun istog davatelja usluga.
+- **Hlađenje i kvota oslobađaju iglu.** Dok se prikvačena veza hladi, iscrpljena je kvota ili je blokirana politikom kvota, kasniji zahtjevi vraćaju se na druge veze pružatelja, točno kao neprikvačeni promet.
+- **Nepoznati ili onemogućeni ID-ovi ne uspijevaju.** ID koji nije u aktivnom skupu pružatelja (izbrisan, deaktiviran ili pripada drugom pružatelju) ne ostavlja odgovarajući račun, tako da zahtjev ne uspijeva umjesto tihog usmjeravanja na drugo mjesto.
 
-Claude Code šalje prilagođena zaglavlja putem `ANTHROPIC_CUSTOM_HEADERS`. Dodajte ga u blok `env`
-datoteke `~/.claude/settings.json` ili u `.claude/settings.json` na razini projekta kako biste
-prikvačili drugi račun za svaki projekt:
+Claude kod šalje prilagođena zaglavlja kroz `ANTHROPIC_CUSTOM_HEADERS`. Stavite ga u `env` blok `~/.claude/settings.json`-a ili u `.claude/settings.json` na razini projekta da prikvačite drugi račun po projektu:
 
 ```jsonc
 {
@@ -133,12 +120,11 @@ prikvačili drugi račun za svaki projekt:
 }
 ```
 
-Izvor: `src/sse/handlers/chat.ts` (čitanje zaglavlja), `src/sse/services/auth.ts` i
-`src/sse/services/sessionAffinityPin.ts` (otpuštanje prikvačivanja i provjera nedostajanja u skupu).
+Izvor: `src/sse/handlers/chat.ts` (čitanje zaglavlja), `src/sse/services/auth.ts` i `src/sse/services/sessionAffinityPin.ts` (oslobađanje igle i provjera nedostatka iz skupa).
 
-> **Zaglavlja telemetrije troškova:** odgovori uspješnih zahtjeva bez streaminga također sadrže skup telemetrije troškova `X-OmniRoute-*` — `X-OmniRoute-Response-Cost` (USD, fiksno 10 decimala; `0.0000000000` za besplatno/neprocijenjeno), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit` i `X-OmniRoute-Fallback-Attempts` (samo kada je vrijednost > 0), kao i `X-OmniRoute-Request-Id` i `X-OmniRoute-Version`. Ta zaglavlja generiraju chat completions, `/v1/responses`, `/v1/messages` **i multimedijske krajnje točke** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations` i `/v1/moderations` (uvijek s troškom `0`). Trošak multimedije izračunava se po modalitetu (po slici, sekundi, znaku, jedinici pretraživanja) kada su cijene dostupne, a inače iznosi `0` (fail-open).
+> **Zaglavlja telemetrije troškova:** ne-streaming uspješni odgovori također nose `X-OmniRoute-*` troškovno-telemetrijski skup — `X-OmniRoute-Response-Cost` (USD, fiksnih 10 decimala; `0.0000000000` za free/unpriced), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit` i `X-OmniRoute-Fallback-Attempts` (samo kada > 0), plus `X-OmniRoute-Request-Id` i `X-OmniRoute-Version`. Emitiraju ih završeci chata, `/v1/responses`, `/v1/messages`,** i krajnje točke medija** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations` i `/v1/moderations` (uvijek košta `0`). Medijski trošak izračunava se po modalitetu (po slici, po sekundi, po karakteru, po jedinici pretraživanja) kada je cijena dostupna, inače `0` (otvaranje bez greške).
 
-> **Semantika troška pogotka predmemorije:** kod POGOTKA semantičke predmemorije (`X-OmniRoute-Cache-Hit: true`) ne upućuje se poziv prema uzvodnoj usluzi, pa je `X-OmniRoute-Response-Cost` `0.0000000000` (**inkrementalni** trošak posluživanja pogotka). Izvorni/stvarni trošak zasebno se prijavljuje u `X-OmniRoute-Cost-Saved`. Korisnici koji obračunavaju troškove trebali bi zbrajati `X-OmniRoute-Response-Cost` (pogoci ništa ne koštaju); analitika predmemorije može agregirati `X-OmniRoute-Cost-Saved`.
+> **Semantika troškova pogotka predmemorije:** na semantičkoj predmemoriji HIT (`X-OmniRoute-Cache-Hit: true`) nije napravljen uzvodni poziv, tako da je `X-OmniRoute-Response-Cost` `0.0000000000` (** inkrementalni** trošak serviranja pogotka). Trošak original/would-have-been zasebno se prijavljuje u `X-OmniRoute-Cost-Saved`. Potrošači naplate trebaju zbrojiti `X-OmniRoute-Response-Cost` (pogoci ne koštaju ništa); analitika predmemorije može agregirati `X-OmniRoute-Cost-Saved`.
 
 ## Ekskluzivni najmovi upravljanih sesija
 
@@ -373,6 +359,8 @@ Dostupni pružatelji usluga uključuju OpenAI (GPT slika 2), xAI (Grok slika), T
 
 `n` vraća `n` slike u `data[]`. Pružatelji čiji uzlazni API vraća jednu sliku po pozivu (Black Forest Labs, Stability AI, Leonardo, Ideogram, Haiper, Hyperbolic, Magnific/Freepik, NVIDIA NIM, Cloudflare radnici AI) dobivaju `n` zasebne uzlazne pozive, najviše 4 u toku. Fiksni `seed` pomaknut je indeksom poziva (`seed`, `seed + 1`, …), tako da se slike razlikuju, ali ostaju ponovljive. `n` je ograničen na 10. Zahtjev ne uspijeva u cjelini ako bilo koji poziv ne uspije. Popis fan-out formata je `SINGLE_IMAGE_FANOUT_FORMATS` u `open-sse/handlers/imageGeneration/fanOut.ts`.
 
+Codex GPT Modeli slika (`codex/gpt-image-*`) vraćaju samo PNG : uzvodno odgovara `200` sa PNG bajtovima čak i kada se traži `jpeg` ili `webp`. Zahtjev s bilo kojim drugim `output_format` (`webp`, `jpeg`, ...) odbija se s HTTP 400 umjesto da se tiho ignorira; izostavi ili pošalji `png`. `output_compression` se ne prosljeđuje.
+
 ZenMux ponovno koristi postojeću vezu API-ključa i prihvaća `zenmux/` ili `zm/` prefikse:
 
 - `zenmux/openai/gpt-image-2` koristi ZenMux-ove OpenAI slike API. Opcije uključuju `size`, `quality`, `n`, `output_format`, `output_compression`, `background` i `response_format`.
@@ -390,7 +378,7 @@ GET /v1/images/generations
 
 ---
 
-## OCR dokumenata
+## Dokument OCR
 
 ```bash
 POST /v1/ocr
@@ -406,18 +394,15 @@ Content-Type: application/json
 }
 ```
 
-`model` odabire OCR pružatelja putem prefiksa `provider/model`; samostalni ID modela (npr.
-`mistral-ocr-latest`) razrješava se na svog registriranog pružatelja, a ako se `model` izostavi,
-zadano se upotrebljava Mistral (`mistral-ocr-latest`). Registrirani pružatelji
-(`open-sse/config/ocrRegistry.ts`):
+`model` odabire OCR pružatelja putem `provider/model` prefiksa; ID golog modela (npr. `mistral-ocr-latest`) rješava svog registriranog pružatelja usluga, a izostavljeni `model` zadano je Mistral (`mistral-ocr-latest`). Registrirani pružatelji usluga (`open-sse/config/ocrRegistry.ts`):
 
-| ID pružatelja                 | ID modela            | Vrijednost `model`                                                 | Napomene                                                                                                                     |
-| ----------------------------- | -------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| `mistral`                     | `mistral-ocr-latest` | `mistral/mistral-ocr-latest` (ili samostalni `mistral-ocr-latest`) | Sinkrono — odgovor se vraća izravno iz jednog poziva prema višoj razini.                                                     |
-| `azure-document-intelligence` | `prebuilt-read`      | `azure-document-intelligence/prebuilt-read`                        | Asinkrono prema višoj razini (`analyze` + anketiranje) — pogledajte u nastavku.                                              |
-| `vertex-deepseek-ocr`         | `deepseek-ocr-maas`  | `vertex-deepseek-ocr/deepseek-ocr-maas`                            | Sinkrono, putem partnerske krajnje točke Vertex AI `openapi/chat/completions` — pojedinosti o autorizaciji/URL-u u nastavku. |
+| ID pružatelja usluga          | ID modela                                      | `model` vrijednost                                           | Bilješke                                                                                                                                                                                                                 |
+| ----------------------------- | ---------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `mistral`                     | `mistral-ocr-latest`                           | `mistral/mistral-ocr-latest` (ili goli `mistral-ocr-latest`) | Sinkroni — odgovor se vraća izravno iz jednog uzvodnog poziva.                                                                                                                                                           |
+| `azure-document-intelligence` | `prebuilt-read`                                | `azure-document-intelligence/prebuilt-read`                  | Asinkroni uzvodno (`analyze` + anketa) — vidi dolje.                                                                                                                                                                     |
+| `vertex-deepseek-ocr`         | samostalno postavljanje (bez ugrađenog modela) | `vertex-deepseek-ocr/<your-deployed-model-id>`               | Sinkrono, preko vaše vlastite krajnje točke Vertex AI Model Garden DeepSeek-OCR (`openapi/chat/completions` oblik); Google je povukao upravljani `deepseek-ocr-maas` 21. listopada 2026. (#20423), tako da id vraća 400. |
 
-Sva tri pružatelja odgovaraju tijelom istog oblika kao Mistral:
+Sva tri pružatelja odgovaraju u istom tijelu u obliku mistrala:
 
 ```json
 {
@@ -427,29 +412,13 @@ Sva tri pružatelja odgovaraju tijelom istog oblika kao Mistral:
 }
 ```
 
-### Tijek anketiranja za Azure Document Intelligence
+### Tijek ankete Azure Document Intelligence
 
-Azure Document Intelligence API `analyze` je asinkron: početni zahtjev vraća zaglavlje
-`Operation-Location` umjesto tijela, a rezultat se mora dohvatiti anketiranjem. Upravljač
-(`open-sse/handlers/ocr.ts`) anketira taj URL svake sekunde, najviše 30 puta, odmah prekida
-(ne nastavlja anketirati) nakon odgovora anketiranja koji nije `ok` ili statusa `"failed"`, te vraća
-`504` ako je operacija još uvijek u tijeku nakon iscrpljivanja predviđenog broja pokušaja. Završni
-odgovor Azurea normalizira se u isti oblik `pages`/`markdown` koji upotrebljava Mistral prije
-vraćanja pozivatelju, stoga klijentski kôd ne mora posebno obrađivati tog pružatelja.
+Azure Document Intelligence `analyze` API je asinkroni: početni zahtjev vraća `Operation-Location` zaglavlje umjesto tijela, a rezultat se mora tražiti. Rukovatelj (`open-sse/handlers/ocr.ts`) anketira taj URL svake sekunde do 30 pokušaja, brzo ne uspijeva (ne nastavlja anketu) na odgovor ankete koji nije `ok` ili status `"failed"` i vraća `504` ako se operacija još uvijek izvodi nakon što je proračun za pokušaj iscrpljen. Konačni odgovor Azurea normaliziran je u isti `pages`/`markdown` oblik koji koristi Mistral prije nego što se vrati pozivatelju, tako da kôd klijenta ne mora posebno označavati davatelja.
 
-### Autorizacija i razrješavanje krajnje točke za Vertex AI DeepSeek OCR
+### Vertex AI DeepSeek OCR auth i rezolucija krajnje točke
 
-`vertex-deepseek-ocr` ponovno upotrebljava istu Vertex AI autentikaciju koju OmniRoute već podržava
-za chat/slikovni promet (`open-sse/executors/vertex.ts`): API ključ veze jest ili vjerodajnica
-Service Account JSON (razmijenjena za kratkotrajni OAuth pristupni token putem tijeka
-JWT-bearer) ili već izdan OAuth pristupni token koji se upotrebljava nepromijenjen. URL krajnje
-točke prema višoj razini jest Vertexova generička partnerska krajnja točka
-`openapi/chat/completions`, izgrađena iz projekta i regije veze — eksplicitni
-`providerSpecificData.project`/`providerSpecificData.region` uvijek ima prednost;
-u suprotnom se projekt izvodi iz `project_id` JSON-a Service Accounta, a regija je zadano
-`us-central1`. Oba se razrješavanja odvijaju u `open-sse/handlers/ocr.ts`
-(`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`), a upotrebljava ih
-`src/app/api/v1/ocr/route.ts` prije prosljeđivanja u `handleOcr`.
+`vertex-deepseek-ocr` ponovno koristi istu Vertex AI provjeru autentičnosti OmniRoute već podržava za chat/image promet (`open-sse/executors/vertex.ts`): API ključ veze je ili JSON vjerodajnica Servisnog računa (razmijenjena za kratkotrajni OAuth pristupni token putem toka JWT-nositelja) ili već iskovan OAuth pristupni token koji se koristi takav kakav jest. Uzvodna krajnja točka URL je Vertexova generička krajnja točka `openapi/chat/completions` partnera, izgrađena od projekta veze i regije — eksplicitni `providerSpecificData.project`/`providerSpecificData.region` uvijek pobjeđuje; inače je projekt izveden iz računa usluge JSON `project_id` i regija je zadana na `us-central1`. Obje se rezolucije događaju u `open-sse/handlers/ocr.ts` (`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`), konzumira `src/app/api/v1/ocr/route.ts` prije slanja u `handleOcr`.
 
 ---
 

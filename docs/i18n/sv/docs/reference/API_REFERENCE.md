@@ -49,7 +49,7 @@ Varje distribution tillhandahåller sin egen kopia av specifikationen på `/open
 
 ---
 
-## Chat Completion-anrop
+## Chattavslut
 
 ```bash
 POST /v1/chat/completions
@@ -65,35 +65,34 @@ Content-Type: application/json
 }
 ```
 
-### Anpassade headers
+### Anpassade rubriker
 
-| Header                   | Riktning  | Beskrivning                                                                                                                                                                                                          |
-| ------------------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `X-OmniRoute-No-Cache`   | Förfrågan | Ange `true` för att kringgå cache                                                                                                                                                                                    |
-| `x-omniroute-no-memory`  | Förfrågan | Ange `true` för att hoppa över injicering av minne + färdigheter för denna förfrågan (speglar no-cache; undviker token-/kostnadsomkostnaden per anrop)                                                               |
-| `X-OmniRoute-Progress`   | Förfrågan | Ange `true` för förloppshändelser                                                                                                                                                                                    |
-| `X-Session-Id`           | Förfrågan | Klistrad sessionsnyckel för extern sessionsaffinitet                                                                                                                                                                 |
-| `x_session_id`           | Förfrågan | Understrecksvariant accepteras också (direkt HTTP)                                                                                                                                                                   |
-| `X-OmniRoute-Session-Id` | Förfrågan | Sessions-/konversationstagg som anges av anroparen (matas även till minnet). När den finns sparas den ordagrant i `call_logs.session_tag` för kostnadsattribuering per session (#8249) — skapas aldrig om den saknas |
-| `Idempotency-Key`        | Förfrågan | Deduplikationsnyckel (5 sekunders fönster)                                                                                                                                                                           |
-| `X-Request-Id`           | Förfrågan | Alternativ dedupliceringsnyckel                                                                                                                                                                                      |
-| `x-omniroute-connection` | Förfrågan | Fäst en förfrågan med en enda modell till en leverantörsanslutning (ett konto) med dess id — se [Kontofästning per förfrågan](#account-pinning-per-request)                                                          |
-| `X-OmniRoute-Cache`      | Svar      | `HIT` eller `MISS` (ej strömmande)                                                                                                                                                                                   |
-| `X-OmniRoute-Idempotent` | Svar      | `true` om deduplicerad                                                                                                                                                                                               |
-| `X-OmniRoute-Progress`   | Svar      | `enabled` om förloppsspårning är aktiverad                                                                                                                                                                           |
-| `X-OmniRoute-Session-Id` | Svar      | Effektivt sessions-ID som används av OmniRoute                                                                                                                                                                       |
-| `X-OmniRoute-Request-Id` | Svar      | Korrelations-ID för förfrågan (när det är känt)                                                                                                                                                                      |
-| `X-OmniRoute-Version`    | Svar      | OmniRoutes byggversion (alltid närvarande)                                                                                                                                                                           |
-| `X-OmniRoute-Cost-Saved` | Svar      | USD som cachen sparade in vid en HIT (endast cacheträffar)                                                                                                                                                           |
-| `X-OmniRoute-Decision`   | Svar      | Routningsspårning: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` är den kombinerade strategin, eller `single` för en förfrågan som inte är kombinerad) — alltid närvarande i slutförandesvar         |
+| Rubrik                   | Riktning | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `X-OmniRoute-No-Cache`   | Begäran  | Ställ in på `true` för att kringgå cache                                                                                                                                                                                                                                                                                                                                                          |
+| `x-omniroute-no-memory`  | Begäran  | Ställ in på `true` för att hoppa över minnes- + -kunskapsinjektion för denna begäran (speglar ingen cache; undviker token/cost overhead per anrop)                                                                                                                                                                                                                                                |
+| `x-omniroute-no-log`     | Begäran  | Ställ in på `true` för att utelämna request/response nyttolaster från samtalsloggar för denna slutledningsbegäran (alla chattfamiljens rutter: Chattavslut, svar, meddelanden, slutföranden, Gemini). Tidsstämpel, modell, status, varaktighet och antal token registreras fortfarande. Kombinera med `x-omniroute-no-memory` och `x-omniroute-no-cache` för att välja bort fullständigt innehåll |
+| `X-OmniRoute-Progress`   | Begäran  | Ställ in på `true` för framstegshändelser                                                                                                                                                                                                                                                                                                                                                         |
+| `X-Session-Id`           | Begäran  | Klibbig sessionsnyckel för extern sessionsaffinitet                                                                                                                                                                                                                                                                                                                                               |
+| `x_session_id`           | Begäran  | Understrecksvariant accepteras också (direkt HTTP)                                                                                                                                                                                                                                                                                                                                                |
+| `X-OmniRoute-Session-Id` | Begäran  | session/conversation -tagg som tillhandahålls av den som ringer (matar också minne). När det finns, kvarstår ordagrant till `call_logs.session_tag` för kostnadstillskrivning per session (#8249) — syntetiseras aldrig när den är frånvarande                                                                                                                                                    |
+| `Idempotency-Key`        | Begäran  | Dedup-nyckel (5s fönster)                                                                                                                                                                                                                                                                                                                                                                         |
+| `X-Request-Id`           | Begäran  | Alternativ dedup-nyckel                                                                                                                                                                                                                                                                                                                                                                           |
+| `x-omniroute-connection` | Begäran  | Fäst en begäran av en enda modell till en leverantörsanslutning (konto) med dess id — se [Kontonålning per begäran](#account-pinning-per-request)                                                                                                                                                                                                                                                 |
+| `X-OmniRoute-Cache`      | Svar     | `HIT` eller `MISS` (icke-streaming)                                                                                                                                                                                                                                                                                                                                                               |
+| `X-OmniRoute-Idempotent` | Svar     | `true` om dedupliceras                                                                                                                                                                                                                                                                                                                                                                            |
+| `X-OmniRoute-Progress`   | Svar     | `enabled` om framstegsspårning på                                                                                                                                                                                                                                                                                                                                                                 |
+| `X-OmniRoute-Session-Id` | Svar     | Effektiv session ID som används av OmniRoute                                                                                                                                                                                                                                                                                                                                                      |
+| `X-OmniRoute-Request-Id` | Svar     | Begär korrelations-id (när känt)                                                                                                                                                                                                                                                                                                                                                                  |
+| `X-OmniRoute-Version`    | Svar     | OmniRoute byggversion (alltid närvarande)                                                                                                                                                                                                                                                                                                                                                         |
+| `X-OmniRoute-Cost-Saved` | Svar     | USD cachen undviks på en HIT (endast cacheträffar)                                                                                                                                                                                                                                                                                                                                                |
+| `X-OmniRoute-Decision`   | Svar     | Routningsspårning: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` är kombinationsstrategin, eller `single` för en icke-kombinationsförfrågan) — finns alltid när svaren är klara                                                                                                                                                                                                   |
 
-> Nginx-anteckning: om du förlitar dig på headers med understreck (till exempel `x_session_id`), aktivera `underscores_in_headers on;`.
+> Nginx-notering: om du förlitar dig på understrecksrubriker (till exempel `x_session_id`), aktivera `underscores_in_headers on;`.
 
-#### Kontofästning per förfrågan
+#### Kontonålning per begäran
 
-När en leverantör har flera anslutningar (konton eller nycklar) väljer OmniRoute normalt en
-genom sin strategi för kontoval. En förfrågan kan i stället fästa en specifik anslutning
-med headern `x-omniroute-connection`:
+När en leverantör har flera anslutningar (konton eller nycklar), väljer OmniRoute normalt en genom sin kontovalsstrategi. En begäran kan istället fästa en specifik anslutning med `x-omniroute-connection` huvudet:
 
 ```bash
 curl http://localhost:20128/v1/chat/completions \
@@ -103,25 +102,13 @@ curl http://localhost:20128/v1/chat/completions \
   -d '{"model": "codex/gpt-5.5", "messages": [{"role": "user", "content": "hi"}]}'
 ```
 
-- **Var du hittar id:t.** Öppna leverantörssidan i instrumentpanelen
-  (**Dashboard → Providers → <provider>**) och klicka på id-chipet `xxxxxxxx…` på en anslutningsrad —
-  då kopieras hela anslutnings-id:t.
-- **Vilka begäranden som använder det.** Begäranden för en enskild modell (`provider/model`) på
-  `/v1/chat/completions`, `/v1/messages` och `/v1/responses`. Kombinationer ignorerar huvudet: fäst
-  ett konto per steg i kombinationen genom stegets egen anslutning i stället.
-- **Fästningen är strikt, inte en preferens.** Den fästa anslutningen används uteslutande. Ett
-  fel under begäran registrerar kontots nedkylningsperiod men växlar **inte** till ett
-  syskonkonto hos samma leverantör.
-- **Nedkylning och kvot frigör fästningen.** Medan den fästa anslutningen är under nedkylning,
-  kvoten är förbrukad eller anslutningen blockeras av en kvotpolicy, faller senare begäranden
-  tillbaka på leverantörens övriga anslutningar, precis som ej fästad trafik.
-- **Okända eller inaktiverade id:n misslyckas.** Ett id som inte finns i leverantörens aktiva pool
-  (borttaget, inaktiverat eller tillhörande en annan leverantör) lämnar inget behörigt konto, så
-  begäran misslyckas i stället för att tyst dirigeras någon annanstans.
+- **Var hittar man id.** Öppna leverantörssidan i instrumentpanelen (** Instrumentpanel → leverantörer → <provider>** ) och klicka på `xxxxxxxx…` -id-chippet på en anslutningsrad — det kopierar hela anslutnings-id.
+- **Vilka önskemål hedrar det.** Enkelmodellförfrågningar (`provider/model`) på `/v1/chat/completions`, `/v1/messages` och `/v1/responses`. Combos ignorerar rubriken: fäst ett konto per kombinationssteg genom stegets egen anslutning istället.
+- **Nålen är strikt, inte en preferens.** Den stiftade anslutningen används uteslutande. Ett fel i begäran registrerar kontots nedkylning men gör det** inte** rotera till ett syskonkonto hos samma leverantör.
+- **Cooldown och kvot släpper stiftet.** Medan den fästa anslutningen kyls ner, kvoten förbrukas eller blockeras av en kvotpolicy, faller senare förfrågningar tillbaka till leverantörens andra anslutningar, precis som opålad trafik.
+- **Okända eller inaktiverade ID misslyckas.** Ett id som inte finns i leverantörens aktiva pool (raderad, inaktiverad eller tillhör en annan leverantör) lämnar inget kvalificerat konto, så begäran misslyckas istället för att tyst dirigera någon annanstans.
 
-Claude Code skickar anpassade huvuden via `ANTHROPIC_CUSTOM_HEADERS`. Lägg det i blocket `env`
-i `~/.claude/settings.json`, eller i ett projektnivåspecifikt `.claude/settings.json` för att
-fästa ett annat konto per projekt:
+Claude Code skickar anpassade rubriker genom `ANTHROPIC_CUSTOM_HEADERS`. Lägg det i `env` blocket i `~/.claude/settings.json`, eller i en `.claude/settings.json` på projektnivå för att fästa ett annat konto per projekt:
 
 ```jsonc
 {
@@ -133,12 +120,11 @@ fästa ett annat konto per projekt:
 }
 ```
 
-Källa: `src/sse/handlers/chat.ts` (läsning av huvud), `src/sse/services/auth.ts` och
-`src/sse/services/sessionAffinityPin.ts` (frigörande av fästning och kontrollen av om anslutningen saknas i poolen).
+Källa: `src/sse/handlers/chat.ts` (header read), `src/sse/services/auth.ts` och `src/sse/services/sessionAffinityPin.ts` (pin release and the missing-from-pool check).
 
-> **Kostnadstelemetrihuvuden:** lyckade svar som inte strömmas innehåller också uppsättningen `X-OmniRoute-*` för kostnadstelemetri — `X-OmniRoute-Response-Cost` (USD, exakt 10 decimaler; `0.0000000000` för kostnadsfria/prislösa), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit` och `X-OmniRoute-Fallback-Attempts` (endast när > 0), samt `X-OmniRoute-Request-Id` och `X-OmniRoute-Version`. Dessa skickas av chat completions, `/v1/responses`, `/v1/messages` **och medieendpoints** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations` och `/v1/moderations` (alltid med kostnaden `0`). Mediekostnaden beräknas per modalitet (per bild, per sekund, per tecken, per sökenhet) när prissättning är tillgänglig, annars `0` (fail-open).
+> **Cost telemetry headers:** non-streaming success responses also carry the `X-OmniRoute-*` cost-telemetry set — `X-OmniRoute-Response-Cost` (USD, fixed 10 decimals; `0.0000000000` for free/unpriced), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit`, and `X-OmniRoute-Fallback-Attempts` (only when > 0), plus `X-OmniRoute-Request-Id` and `X-OmniRoute-Version`. These are emitted by chat completions, `/v1/responses`, `/v1/messages`, **and the media endpoints** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations`, and `/v1/moderations` (always cost `0`). Media cost is computed per modality (per-image, per-second, per-character, per search-unit) when pricing is available, otherwise `0` (fail-open).
 
-> **Semantiken för kostnad vid cacheträff:** vid en HIT i den semantiska cachen (`X-OmniRoute-Cache-Hit: true`) görs inget anrop uppströms, så `X-OmniRoute-Response-Cost` är `0.0000000000` (den **inkrementella** kostnaden för att leverera träffen). Den ursprungliga kostnaden/kostnaden som skulle ha uppstått rapporteras separat i `X-OmniRoute-Cost-Saved`. Faktureringskonsumenter bör summera `X-OmniRoute-Response-Cost` (träffar kostar inget); cacheanalyser kan aggregera `X-OmniRoute-Cost-Saved`.
+> **Cache-hit kostnad semantik:** på en semantisk cache HIT (`X-OmniRoute-Cache-Hit: true`) görs inget uppströmsanrop, så `X-OmniRoute-Response-Cost` är `0.0000000000` (den** inkrementell** kostnaden för att servera träffen). original/would-have-been kostnaden redovisas separat i `X-OmniRoute-Cost-Saved`. Fakturerande konsumenter bör summera `X-OmniRoute-Response-Cost` (träffar kostar ingenting); cacheanalys kan aggregera `X-OmniRoute-Cost-Saved`.
 
 ## Exklusiva hanterade sessionslån
 
@@ -376,7 +362,9 @@ Content-Type: application/json
 
 Tillgängliga leverantörer inkluderar OpenAI (GPT Image 2), xAI (Grok Image), Together AI (FLUX), Fireworks AI, Nebius (FLUX), Hyperbolic, NanoBanana,**OpenRouter** ,**ZenMux** , SD WebUI (lokal), ComfyUI (lokal).
 
-`n` returnerar `n` bilder i `data[]`. Leverantörer vars uppströms API returnerar en bild per samtal (Black Forest Labs, Stability AI, Leonardo, Ideogram, Haiper, Hyperbolic, Magnific/Freepik, NVIDIA NIM, Cloudflare Workers AI) får `n` separata uppströmssamtal, högst 4 under flygning. En fast `seed` kompenseras av anropsindex (`seed`, `seed + 1`, …), så bilderna skiljer sig men förblir reproducerbara. `n` är begränsat till 10. Begäran misslyckas som helhet om något samtal misslyckas. Listan över fan-out-format är `SINGLE_IMAGE_FANOUT_FORMATS` i `open-sse/handlers/imageGeneration/fanOut.ts`.
+`n` returnerar `n` bilder i `data[]`. Leverantörer vars uppströms API returnerar en bild per samtal (Black Forest Labs, Stability AI, Leonardo, Ideogram, Haiper, Hyperbolic, Magnific/Freepik, NVIDIA NIM, Cloudflare Workers AI) får `n` separata uppströmssamtal, högst 4 under flygning. En fast `seed` kompenseras av anropsindex (`seed`, `seed + 1`, ...), så bilderna skiljer sig men förblir reproducerbara. `n` är begränsat till 10. Begäran misslyckas som helhet om något samtal misslyckas. Listan över fan-out-format är `SINGLE_IMAGE_FANOUT_FORMATS` i `open-sse/handlers/imageGeneration/fanOut.ts`.
+
+Codex GPT Bildmodeller (`codex/gpt-image-*`) returnerar endast PNG : uppströms svarar `200` med PNG byte även när `jpeg` eller `webp` begärs. En begäran med någon annan `output_format` (`webp`, `jpeg`, ...) avvisas med HTTP 400 istället för att ignoreras tyst; utelämna det eller skicka `png`. `output_compression` vidarebefordras inte.
 
 ZenMux återanvänder den befintliga API-nyckelanslutningen och accepterar `zenmux/` eller `zm/` prefix:
 
@@ -395,7 +383,7 @@ GET /v1/images/generations
 
 ---
 
-## Dokument-OCR
+## Dokument OCR
 
 ```bash
 POST /v1/ocr
@@ -411,17 +399,15 @@ Content-Type: application/json
 }
 ```
 
-`model` väljer OCR-leverantören via ett `provider/model`-prefix; ett fristående modell-ID (t.ex.
-`mistral-ocr-latest`) matchas mot sin registrerade leverantör, och om `model` utelämnas används
-Mistral som standard (`mistral-ocr-latest`). Registrerade leverantörer (`open-sse/config/ocrRegistry.ts`):
+`model` väljer OCR leverantören via ett `provider/model` prefix; ett blott modell-id (t.ex. `mistral-ocr-latest`) löser sig till dess registrerade leverantör, och en utelämnad `model` är som standard Mistral (`mistral-ocr-latest`). Registrerade leverantörer (`open-sse/config/ocrRegistry.ts`):
 
-| Leverantörs-ID                | Modell-ID            | Värdet för `model`                                                   | Anmärkningar                                                                                           |
-| ----------------------------- | -------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `mistral`                     | `mistral-ocr-latest` | `mistral/mistral-ocr-latest` (eller fristående `mistral-ocr-latest`) | Synkront — svaret returneras direkt från det enda uppströmsanropet.                                    |
-| `azure-document-intelligence` | `prebuilt-read`      | `azure-document-intelligence/prebuilt-read`                          | Asynkront uppströms (`analyze` + polling) — se nedan.                                                  |
-| `vertex-deepseek-ocr`         | `deepseek-ocr-maas`  | `vertex-deepseek-ocr/deepseek-ocr-maas`                              | Synkront via Vertex AIs partner-slutpunkt `openapi/chat/completions` — se nedan för autentisering/URL. |
+| Leverantörs-id                | Modell-id                              | `model` värde                                                     | Anteckningar                                                                                                                                                                                            |
+| ----------------------------- | -------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mistral`                     | `mistral-ocr-latest`                   | `mistral/mistral-ocr-latest` (eller blottad `mistral-ocr-latest`) | Synkront — returneras svaret direkt från det enda uppströmsanropet.                                                                                                                                     |
+| `azure-document-intelligence` | `prebuilt-read`                        | `azure-document-intelligence/prebuilt-read`                       | Asynkron uppströms (`analyze` + poll) — se nedan.                                                                                                                                                       |
+| `vertex-deepseek-ocr`         | självutplacerad (ingen inbyggd modell) | `vertex-deepseek-ocr/<your-deployed-model-id>`                    | Synkron, via din egen Vertex AI Model Garden DeepSeek-OCR-ändpunkt (`openapi/chat/completions` -form); Google tog bort den hanterade `deepseek-ocr-maas` 2026-10-21 (#20423), så att id returnerar 400. |
 
-Alla tre leverantörer svarar med samma Mistral-formade svar:
+Alla tre leverantörerna svarar i samma Mistral-formade kropp:
 
 ```json
 {
@@ -431,29 +417,13 @@ Alla tre leverantörer svarar med samma Mistral-formade svar:
 }
 ```
 
-### Pollningsflöde för Azure Document Intelligence
+### Azure Document Intelligence enkätflöde
 
-Azure Document Intelligences `analyze`-API är asynkront: den första begäran returnerar ett
-`Operation-Location`-huvud i stället för en svarstext, och resultatet måste hämtas genom polling.
-Hanteraren (`open-sse/handlers/ocr.ts`) pollar den URL:en varje sekund i upp till 30 försök,
-avslutar direkt (fortsätter inte att polla) vid ett pollningssvar som inte är `ok` eller vid statusen
-`"failed"`, och returnerar `504` om åtgärden fortfarande körs efter att försöksbudgeten har
-förbrukats. Det slutliga Azure-svaret normaliseras till samma `pages`/`markdown`-form som används
-av Mistral innan det returneras till anroparen, så klientkod behöver inte hantera leverantören
-särskilt.
+Azure Document Intelligences `analyze` API är asynkron: den initiala begäran returnerar en `Operation-Location` rubrik istället för en brödtext, och resultatet måste efterfrågas. Hanteraren (`open-sse/handlers/ocr.ts`) pollar som URL varje sekund i upp till 30 försök, misslyckas snabbt (fortsätter inte polling) på ett icke-`ok` poll-svar eller en `"failed"` -status och returnerar `504` om operationen fortfarande körs efter att försöksbudgeten är förbrukad. Det slutliga Azure-svaret normaliseras till samma `pages`/`markdown` form som används av Mistral innan det returneras till den som ringer, så klientkoden behöver inte specialanpassa leverantören.
 
-### Autentisering och slutpunktsupplösning för Vertex AI DeepSeek OCR
+### Vertex AI DeepSeek OCR auth och endpoint resolution
 
-`vertex-deepseek-ocr` återanvänder samma Vertex AI-autentisering som OmniRoute redan stöder för
-chatt-/bildtrafik (`open-sse/executors/vertex.ts`): anslutningens API-nyckel är antingen en
-Service Account JSON-uppgift (som byts mot en kortlivad OAuth-åtkomsttoken via JWT-bearer-flödet)
-eller en redan utfärdad OAuth-åtkomsttoken som används som den är. URL:en till uppströms-slutpunkten
-är Vertex generiska partner-slutpunkt `openapi/chat/completions`, konstruerad från anslutningens
-projekt och region — en explicit `providerSpecificData.project`/`providerSpecificData.region` gäller
-alltid; annars härleds projektet från Service Account JSON-fältet `project_id` och regionen
-förinställs till `us-central1`. Båda upplösningarna sker i `open-sse/handlers/ocr.ts`
-(`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`) och används av
-`src/app/api/v1/ocr/route.ts` innan vidarebefordran till `handleOcr`.
+`vertex-deepseek-ocr` återanvänder samma Vertex AI -autentisering OmniRoute redan stöder för chat/image trafik (`open-sse/executors/vertex.ts`): anslutningens API nyckel är antingen en tjänstekonto JSON -referens (utbytad mot en kortlivad OAuth åtkomsttoken via JWT-bärarflödet) eller en redan skapad OAuth -åtkomsttoken. Uppströmsändpunkten URL är Vertex generiska `openapi/chat/completions` partnerslutpunkt, byggd från anslutningens projekt och region — en explicit `providerSpecificData.project`/`providerSpecificData.region` vinner alltid; annars härleds projektet från servicekontot JSON `project_id` och regionen är som standard `us-central1`. Båda upplösningarna sker i `open-sse/handlers/ocr.ts` (`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`), förbrukade av `src/app/api/v1/ocr/route.ts` innan de skickas till `handleOcr`.
 
 ---
 

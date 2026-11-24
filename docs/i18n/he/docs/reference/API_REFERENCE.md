@@ -49,7 +49,7 @@
 
 ---
 
-## השלמות צ'אט
+## השלמת צ'אט
 
 ```bash
 POST /v1/chat/completions
@@ -67,33 +67,32 @@ Content-Type: application/json
 
 ### כותרות מותאמות אישית
 
-| Header                   | כיוון | תיאור                                                                                                                                                                                      |
-| ------------------------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `X-OmniRoute-No-Cache`   | בקשה  | יש להגדיר ל־`true` כדי לעקוף את המטמון                                                                                                                                                     |
-| `x-omniroute-no-memory`  | בקשה  | יש להגדיר ל־`true` כדי לדלג על הזרקת זיכרון + מיומנויות עבור בקשה זו (משקף את no-cache; מונע את התקורה של אסימונים/עלות בכל קריאה)                                                         |
-| `X-OmniRoute-Progress`   | בקשה  | יש להגדיר ל־`true` עבור אירועי התקדמות                                                                                                                                                     |
-| `X-Session-Id`           | בקשה  | מפתח סשן דביק עבור זיקה לסשן חיצוני                                                                                                                                                        |
-| `x_session_id`           | בקשה  | גם גרסת הקו התחתון מתקבלת (HTTP ישיר)                                                                                                                                                      |
-| `X-OmniRoute-Session-Id` | בקשה  | תג סשן/שיחה שסופק על ידי הקורא (מוזן גם לזיכרון). כאשר הוא קיים, הוא נשמר כפי שהוא ב־`call_logs.session_tag` לצורך ייחוס עלויות לכל סשן (#8249) — לעולם לא נוצר באופן מלאכותי כאשר הוא חסר |
-| `Idempotency-Key`        | בקשה  | מפתח למניעת כפילויות (חלון של 5 שניות)                                                                                                                                                     |
-| `X-Request-Id`           | בקשה  | מפתח חלופי למניעת כפילויות                                                                                                                                                                 |
-| `x-omniroute-connection` | בקשה  | הצמדת בקשה למודל יחיד לחיבור ספק אחד (חשבון) לפי המזהה שלו — ראו [הצמדת חשבון לכל בקשה](#account-pinning-per-request)                                                                      |
-| `X-OmniRoute-Cache`      | תגובה | `HIT` או `MISS` (ללא הזרמה)                                                                                                                                                                |
-| `X-OmniRoute-Idempotent` | תגובה | `true` אם בוצע סילוק כפילויות                                                                                                                                                              |
-| `X-OmniRoute-Progress`   | תגובה | `enabled` אם מעקב ההתקדמות פעיל                                                                                                                                                            |
-| `X-OmniRoute-Session-Id` | תגובה | מזהה הסשן האפקטיבי שבו השתמש OmniRoute                                                                                                                                                     |
-| `X-OmniRoute-Request-Id` | תגובה | מזהה תיאום הבקשה (כאשר ידוע)                                                                                                                                                               |
-| `X-OmniRoute-Version`    | תגובה | גרסת הבנייה של OmniRoute (תמיד קיים)                                                                                                                                                       |
-| `X-OmniRoute-Cost-Saved` | תגובה | סכום בדולר ארה״ב שהמטמון חסך ב־HIT (להיטי מטמון בלבד)                                                                                                                                      |
-| `X-OmniRoute-Decision`   | תגובה | מעקב ניתוב: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` הוא אסטרטגיית השילוב, או `single` עבור בקשה שאינה משולבת) — תמיד קיים בתגובות השלמה                              |
+| כּוֹתֶרֶת                | כיוון     | תֵאוּר                                                                                                                                                                                                                                                                                                  |
+| ------------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `X-OmniRoute-No-Cache`   | בַּקָשָׁה | הגדר ל- `true` כדי לעקוף את המטמון                                                                                                                                                                                                                                                                      |
+| `x-omniroute-no-memory`  | בַּקָשָׁה | הגדר ל- `true` כדי לדלג על הזרקת מיומנויות + בזיכרון עבור בקשה זו (משקף ללא מטמון; נמנע מתקורה token/cost לכל קריאה)                                                                                                                                                                                    |
+| `x-omniroute-no-log`     | בַּקָשָׁה | הגדר ל- `true` כדי להשמיט את עומסי request/response מיומני השיחות עבור בקשת ההסקה הזו (כל מסלולי הצ'אט-משפחתיים: השלמות צ'אט, תגובות, הודעות, השלמות, Gemini). חותמת זמן, דגם, סטטוס, משך וספירת אסימונים עדיין נרשמות. שלב עם `x-omniroute-no-memory` ו- `x-omniroute-no-cache` לביטול הסכמה מלא לתוכן |
+| `X-OmniRoute-Progress`   | בַּקָשָׁה | הגדר ל- `true` עבור אירועי התקדמות                                                                                                                                                                                                                                                                      |
+| `X-Session-Id`           | בַּקָשָׁה | מפתח הפעלה דביק עבור זיקה להפעלה חיצונית                                                                                                                                                                                                                                                                |
+| `x_session_id`           | בַּקָשָׁה | ניתן לקבל גם וריאנט קו תחתון (ישיר HTTP)                                                                                                                                                                                                                                                                |
+| `X-OmniRoute-Session-Id` | בַּקָשָׁה | תג session/conversation שסופק על ידי המתקשר (מזין גם זיכרון). כאשר קיים, נמשך מילה במילה ל- `call_logs.session_tag` עבור ייחוס עלות לכל הפעלה (#8249) — מעולם לא סונתז כאשר נעדר                                                                                                                        |
+| `Idempotency-Key`        | בַּקָשָׁה | מפתח Dedup (חלון של 5 שניות)                                                                                                                                                                                                                                                                            |
+| `X-Request-Id`           | בַּקָשָׁה | מפתח שחרור חלופי                                                                                                                                                                                                                                                                                        |
+| `x-omniroute-connection` | בַּקָשָׁה | הצמד בקשה של דגם יחיד לחיבור ספק אחד (חשבון) לפי המזהה שלו — ראה [הצמדת חשבון לכל בקשה](#account-pinning-per-request)                                                                                                                                                                                   |
+| `X-OmniRoute-Cache`      | תְגוּבָה  | `HIT` או `MISS` (לא סטרימינג)                                                                                                                                                                                                                                                                           |
+| `X-OmniRoute-Idempotent` | תְגוּבָה  | `true` אם נמחק כפילות                                                                                                                                                                                                                                                                                   |
+| `X-OmniRoute-Progress`   | תְגוּבָה  | `enabled` אם מעקב ההתקדמות פועל                                                                                                                                                                                                                                                                         |
+| `X-OmniRoute-Session-Id` | תְגוּבָה  | Session ID יעיל בשימוש על ידי OmniRoute                                                                                                                                                                                                                                                                 |
+| `X-OmniRoute-Request-Id` | תְגוּבָה  | מזהה מתאם בקשה (כאשר ידוע)                                                                                                                                                                                                                                                                              |
+| `X-OmniRoute-Version`    | תְגוּבָה  | גרסת OmniRoute build (תמיד קיימת)                                                                                                                                                                                                                                                                       |
+| `X-OmniRoute-Cost-Saved` | תְגוּבָה  | USD המטמון נמנע ב- HIT (התאמות של המטמון בלבד)                                                                                                                                                                                                                                                          |
+| `X-OmniRoute-Decision`   | תְגוּבָה  | מעקב ניתוב: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` היא האסטרטגיה המשולבת, או `single` עבור בקשה שאינה משולבת) — קיים תמיד בתגובות ההשלמה                                                                                                                                         |
 
-> הערת Nginx: אם אתם מסתמכים על כותרות עם קווים תחתונים (לדוגמה `x_session_id`), הפעילו `underscores_in_headers on;`.
+> הערה Nginx: אם אתה מסתמך על כותרות קו תחתון (לדוגמה `x_session_id`), הפעל `underscores_in_headers on;`.
 
-#### הצמדת חשבון לכל בקשה
+#### הצמדת חשבון לפי בקשה
 
-כאשר לספק יש כמה חיבורים (חשבונות או מפתחות), OmniRoute בוחר בדרך כלל אחד מהם
-באמצעות אסטרטגיית בחירת החשבון שלו. בקשה יכולה במקום זאת להצמיד חיבור ספציפי אחד
-באמצעות הכותרת `x-omniroute-connection`:
+כאשר לספק יש מספר חיבורים (חשבונות או מפתחות), בדרך כלל OmniRoute בוחר אחד באמצעות אסטרטגיית בחירת החשבון שלו. בקשה יכולה במקום זאת להצמיד חיבור אחד ספציפי עם הכותרת `x-omniroute-connection` :
 
 ```bash
 curl http://localhost:20128/v1/chat/completions \
@@ -103,24 +102,13 @@ curl http://localhost:20128/v1/chat/completions \
   -d '{"model": "codex/gpt-5.5", "messages": [{"role": "user", "content": "hi"}]}'
 ```
 
-- **היכן למצוא את המזהה.** פתחו את דף הספק בלוח הבקרה
-  (**לוח הבקרה → ספקים → <provider>**) ולחצו על שבב המזהה `xxxxxxxx…` בשורת חיבור —
-  הפעולה מעתיקה את מזהה החיבור המלא.
-- **אילו בקשות מכבדות אותו.** בקשות של מודל יחיד (`provider/model`) אל
-  `/v1/chat/completions`, `/v1/messages` ו-`/v1/responses`. קומבינציות מתעלמות מהכותרת: הצמידו
-  חשבון לכל שלב בקומבינציה באמצעות החיבור של אותו שלב.
-- **ההצמדה מחייבת, ואינה העדפה.** החיבור המוצמד נמצא בשימוש בלעדי. כשל בתוך הבקשה מתעד
-  את תקופת הצינון של החשבון, אך אינו עובר לחשבון מקביל של אותו ספק.
-- **תקופת צינון ומכסה משחררות את ההצמדה.** בזמן שהחיבור המוצמד נמצא בתקופת צינון,
-  המכסה נוצלה או שהחיבור נחסם על ידי מדיניות מכסה, בקשות מאוחרות יותר חוזרות לחיבורים
-  האחרים של הספק, בדיוק כמו תעבורה ללא הצמדה.
-- **מזהים לא מוכרים או מושבתים נכשלים.** מזהה שאינו נמצא במאגר הפעיל של הספק (נמחק,
-  הושבת או שייך לספק אחר) אינו משאיר חשבון כשיר, ולכן הבקשה נכשלת במקום להיות מנותבת
-  בשקט למקום אחר.
+- **היכן למצוא את המזהה.** פתח את דף הספק בלוח המחוונים (** לוח מחוונים → ספקי → <provider>** ) ולחץ על שבב `xxxxxxxx…` id בשורת חיבור — זה מעתיק את מזהה החיבור המלא.
+- **אילו בקשות מכבדות אותו.** בקשות של דגם יחיד (`provider/model`) ב- `/v1/chat/completions`, `/v1/messages` ו- `/v1/responses`. שילובים מתעלמים מהכותרת: הצמד חשבון לכל שלב משולב דרך החיבור של השלב עצמו במקום זאת.
+- **הסיכה קפדנית, לא העדפה.** נעשה שימוש בלעדי בחיבור המוצמד. כשל בתוך הבקשה מתעד את התקררות החשבון אבל עושה זאת** לֹא** לסובב לחשבון אח של אותו ספק.
+- **קירור ומכסה משחררים את הסיכה.** בזמן שהחיבור המוצמד מתקרר, מיצה את המכסה או נחסם על ידי מדיניות מכסה, בקשות מאוחרות יותר נופלות בחזרה לחיבורים האחרים של הספק, בדיוק כמו תעבורה לא מוצמדת.
+- **מזהים לא ידועים או מושבתים נכשלים.** מזהה שאינו נמצא במאגר הפעיל של הספק (נמחק, מושבת או שייך לספק אחר) לא משאיר חשבון כשיר, כך שהבקשה נכשלת במקום לנתב בשקט למקום אחר.
 
-Claude Code שולח כותרות מותאמות אישית דרך `ANTHROPIC_CUSTOM_HEADERS`. יש למקם אותו בבלוק
-`env` של `~/.claude/settings.json`, או בקובץ `.claude/settings.json` ברמת הפרויקט כדי להצמיד
-חשבון אחר לכל פרויקט:
+Claude Code שולח כותרות מותאמות אישית דרך `ANTHROPIC_CUSTOM_HEADERS`. שים אותו בבלוק `env` של `~/.claude/settings.json`, או ב- `.claude/settings.json` ברמת הפרויקט כדי להצמיד חשבון אחר לכל פרויקט:
 
 ```jsonc
 {
@@ -132,12 +120,11 @@ Claude Code שולח כותרות מותאמות אישית דרך `ANTHROPIC_CU
 }
 ```
 
-מקור: `src/sse/handlers/chat.ts` (קריאת הכותרת), `src/sse/services/auth.ts` ו-
-`src/sse/services/sessionAffinityPin.ts` (שחרור ההצמדה ובדיקת היעדרות מהמאגר).
+מקור: `src/sse/handlers/chat.ts` (קריאת כותרת), `src/sse/services/auth.ts` ו- `src/sse/services/sessionAffinityPin.ts` (שחרור פינים ובדיקת החסר מהבריכה).
 
-> **כותרות טלמטריית עלויות:** תגובות הצלחה שאינן בזרימה כוללות גם את קבוצת טלמטריית העלויות `X-OmniRoute-*` — `X-OmniRoute-Response-Cost` (בדולר ארה״ב, 10 ספרות עשרוניות קבועות; `0.0000000000` עבור תוכן חינמי/ללא מחיר), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit` ו-`X-OmniRoute-Fallback-Attempts` (רק כאשר הערך גדול מ-0), וכן `X-OmniRoute-Request-Id` ו-`X-OmniRoute-Version`. אלה מופקות על ידי השלמות צ׳אט, `/v1/responses`, `/v1/messages`, **וכן נקודות הקצה של המדיה** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations` ו-`/v1/moderations` (תמיד בעלות `0`). עלות המדיה מחושבת לפי סוג המדיה (לכל תמונה, לכל שנייה, לכל תו, לכל יחידת חיפוש) כאשר התמחור זמין, אחרת היא `0` (fail-open).
+> **Cost telemetry headers:** non-streaming success responses also carry the `X-OmniRoute-*` cost-telemetry set — `X-OmniRoute-Response-Cost` (USD, fixed 10 decimals; `0.0000000000` for free/unpriced), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit`, and `X-OmniRoute-Fallback-Attempts` (only when > 0), plus `X-OmniRoute-Request-Id` and `X-OmniRoute-Version`. These are emitted by chat completions, `/v1/responses`, `/v1/messages`, **and the media endpoints** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations`, and `/v1/moderations` (always cost `0`). Media cost is computed per modality (per-image, per-second, per-character, per search-unit) when pricing is available, otherwise `0` (fail-open).
 
-> **סמנטיקת עלות של פגיעה במטמון:** ב-HIT של מטמון סמנטי (`X-OmniRoute-Cache-Hit: true`) לא מתבצעת קריאה לשירות upstream, ולכן `X-OmniRoute-Response-Cost` הוא `0.0000000000` (העלות **התוספתית** של הגשת הפגיעה). העלות המקורית/העלות שהייתה מתקבלת מדווחת בנפרד ב-`X-OmniRoute-Cost-Saved`. צרכני חיוב צריכים לסכם את `X-OmniRoute-Response-Cost` (פגיעות אינן עולות דבר); ניתוח מטמון יכול לצבור את `X-OmniRoute-Cost-Saved`.
+> **סמנטיקה של עלות מטמון:** במטמון סמנטי HIT (`X-OmniRoute-Cache-Hit: true`) לא מתבצעת שיחה במעלה הזרם, אז `X-OmniRoute-Response-Cost` הוא `0.0000000000` (ה** מצטבר** עלות הגשת הלהיט). עלות original/would-have-been מדווחת בנפרד ב- `X-OmniRoute-Cost-Saved`. צרכני חיוב צריכים לסכום `X-OmniRoute-Response-Cost` (הכניסות לא עולות כלום); ניתוח מטמון יכול לצבור `X-OmniRoute-Cost-Saved`.
 
 ## חכירת סשנים מנוהלים בלעדית
 
@@ -339,7 +326,7 @@ GET /v1/embeddings
 
 ---
 
-## יצירת תמונות
+## יצירת תמונה
 
 ```bash
 POST /v1/images/generations
@@ -353,45 +340,30 @@ Content-Type: application/json
 }
 ```
 
-הספקים הזמינים כוללים את OpenAI (GPT Image 2),‏ xAI (Grok Image),‏ Together AI (FLUX),‏ Fireworks AI,‏ Nebius (FLUX),‏ Hyperbolic,‏ NanoBanana,‏ **OpenRouter**,‏ **ZenMux**,‏ SD WebUI (מקומי),‏ ComfyUI (מקומי).
+ספקים זמינים כוללים OpenAI (GPT Image 2), xAI (Grok Image), Together AI (FLUX), Fireworks AI, Nebius (FLUX), Hyperbolic, NanoBanana,**OpenRouter** ,**ZenMux** , SD WebUI (מקומי), ComfyUI (מקומי).
 
-`n` מחזיר `n` תמונות בתוך `data[]`. ספקים שממשק ה-API upstream שלהם מחזיר תמונה אחת בכל קריאה
-(Black Forest Labs, Stability AI, Leonardo, Ideogram, Haiper, Hyperbolic, Magnific/Freepik,
-NVIDIA NIM, Cloudflare Workers AI) מבצעים `n` קריאות upstream נפרדות, עם 4 קריאות פעילות לכל היותר. ערך
-`seed` קבוע מוזז לפי אינדקס הקריאה (`seed`,‏ `seed + 1`,‏ …), כך שהתמונות שונות אך נשארות ניתנות לשחזור. הערך
-`n` מוגבל ל-10. הבקשה כולה נכשלת אם קריאה כלשהי נכשלת. רשימת פורמטי ה-fan-out נמצאת ב-
-`SINGLE_IMAGE_FANOUT_FORMATS` בתוך
-`open-sse/handlers/imageGeneration/fanOut.ts`.
+`n` מחזיר תמונות `n` ב- `data[]`. ספקים שה- API שלהם במעלה הזרם מחזיר תמונה אחת לכל שיחה (מעבדות היער השחור, Stability AI, Leonardo, Ideogram, Haiper, Hyperbolic, Magnific/Freepik, NVIDIA NIM, Cloudflare Workers AI) מקבלים שיחות זרם נפרדות של `n`, לכל היותר 4 בטיסה. `seed` קבוע מקוזז על ידי אינדקס שיחה (`seed`, `seed + 1`, ...), כך שהתמונות שונות אך נשארות ניתנות לשחזור. `n` מוגבל ל-10. הבקשה נכשלת כולה אם שיחה כלשהי נכשלת. רשימת הפורמטים של המניפה היא `SINGLE_IMAGE_FANOUT_FORMATS` ב- `open-sse/handlers/imageGeneration/fanOut.ts`.
 
-ZenMux עושה שימוש חוזר בחיבור הקיים עם מפתח ה-API ומקבל קידומות `zenmux/` או `zm/`:
+Codex GPT דגמי תמונה (`codex/gpt-image-*`) מחזירים PNG בלבד: ה-upstream עונה `200` עם PNG bytes גם כאשר מתבקשים `jpeg` או `webp`. בקשה עם כל `output_format` אחר (`webp`, `jpeg`, ...) נדחית עם HTTP 400 במקום להתעלם בשקט; להשמיט אותו או לשלוח `png`. `output_compression` לא מועבר.
 
-- `zenmux/openai/gpt-image-2` משתמש ב-API של OpenAI Images דרך ZenMux. האפשרויות כוללות את `size`,
-  `quality`,‏ `n`,‏ `output_format`,‏ `output_compression`,‏ `background` ו-`response_format`.
-- מפרסמים אחרים, כגון `zm/meta/muse-image-1.0`, משתמשים בנקודת הקצה `:predict` של Vertex AI דרך ZenMux. `n` ממופה אל `sampleCount`,‏ `aspect_ratio` אל `aspectRatio`, ו-`image_size`
-  (`1K`,‏ `2K`,‏ `4K`) אל `sampleImageSize`. ערך `size` בפיקסלים מספק יחס גובה-רוחב בלבד,
-  ואינו מבטיח ממדי פיקסלים. היחסים, הרזולוציות והכמויות הנתמכים משתנים לפי המודל.
-- `zm/inclusionai/ming-image-0.1-design` בוחר את הממדים בעצמו. יש להשמיט את `size`,
-  `aspect_ratio` ו-`image_size`; ערכים מפורשים יחזירו HTTP 400. ניתן לבקש PNG,‏ JPEG ו-WebP
-  באמצעות `output_format`.
+ZenMux עושה שימוש חוזר בחיבור מפתח API הקיים ומקבל קידומות `zenmux/` או `zm/` :
 
-האינטגרציה הזו תומכת ביצירת תמונות מטקסט, ולא בעריכת תמונות ייחוס. פלט Vertex מנורמל ל-`data[].b64_json`;‏ `response_format: "url"` מחזיר כתובת URL מסוג HTTPS מה-upstream, או כתובת URL של נתוני base64 כאשר זמינים רק נתוני תמונה. פלטים ריקים או מסוננים
-מחזירים שגיאה במקום הצלחה עם תוצאה ריקה. הגישה למודלים תלויה בחשבון ZenMux.
-ראו את [Vertex API של ZenMux](https://docs.zenmux.ai/api/vertexai/generate-images) ואת
-[OpenAI Images API](https://docs.zenmux.ai/api/openai/generate-an-image).
+- `zenmux/openai/gpt-image-2` משתמש ב- ZenMux Images של OpenAI API. האפשרויות כוללות `size`, `quality`, `n`, `output_format`, `output_compression`, `background` ו- `response_format`.
+- מפרסמים אחרים, כגון `zm/meta/muse-image-1.0`, משתמשים בנקודת הקצה Vertex AI `:predict` של ZenMux. `n` מפות ל- `sampleCount`, `aspect_ratio` ל- `aspectRatio`, ו- `image_size` (`1K`, `2K`, `4K`) ל- `sampleImageSize`. פיקסל `size` מספק רק יחס רוחב-גובה, לא ממדי פיקסלים מובטחים. היחסים, הרזולוציות והספירות הנתמכות משתנים בהתאם לדגם.
+- `zm/inclusionai/ming-image-0.1-design` בוחר את הממדים שלו. השמיט `size`, `aspect_ratio`, `image_size`; ערכים מפורשים מחזירים HTTP 400. ניתן לבקש PNG, JPEG ו- WebP עם `output_format`.
 
-חיבור התחברות של Microsoft 365 Copilot משרת את `copilot-m365-web/m365-copilot-image`
-באמצעות כלי התמונות המובנה של Copilot: תור Copilot אחד לכל תמונה (`n` 1–4), כאשר `size` מכוון
-רק את הכיוון, והתמונות מוחזרות בתוך התשובה (`b64_json`, או כתובת URL של נתונים עבור
-`response_format: "url"`). ראו [Microsoft 365 Copilot](../providers/COPILOT-M365.md#image-generation).
+This integration supports text-to-image generation, not reference-image editing. Vertex output is normalized to `data[].b64_json`; `response_format: "url"` returns an upstream HTTPS URL or a base64 data URL when only image bytes are available. Empty/filtered outputs return an error rather than an empty success. Model access depends on the ZenMux account. See [ZenMux's Vertex API](https://docs.zenmux.ai/api/vertexai/generate-images) and [OpenAI Images API](https://docs.zenmux.ai/api/openai/generate-an-image).
+
+חיבור Microsoft 365 Copilot משרת `copilot-m365-web/m365-copilot-image` באמצעות כלי התמונה המובנה של Copilot: סיבוב Copilot אחד לתמונה (`n` 1–4), `size` היגוי רק את הכיוון, ותמונות שהוחזרו בשורה (`b64_json`, או URL data עבור `response_format: "url"`). ראה [Microsoft 365 Copilot](../providers/COPILOT-M365.md#image-generation).
 
 ```bash
-# רשימת כל מודלי התמונות
+# List all image models
 GET /v1/images/generations
 ```
 
 ---
 
-## OCR של מסמכים
+## מסמך OCR
 
 ```bash
 POST /v1/ocr
@@ -407,17 +379,15 @@ Content-Type: application/json
 }
 ```
 
-`model` בוחר את ספק ה־OCR באמצעות קידומת `provider/model`; מזהה מודל ללא קידומת (למשל
-`mistral-ocr-latest`) נפתר לספק הרשום שלו, ואם `model` מושמט, ברירת המחדל היא
-Mistral (`mistral-ocr-latest`). הספקים הרשומים (`open-sse/config/ocrRegistry.ts`):
+`model` בוחר את ספק OCR באמצעות קידומת `provider/model` ; מזהה דגם חשוף (למשל `mistral-ocr-latest`) יפתור לספק הרשום שלו, ו- `model` שהושמט כברירת מחדל הוא Mistral (`mistral-ocr-latest`). ספקים רשומים (`open-sse/config/ocrRegistry.ts`):
 
-| מזהה ספק                      | מזהה מודל            | ערך `model`                                            | הערות                                                                                                  |
-| ----------------------------- | -------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `mistral`                     | `mistral-ocr-latest` | `mistral/mistral-ocr-latest` (או `mistral-ocr-latest`) | סינכרוני — התגובה מוחזרת ישירות מהקריאה היחידה במעלה הזרם.                                             |
-| `azure-document-intelligence` | `prebuilt-read`      | `azure-document-intelligence/prebuilt-read`            | במעלה הזרם באופן אסינכרוני (`analyze` + poll) — ראו להלן.                                              |
-| `vertex-deepseek-ocr`         | `deepseek-ocr-maas`  | `vertex-deepseek-ocr/deepseek-ocr-maas`                | סינכרוני, דרך נקודת הקצה לשותפים `openapi/chat/completions` של Vertex AI — לפרטי אימות ו־URL ראו להלן. |
+| מזהה ספק                      | מזהה דגם                    | `model`                                                     | הערות                                                                                                                                                                                             |
+| ----------------------------- | --------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mistral`                     | `mistral-ocr-latest`        | `mistral/mistral-ocr-latest` (או חשוף `mistral-ocr-latest`) | — סינכרוני התגובה מוחזרת ישירות מהשיחה הבודדת במעלה הזרם.                                                                                                                                         |
+| `azure-document-intelligence` | `prebuilt-read`             | `azure-document-intelligence/prebuilt-read`                 | אסינכרוני במעלה הזרם ( סקר `analyze` + ) — ראה להלן.                                                                                                                                              |
+| `vertex-deepseek-ocr`         | פריסה עצמית (ללא דגם מובנה) | `vertex-deepseek-ocr/<your-deployed-model-id>`              | סינכרוני, דרך Vertex AI Model Garden DeepSeek-OCR נקודת קצה משלך (צורת `openapi/chat/completions` ); Google הוציאה את `deepseek-ocr-maas` המנוהלת בתאריך 2026-10-21 (#20423), כך שמזהה מחזיר 400. |
 
-כל שלושת הספקים מגיבים בגוף בעל מבנה זהה לזה של Mistral:
+כל שלושת הספקים מגיבים באותו גוף בצורת מיסטרל:
 
 ```json
 {
@@ -427,28 +397,13 @@ Mistral (`mistral-ocr-latest`). הספקים הרשומים (`open-sse/config/oc
 }
 ```
 
-### תהליך תשאול Azure Document Intelligence
+### זרימת סקר Azure Document Intelligence
 
-ה־API של `analyze` ב־Azure Document Intelligence הוא אסינכרוני: הבקשה הראשונית מחזירה
-כותרת `Operation-Location` במקום גוף, ויש לבצע תשאול לקבלת התוצאה. ה־handler
-(`open-sse/handlers/ocr.ts`) מבצע תשאול לכתובת הזו מדי שנייה, למשך עד 30 ניסיונות, נכשל
-מיידית (ואינו ממשיך בתשאול) במקרה של תגובת תשאול שאינה `ok` או של סטטוס `"failed"`, ומחזיר
-`504` אם הפעולה עדיין מתבצעת לאחר מיצוי מכסת הניסיונות. תגובת Azure הסופית מנורמלת לאותו
-מבנה של `pages`/`markdown` שבו משתמש Mistral, לפני שהיא מוחזרת למתקשר, כך שאין צורך שקוד
-הלקוח יטפל בספק באופן מיוחד.
+`analyze` API של Azure Document Intelligence הוא אסינכרוני: הבקשה הראשונית מחזירה כותרת `Operation-Location` במקום גוף, ויש לבדוק את התוצאה. המטפל (`open-sse/handlers/ocr.ts`) URL כל שנייה של עד 30 ניסיונות, נכשל במהירות (לא ממשיך לסקר) בתגובת סקר שאינה `ok` או סטטוס `"failed"`, ומחזיר `504` אם הפעולה עדיין פועלת לאחר מיצוי תקציב הניסיון. תגובת ה-Azure הסופית מנורמלת לאותה צורת `pages`/`markdown` המשמשת את Mistral לפני החזרה למתקשר, כך שקוד הלקוח אינו צריך להגדיר את הספק.
 
-### אימות ופתרון נקודת הקצה של Vertex AI DeepSeek OCR
+### רזולוציית אימות ונקודת קצה של Vertex AI DeepSeek OCR
 
-`vertex-deepseek-ocr` עושה שימוש חוזר באותו אימות של Vertex AI שבו OmniRoute כבר תומך עבור
-תעבורת צ'אט/תמונות (`open-sse/executors/vertex.ts`): מפתח ה־API של החיבור הוא או פרטי
-אימות מסוג Service Account JSON (שמוחלפים באסימון גישה קצר־מועד של OAuth באמצעות תהליך
-JWT-bearer), או אסימון גישה של OAuth שכבר הונפק ומשמש כפי שהוא. כתובת ה־URL של נקודת הקצה
-במעלה הזרם היא נקודת הקצה הגנרית לשותפים `openapi/chat/completions` של Vertex, ונבנית
-מהפרויקט ומהאזור של החיבור — הגדרה מפורשת של `providerSpecificData.project`/`providerSpecificData.region`
-תמיד מקבלת עדיפות; אחרת הפרויקט נגזר מ־`project_id` של ה־Service Account JSON והאזור
-מוגדר כברירת מחדל ל־`us-central1`. שני הפתרונות מתבצעים בתוך `open-sse/handlers/ocr.ts`
-(`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`), ונעשה בהם שימוש מתוך
-`src/app/api/v1/ocr/route.ts` לפני ההעברה אל `handleOcr`.
+`vertex-deepseek-ocr` עושה שימוש חוזר באותו אימות Vertex AI שכבר תומך ב- OmniRoute עבור תעבורת chat/image (`open-sse/executors/vertex.ts`): מפתח API של החיבור הוא אישור JSON של חשבון שירות (מוחלף לאסימון גישה OAuth קצר מועד באמצעות זרימת ה-JWT-bearer) או אסימון גישה של OAuth שהוטבע כבר. נקודת הקצה URL במעלה הזרם היא נקודת הקצה הגנרית של שותפי `openapi/chat/completions` של Vertex, הבנויה מהפרויקט של החיבור ואזור — ו- `providerSpecificData.project`/`providerSpecificData.region` מפורש תמיד מנצח; אחרת הפרויקט נגזר מה- `project_id` של חשבון השירות של JSON והאזור כברירת מחדל הוא `us-central1`. שתי הרזולוציות מתרחשות ב- `open-sse/handlers/ocr.ts` (`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`), נצרכות על-ידי `src/app/api/v1/ocr/route.ts` לפני שליחתן ל- `handleOcr`.
 
 ---
 

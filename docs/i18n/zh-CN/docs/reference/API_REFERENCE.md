@@ -49,7 +49,7 @@ OmniRoute API 的核心参考文档。它涵盖公开的 `/v1` 接口以及最�
 
 ---
 
-## 聊天补全
+## 聊天完成
 
 ```bash
 POST /v1/chat/completions
@@ -67,31 +67,32 @@ Content-Type: application/json
 
 ### 自定义标头
 
-| Header                   | 方向 | 描述                                                                                                                                                |
-| ------------------------ | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `X-OmniRoute-No-Cache`   | 请求 | 设置为 `true` 以绕过缓存                                                                                                                            |
-| `x-omniroute-no-memory`  | 请求 | 设置为 `true` 以跳过此次请求的 memory + skills 注入（与 no-cache 类似；避免每次调用产生额外的 token/成本开销）                                      |
-| `X-OmniRoute-Progress`   | 请求 | 设置为 `true` 以启用进度事件                                                                                                                        |
-| `X-Session-Id`           | 请求 | 用于外部会话粘性的固定会话键                                                                                                                        |
-| `x_session_id`           | 请求 | 同时接受下划线变体（直接 HTTP）                                                                                                                     |
-| `X-OmniRoute-Session-Id` | 请求 | 调用方提供的会话/对话标签（也会馈入 memory）。存在时，按原样持久化到 `call_logs.session_tag`，用于按会话进行成本归因（#8249）——缺失时绝不会自动生成 |
-| `Idempotency-Key`        | 请求 | 去重键（5 秒窗口）                                                                                                                                  |
-| `X-Request-Id`           | 请求 | 备用去重键                                                                                                                                          |
-| `x-omniroute-connection` | 请求 | 通过连接 ID 将单模型请求固定到某个提供者连接（账户）——请参阅[按请求固定账户](#account-pinning-per-request)                                          |
-| `X-OmniRoute-Cache`      | 响应 | `HIT` 或 `MISS`（非流式）                                                                                                                           |
-| `X-OmniRoute-Idempotent` | 响应 | 如果已去重，则为 `true`                                                                                                                             |
-| `X-OmniRoute-Progress`   | 响应 | 如果已启用进度跟踪，则为 `enabled`                                                                                                                  |
-| `X-OmniRoute-Session-Id` | 响应 | OmniRoute 使用的有效会话 ID                                                                                                                         |
-| `X-OmniRoute-Request-Id` | 响应 | 请求关联 ID（如果已知）                                                                                                                             |
-| `X-OmniRoute-Version`    | 响应 | OmniRoute 构建版本（始终存在）                                                                                                                      |
-| `X-OmniRoute-Cost-Saved` | 响应 | 缓存命中时缓存所节省的美元金额（仅缓存命中时存在）                                                                                                  |
-| `X-OmniRoute-Decision`   | 响应 | 路由跟踪：`strategy=<name>; provider=<alias>; latency_ms=<n>`（`<name>` 是组合策略；对于非组合请求则为 `single`）——完成响应中始终存在               |
+| 标头                     | 方向 | 描述                                                                                                                                                                                                                                                     |
+| ------------------------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `X-OmniRoute-No-Cache`   | 要求 | 设置为`true`以绕过缓存                                                                                                                                                                                                                                   |
+| `x-omniroute-no-memory`  | 要求 | 设置为`true`以跳过此请求的内存+技能注入（镜像无缓存；避免每次调用token/cost开销）                                                                                                                                                                        |
+| `x-omniroute-no-log`     | 要求 | 设置为`true`以省略此推理请求的调用日志中的request/response有效负载（所有聊天系列路由：聊天完成、响应、消息、完成、 Gemini）。时间戳、模型、状态、持续时间和令牌计数仍被记录。与`x-omniroute-no-memory`和`x-omniroute-no-cache`结合使用以选择退出完整内容 |
+| `X-OmniRoute-Progress`   | 要求 | 设置为`true`表示进度事件                                                                                                                                                                                                                                 |
+| `X-Session-Id`           | 要求 | 用于外部会话关联的粘性会话密钥                                                                                                                                                                                                                           |
+| `x_session_id`           | 要求 | 也接受下划线变体（直接HTTP）                                                                                                                                                                                                                             |
+| `X-OmniRoute-Session-Id` | 要求 | 调用者提供的session/conversation标签（也提供内存）。当存在时，逐字保存到`call_logs.session_tag`以进行每会话成本归因 (#8249) —在不存在时从未合成                                                                                                          |
+| `Idempotency-Key`        | 要求 | 重复数据删除密钥（5 秒窗口）                                                                                                                                                                                                                             |
+| `X-Request-Id`           | 要求 | 替代重复数据删除密钥                                                                                                                                                                                                                                     |
+| `x-omniroute-connection` | 要求 | 通过 ID —将单模型请求固定到一个提供者连接（帐户），请参阅[每个请求的帐户固定](#account-pinning-per-request)                                                                                                                                              |
+| `X-OmniRoute-Cache`      | 回复 | `HIT`或`MISS` （非流式传输）                                                                                                                                                                                                                             |
+| `X-OmniRoute-Idempotent` | 回复 | `true`如果已进行重复数据删除                                                                                                                                                                                                                             |
+| `X-OmniRoute-Progress`   | 回复 | `enabled`如果进度跟踪开启                                                                                                                                                                                                                                |
+| `X-OmniRoute-Session-Id` | 回复 | OmniRoute使用的有效会话ID                                                                                                                                                                                                                                |
+| `X-OmniRoute-Request-Id` | 回复 | 请求相关 ID（已知时）                                                                                                                                                                                                                                    |
+| `X-OmniRoute-Version`    | 回复 | OmniRoute构建版本（始终存在）                                                                                                                                                                                                                            |
+| `X-OmniRoute-Cost-Saved` | 回复 | USD在HIT上避免的缓存（仅缓存命中）                                                                                                                                                                                                                       |
+| `X-OmniRoute-Decision`   | 回复 | 路由跟踪： `strategy=<name>; provider=<alias>; latency_ms=<n>` （`<name>`是组合策略，或`single`表示非组合请求） —始终出现在完成响应中                                                                                                                    |
 
-> Nginx 注意：如果依赖下划线标头（例如 `x_session_id`），请启用 `underscores_in_headers on;`。
+> Nginx 注意：如果您依赖下划线标头（例如`x_session_id`），请启用`underscores_in_headers on;`。
 
-#### 按请求固定账户
+#### 根据请求固定帐户
 
-当某个提供者拥有多个连接（账户或密钥）时，OmniRoute 通常会通过其账户选择策略选择其中一个。请求也可以通过 `x-omniroute-connection` 标头改为固定到某个特定连接：
+当提供者有多个连接（帐户或密钥）时， OmniRoute通常会通过其帐户选择策略选择一个。请求可以使用`x-omniroute-connection`标头固定一个特定连接：
 
 ```bash
 curl http://localhost:20128/v1/chat/completions \
@@ -101,16 +102,13 @@ curl http://localhost:20128/v1/chat/completions \
   -d '{"model": "codex/gpt-5.5", "messages": [{"role": "user", "content": "hi"}]}'
 ```
 
-- **在哪里查找 ID。** 在控制面板中打开提供者页面
-  （**Dashboard → Providers → <provider>**），然后点击连接行上的 `xxxxxxxx…` ID 标签 — 该操作会复制完整的连接 ID。
-- **哪些请求会使用它。** `/v1/chat/completions`、`/v1/messages` 和
-  `/v1/responses` 上的单模型请求（`provider/model`）。组合请求会忽略此标头：请通过每个组合步骤自身的连接，为该步骤固定一个账户。
-- **固定是严格绑定，而非偏好设置。** 只会使用固定的连接。请求内部发生故障时，会记录该账户的冷却状态，但**不会**切换到同一提供者的其他账户。
-- **冷却和配额会解除固定。** 在固定连接处于冷却状态、配额耗尽或被配额策略阻止期间，后续请求会回退到该提供者的其他连接，与未固定的流量完全相同。
-- **未知或已停用的 ID 会导致失败。** 不在提供者活动连接池中的 ID（已删除、已停用或属于其他提供者）不会留下可用账户，因此请求会失败，而不是静默地路由到其他位置。
+- **Where to find the id.** Open the provider page in the dashboard (**Dashboard → Providers → <provider>**) and click the `xxxxxxxx…` id chip on a connection row — it copies the full connection id.
+- **这要求尊重它。** `/v1/chat/completions`、 `/v1/messages`和`/v1/responses`上的单模型请求 (`provider/model`)。组合忽略标题：而是通过步骤自己的连接固定每个组合步骤的帐户。
+- **引脚是严格的，不是偏好。**专门使用销钉连接。请求内的失败会记录帐户的冷却时间，但不会**不是**轮换到同一提供者的同级帐户。
+- **冷却时间和配额释放引脚。**当固定连接正在冷却、配额耗尽或被配额策略阻止时，稍后的请求将回落到提供者的其他连接，就像未固定的流量一样。
+- **未知或禁用的 ID 失败。**不在提供者活动池中的 ID（已删除、已停用或属于其他提供者）不会留下符合条件的帐户，因此请求会失败，而不是默默地路由到其他地方。
 
-Claude Code 通过 `ANTHROPIC_CUSTOM_HEADERS` 发送自定义标头。将其放入
-`~/.claude/settings.json` 的 `env` 块中，或者放入项目级别的 `.claude/settings.json`，即可为每个项目固定不同的账户：
+Claude代码通过`ANTHROPIC_CUSTOM_HEADERS`发送自定义标头。将其放在`~/.claude/settings.json`的`env`块中，或放在项目级`.claude/settings.json`中以固定每个项目的不同帐户：
 
 ```jsonc
 {
@@ -122,12 +120,11 @@ Claude Code 通过 `ANTHROPIC_CUSTOM_HEADERS` 发送自定义标头。将其放�
 }
 ```
 
-来源：`src/sse/handlers/chat.ts`（读取标头）、`src/sse/services/auth.ts` 和
-`src/sse/services/sessionAffinityPin.ts`（解除固定以及检查连接是否缺失于连接池）。
+来源： `src/sse/handlers/chat.ts` （标头读取）、 `src/sse/services/auth.ts`和`src/sse/services/sessionAffinityPin.ts` （引脚释放和池中缺失检查）。
 
-> **成本遥测标头：** 非流式成功响应还会携带 `X-OmniRoute-*` 成本遥测标头集 — `X-OmniRoute-Response-Cost`（美元，固定 10 位小数；免费/未定价时为 `0.0000000000`）、`X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`、`X-OmniRoute-Model`、`X-OmniRoute-Provider`、`X-OmniRoute-Latency-Ms`、`X-OmniRoute-Cache-Hit` 和 `X-OmniRoute-Fallback-Attempts`（仅当大于 0 时），以及 `X-OmniRoute-Request-Id` 和 `X-OmniRoute-Version`。这些标头由聊天补全、`/v1/responses`、`/v1/messages` **以及媒体端点** — `/v1/embeddings`、`/v1/images/generations`、`/v1/audio/speech`、`/v1/audio/transcriptions`、`/v1/rerank`、`/v1/videos/generations`、`/v1/music/generations` 和 `/v1/moderations` — 发送（成本始终为 `0`）。如果有可用定价，媒体成本会按模态计算（按图像、按秒、按字符、按搜索单元），否则为 `0`（故障开放）。
+> **成本遥测标头：**非流式成功响应还携带`X-OmniRoute-*`成本遥测集— `X-OmniRoute-Response-Cost` （USD，固定 10 位小数； `0.0000000000`表示free/unpriced）、 `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`、 `X-OmniRoute-Model`、 `X-OmniRoute-Provider`、 `X-OmniRoute-Latency-Ms`、 `X-OmniRoute-Cache-Hit`和`X-OmniRoute-Fallback-Attempts` （仅当> 0 时），以及`X-OmniRoute-Request-Id`和`X-OmniRoute-Version`。这些是由聊天完成`/v1/responses`、 `/v1/messages`发出的，**和媒体端点**— `/v1/embeddings`、 `/v1/images/generations`、 `/v1/audio/speech`、 `/v1/audio/transcriptions`、 `/v1/rerank`、 `/v1/videos/generations`、 `/v1/music/generations`和`/v1/moderations` （始终花费`0`）。当定价可用时，媒体成本按模式（每图像、每秒、每字符、每搜索单元）计算，否则为`0` （失败开放）。
 
-> **缓存命中时的成本语义：** 在语义缓存命中（`X-OmniRoute-Cache-Hit: true`）时，不会调用上游，因此 `X-OmniRoute-Response-Cost` 为 `0.0000000000`（提供此次命中的**增量**成本）。原始成本/本应产生的成本会单独报告在 `X-OmniRoute-Cost-Saved` 中。计费消费者应汇总 `X-OmniRoute-Response-Cost`（命中不产生费用）；缓存分析可以聚合 `X-OmniRoute-Cost-Saved`。
+> **缓存命中成本语义：**在语义缓存HIT (`X-OmniRoute-Cache-Hit: true`) 上，没有进行上游调用，因此`X-OmniRoute-Response-Cost`是`0.0000000000` （**增量式**提供命中的成本）。 original/would-have-been成本在`X-OmniRoute-Cost-Saved`中单独报告。计费消费者应汇总`X-OmniRoute-Response-Cost` （点击次数无需任何费用）；缓存分析可以聚合`X-OmniRoute-Cost-Saved`。
 
 ## 独占式托管会话租约
 
@@ -357,46 +354,30 @@ Content-Type: application/json
 }
 ```
 
-可用的提供者包括 OpenAI（GPT Image 2）、xAI（Grok Image）、Together AI（FLUX）、Fireworks AI、Nebius（FLUX）、Hyperbolic、NanoBanana、**OpenRouter**、**ZenMux**、SD WebUI（本地）和 ComfyUI（本地）。
+可用的提供程序包括OpenAI (GPT Image 2)、 xAI (Grok Image)、 Together AI (FLUX)、 Fireworks AI、 Nebius (FLUX)、Hyperbolic、 NanoBanana、**OpenRouter** ,**ZenMux** 、 SD WebUI （本地）、 ComfyUI （本地）。
 
-`n` 会在 `data[]` 中返回 `n` 张图像。对于上游 API 每次调用仅返回一张图像的提供者
-（Black Forest Labs、Stability AI、Leonardo、Ideogram、Haiper、Hyperbolic、Magnific/Freepik、
-NVIDIA NIM、Cloudflare Workers AI），系统会分别发起 `n` 次上游调用，同时最多有 4 次调用在执行。
-固定的 `seed` 会按调用索引进行偏移（`seed`、`seed + 1`、……），因此图像会有所不同，但仍可复现。
-`n` 的上限为 10。如果任意一次调用失败，整个请求都会失败。扇出格式列表位于
-`open-sse/handlers/imageGeneration/fanOut.ts` 中的 `SINGLE_IMAGE_FANOUT_FORMATS`。
+`n`在`data[]`中返回`n`图像。上游API每次调用返回一张图像的提供者（Black Forest Labs、Stability AI、Leonardo、Ideogram、Haiper、Hyperbolic、 Magnific/Freepik、 NVIDIA NIM、 Cloudflare Workers AI）获得`n`单独的上游调用，最多 4 个正在运行。固定的`seed`通过调用索引（`seed`、 `seed + 1`等）进行偏移，因此图像有所不同，但保持可重现。 `n`上限为 10。如果任何调用失败，则请求整体失败。扇出格式列表是`open-sse/handlers/imageGeneration/fanOut.ts`中的`SINGLE_IMAGE_FANOUT_FORMATS` 。
 
-ZenMux 会复用现有的 API 密钥连接，并接受 `zenmux/` 或 `zm/` 前缀：
+Codex GPT图像模型 (`codex/gpt-image-*`) 仅返回PNG ：即使请求`jpeg`或`webp` ，上游也会用PNG字节回答`200` 。使用任何其他`output_format` （`webp`、 `jpeg`等）的请求都会被HTTP 400 拒绝，而不是被默默忽略；省略它或发送`png`。 `output_compression`不转发。
 
-- `zenmux/openai/gpt-image-2` 使用 ZenMux 的 OpenAI Images API。选项包括 `size`、
-  `quality`、`n`、`output_format`、`output_compression`、`background` 和 `response_format`。
-- 其他发布者（例如 `zm/meta/muse-image-1.0`）使用 ZenMux 的 Vertex AI `:predict`
-  端点。`n` 映射到 `sampleCount`，`aspect_ratio` 映射到 `aspectRatio`，而 `image_size`
-  （`1K`、`2K`、`4K`）映射到 `sampleImageSize`。像素 `size` 仅提供宽高比，
-  不保证像素尺寸。支持的宽高比、分辨率和数量因模型而异。
-- `zm/inclusionai/ming-image-0.1-design` 会自行选择尺寸。请省略 `size`、
-  `aspect_ratio` 和 `image_size`；指定这些值会返回 HTTP 400。可以通过 `output_format`
-  请求 PNG、JPEG 和 WebP。
+ZenMux重用现有的 API 密钥连接并接受`zenmux/`或`zm/`前缀：
 
-此集成支持文生图，不支持参考图像编辑。Vertex 输出会规范化为 `data[].b64_json`；
-当仅有图像字节可用时，`response_format: "url"` 会返回上游 HTTPS URL 或 Base64 数据 URL。
-空输出或经过过滤的输出会返回错误，而不是空的成功响应。模型访问权限取决于 ZenMux 账户。
-请参阅 [ZenMux 的 Vertex API](https://docs.zenmux.ai/api/vertexai/generate-images) 和
-[OpenAI Images API](https://docs.zenmux.ai/api/openai/generate-an-image)。
+- `zenmux/openai/gpt-image-2`使用ZenMux的OpenAI图像API。选项包括`size`、 `quality`、 `n`、 `output_format`、 `output_compression`、 `background`和`response_format`。
+- 其他发布者（例如`zm/meta/muse-image-1.0`）使用ZenMux的 Vertex AI `:predict`端点。 `n`映射到`sampleCount`， `aspect_ratio`到`aspectRatio`， `image_size` (`1K`, `2K`, `4K`) 映射到`sampleImageSize`。像素`size`仅提供长宽比，不保证像素尺寸。支持的比率、分辨率和计数因型号而异。
+- `zm/inclusionai/ming-image-0.1-design`选择自己的维度。省略`size`、 `aspect_ratio`和`image_size`；显式值返回HTTP 400。可以使用`output_format`请求PNG、 JPEG和WebP 。
 
-Microsoft 365 Copilot 登录连接会通过 Copilot 的内置图像工具提供
-`copilot-m365-web/m365-copilot-image`：每张图像对应一次 Copilot 轮次（`n` 为 1–4），
-`size` 仅用于调整图像方向，图像以内联方式返回（`b64_json`，或者当
-`response_format: "url"` 时返回数据 URL）。请参阅 [Microsoft 365 Copilot](../providers/COPILOT-M365.md#image-generation)。
+此集成支持文本到图像的生成，而不是参考图像编辑。顶点输出标准化为`data[].b64_json`；当只有图像字节可用时， `response_format: "url"`返回上游HTTPS URL或 base64 数据URL 。 Empty/filtered输出返回错误而不是空成功。模型访问取决于ZenMux帐户。请参阅[ZenMux的顶点API](https://docs.zenmux.ai/api/vertexai/generate-images)和[OpenAI图像API](https://docs.zenmux.ai/api/openai/generate-an-image) 。
+
+Microsoft 365 Copilot登录连接通过Copilot的内置图像工具为`copilot-m365-web/m365-copilot-image`提供服务：每个图像旋转一圈Copilot (`n` 1–4)， `size`仅控制方向，并且内联返回图像（`b64_json`或`response_format: "url"`的数据URL ）。参见[Microsoft 365 Copilot](../providers/COPILOT-M365.md#image-generation) 。
 
 ```bash
-# 列出所有图像模型
+# List all image models
 GET /v1/images/generations
 ```
 
 ---
 
-## 文档 OCR
+## 文件OCR
 
 ```bash
 POST /v1/ocr
@@ -412,15 +393,15 @@ Content-Type: application/json
 }
 ```
 
-`model` 通过 `provider/model` 前缀选择 OCR 提供者；不带前缀的模型 ID（例如 `mistral-ocr-latest`）会解析到其注册的提供者，省略 `model` 时默认为 Mistral（`mistral-ocr-latest`）。已注册的提供者（`open-sse/config/ocrRegistry.ts`）：
+`model`通过`provider/model`前缀选择OCR提供者；裸模型 ID（例如`mistral-ocr-latest`）解析为其注册的提供程序，省略的`model`默认为Mistral (`mistral-ocr-latest`)。注册提供者（`open-sse/config/ocrRegistry.ts`）：
 
-| 提供者 ID                     | 模型 ID              | `model` 值                                                        | 备注                                                                                    |
-| ----------------------------- | -------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `mistral`                     | `mistral-ocr-latest` | `mistral/mistral-ocr-latest`（或不带前缀的 `mistral-ocr-latest`） | 同步 — 响应直接由单次上游调用返回。                                                     |
-| `azure-document-intelligence` | `prebuilt-read`      | `azure-document-intelligence/prebuilt-read`                       | 上游异步（`analyze` + 轮询）— 见下文。                                                  |
-| `vertex-deepseek-ocr`         | `deepseek-ocr-maas`  | `vertex-deepseek-ocr/deepseek-ocr-maas`                           | 同步，通过 Vertex AI 的 `openapi/chat/completions` 合作伙伴端点 — 认证和 URL 详见下文。 |
+| 提供者 ID                     | 型号编号               | `model`值                                                 | 笔记                                                                                                                                                                                     |
+| ----------------------------- | ---------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mistral`                     | `mistral-ocr-latest`   | `mistral/mistral-ocr-latest` （或裸`mistral-ocr-latest`） | 同步—响应直接从单个上游调用返回。                                                                                                                                                        |
+| `azure-document-intelligence` | `prebuilt-read`        | `azure-document-intelligence/prebuilt-read`               | 异步上游（`analyze` + poll） —见下文。                                                                                                                                                   |
+| `vertex-deepseek-ocr`         | 自行部署（无内置模型） | `vertex-deepseek-ocr/<your-deployed-model-id>`            | 同步，通过您自己的 Vertex AI Model Garden DeepSeek-OCR 端点（`openapi/chat/completions`形状）； Google于 2026 年 10 月 21 日 (#20423) 退役了托管`deepseek-ocr-maas` ，因此 id 返回 400。 |
 
-三个提供者都会返回格式相同的 Mistral 结构化响应：
+所有三个提供者都在同一个米斯特拉尔形状的身体中做出响应：
 
 ```json
 {
@@ -430,13 +411,13 @@ Content-Type: application/json
 }
 ```
 
-### Azure Document Intelligence 轮询流程
+### Azure 文档智能投票流程
 
-Azure Document Intelligence 的 `analyze` API 是异步的：初始请求返回 `Operation-Location` 标头，而不是响应正文，必须对结果进行轮询。处理程序（`open-sse/handlers/ocr.ts`）每秒轮询该 URL，最多尝试 30 次；如果轮询响应不是 `ok` 或状态为 `"failed"`，则会快速失败（不再继续轮询）；如果操作在达到尝试次数上限后仍在运行，则返回 `504`。最终的 Azure 响应会在返回给调用方之前，规范化为与 Mistral 使用的相同 `pages`/`markdown` 结构，因此客户端代码无需针对不同提供者进行特殊处理。
+Azure 文档智能的`analyze` API是异步的：初始请求返回`Operation-Location`标头而不是正文，并且必须轮询结果。处理程序 (`open-sse/handlers/ocr.ts`) 每秒轮询URL最多 30 次尝试，在非`ok`轮询响应或`"failed"`状态上快速失败（不继续轮询），如果在尝试预算耗尽后操作仍在运行，则返回`504` 。最终的 Azure 响应在返回给调用方之前会被标准化为Mistral使用的相同`pages`/`markdown`形状，因此客户端代码不需要对提供程序进行特殊处理。
 
-### Vertex AI DeepSeek OCR 认证和端点解析
+### Vertex AI DeepSeek OCR身份验证和端点解析
 
-`vertex-deepseek-ocr` 复用了 OmniRoute 已支持的、用于聊天和图像请求的同一套 Vertex AI 认证机制（`open-sse/executors/vertex.ts`）：连接的 API 密钥可以是服务账号 JSON 凭据（通过 JWT bearer 流程交换为短期 OAuth 访问令牌），也可以是已签发的 OAuth 访问令牌，并按原样使用。上游端点 URL 是 Vertex 的通用 `openapi/chat/completions` 合作伙伴端点，根据连接的项目和区域构建：显式设置的 `providerSpecificData.project`/`providerSpecificData.region` 始终优先；否则，项目从服务账号 JSON 的 `project_id` 中派生，区域默认为 `us-central1`。这两种解析均发生在 `open-sse/handlers/ocr.ts` 中（`resolveVertexOcrAccessToken`、`resolveVertexOcrBaseUrl`），并由 `src/app/api/v1/ocr/route.ts` 在调度到 `handleOcr` 之前使用。
+`vertex-deepseek-ocr`重用OmniRoute已支持chat/image流量 (`open-sse/executors/vertex.ts`) 的相同 Vertex AI身份验证：连接的API密钥是服务帐户JSON凭证（通过 JWT 承载流交换为短期OAuth访问令牌）或按原样使用的已铸造OAuth访问令牌。上游端点URL是 Vertex 的通用`openapi/chat/completions`合作伙伴端点，从连接的项目和区域—构建，显式`providerSpecificData.project`/`providerSpecificData.region`始终获胜；否则，该项目源自服务帐户JSON的`project_id` ，并且区域默认为`us-central1`。两种解析都发生在`open-sse/handlers/ocr.ts` （`resolveVertexOcrAccessToken`、 `resolveVertexOcrBaseUrl`）中，在分派到`handleOcr`之前由`src/app/api/v1/ocr/route.ts`消耗。
 
 ---
 
@@ -1641,10 +1622,10 @@ GET /api/telemetry/summary
 ## 预算
 
 ```bash
-# 获取所有 API 密钥的预算状态
+# Get budget status for all API keys
 GET /api/usage/budget
 
-# 设置或更新预算
+# Set or update a budget
 POST /api/usage/budget
 Content-Type: application/json
 
@@ -1658,7 +1639,7 @@ Content-Type: application/json
 }
 ```
 
-> **架构说明**（`setBudgetSchema`）：必须提供 `apiKeyId`；`dailyLimitUsd`、`weeklyLimitUsd` 或 `monthlyLimitUsd` 中至少有一个必须大于零。可选字段：`warningThreshold`（0–1）、`resetInterval`（`daily` | `weekly` | `monthly`）、`resetTime`（`HH:MM`）。旧版 `{keyId, limit, period}` 格式会返回 `400 Bad Request`。
+> **模式注释**(`setBudgetSchema`): `apiKeyId`为必填项； `dailyLimitUsd`、 `weeklyLimitUsd`或`monthlyLimitUsd`中至少之一必须大于零。可选字段： `warningThreshold` (0–1)、 `resetInterval` (`daily` | `weekly` | `monthly`)、 `resetTime` (`HH:MM`)。旧版`{keyId, limit, period}`形状返回`400 Bad Request`。
 
 ## 令牌限制
 

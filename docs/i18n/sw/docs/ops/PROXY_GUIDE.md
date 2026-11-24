@@ -271,151 +271,150 @@ Hili hutokea mara moja wakati wa uanzishaji wa kwanza baada ya kusasisha. Tumia 
 
 ---
 
-## Soko la Proksi Bila Malipo la 1proxy
+## Wakala 1 Soko la Wakala Huru
 
-> 🆕 **Imechangiwa na [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Suala [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Imechangiwa na [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (Toleo [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute huunganishwa na jukwaa la jumuiya la **[1proxy](https://1proxy-api.aitradepulse.com)** ili kutoa ufikiaji wa **mamia ya proksi zisizolipishwa na zilizothibitishwa** kutoka kote ulimwenguni. Hii ni bora kwa watumiaji ambao hawana miundombinu yao wenyewe ya proksi.
+OmniRoute inaunganishwa na** [wakala 1](https://1proxy-api.aitradepulse.com)** jukwaa la jamii kutoa ufikiaji** mamia ya proksi zisizolipishwa, zilizothibitishwa** kutoka duniani kote. Hii ni sawa kwa watumiaji ambao hawana miundombinu yao ya seva mbadala.
 
 ### Jinsi Inavyofanya Kazi
 
 ```
-┌─────────────┐  Usawazishaji  ┌─────────────────┐  Mzunguko   ┌──────────┐
-│  API ya     │ ─────────────▶ │  proxy_registry  │ ──────────▶ │ Mtoa     │
-│  1proxy     │  hadi proksi   │  source=oneproxy │ kwa ubora   │ huduma   │
-│  (ya nje)   │      500       │                  │             │ wa API   │
-└─────────────┘                └─────────────────┘              └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Usawazishaji** — OmniRoute hupakua proksi zilizothibitishwa kutoka API ya 1proxy
-2. **Uhifadhi** — Proksi huhifadhiwa kwenye jedwali lilelile la `proxy_registry` zikiwa na `source = 'oneproxy'`
-3. **Uchujaji** — Chuja kulingana na itifaki, nchi na alama ya ubora
-4. **Mzunguko** — Chagua proksi bora kwa kutumia mikakati ya ubora, nasibu au mfuatano
-5. **Upunguzaji wa kiotomatiki** — Proksi zilizoshindwa hupunguziwa alama ya ubora; zikishuka chini ya kiwango → huwekwa alama ya kutotumika
+1. **Sawazisha** — OmniRoute huleta proksi zilizoidhinishwa kutoka kwa wakala 1 API
+2. **Hifadhi** — Proksi zimehifadhiwa katika jedwali moja `proxy_registry` na `source = 'oneproxy'`
+3. **Chuja** — Chuja kwa itifaki, nchi, alama ya ubora
+4. **Zungusha** — Chagua proksi bora zaidi kwa kutumia mikakati ya ubora, nasibu, au mfuatano
+5. **Punguza kiotomatiki** — Wakala walioshindwa hupunguzwa alama zao za ubora; chini ya kizingiti → imetiwa alama isiyotumika
 
-### Kusawazisha Proksi
+### Inasawazisha Proksi
 
 **Kupitia Dashibodi:**
 
-1. Nenda kwenye kichupo cha **Settings → 1proxy**
-2. Bofya **"Sync Now"**
-3. Tazama takwimu: jumla ya proksi, idadi inayotumika, wastani wa ubora na mgawanyo kulingana na nchi
+1. Nenda kwa** Mipangilio → 1 proksi** kichupo
+2. Bofya** "Sawazisha Sasa"**
+3. Tazama takwimu: jumla ya seva mbadala, hesabu inayotumika, ubora wa wastani, maelezo ya nchi
 
 **Kupitia API:**
 
 ```bash
-# Anzisha usawazishaji
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Jibu:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### Kuchuja Proksi
 
 ```bash
-# Chuja kulingana na itifaki
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Chuja kulingana na nchi
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Chuja kulingana na alama ya chini kabisa ya ubora
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Unganisha vichujio
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Alama za Ubora wa Proksi
+### Alama za Ubora wa Wakala
 
-Kila proksi ya 1proxy huja na metadata:
+Kila proksi 1 inakuja na metadata:
 
-| Sehemu          | Maelezo                                            |
-| --------------- | -------------------------------------------------- |
-| `qualityScore`  | Ukadiriaji wa 0-100 kutoka uthibitishaji wa 1proxy |
-| `latencyMs`     | Ucheleweshaji wa mtandao uliopimwa                 |
-| `anonymity`     | `transparent`, `anonymous`, au `elite`             |
-| `googleAccess`  | Ikiwa proksi inaweza kufikia huduma za Google      |
-| `countryCode`   | Msimbo wa nchi wa ISO wenye herufi mbili           |
-| `lastValidated` | Muhuri wa muda wa uthibitishaji wa mwisho          |
+| Shamba          | Maelezo                                    |
+| --------------- | ------------------------------------------ |
+| `qualityScore`  | 0-100 kutoka kwa uthibitishaji wa wakala 1 |
+| `latencyMs`     | Muda wa kusubiri wa mtandao uliopimwa      |
+| `anonymity`     | `transparent`, `anonymous`, au `elite`     |
+| `googleAccess`  | Ikiwa proksi inaweza kufikia huduma Google |
+| `countryCode`   | Msimbo wa nchi ISO wenye herufi mbili      |
+| `lastValidated` | Muhuri wa muda wa uthibitishaji wa mwisho  |
 
-Alama za ubora hurekebishwa kwa mabadiliko:
+Alama za ubora hurekebishwa kwa nguvu:
 
-- **Maombi yaliyoshindwa** hupunguza alama kwa pointi 10
-- **Alama ikishuka hadi ≤10** → proksi huwekwa alama ya `inactive`
-- Proksi zisizotumika huondolewa kwenye mzunguko
+- **Maombi yaliyoshindikana** kupunguza alama kwa pointi 10
+- **Alama imeshuka hadi ≤ 10** proksi → imewekwa alama `inactive`
+- Proksi zisizotumika hazijajumuishwa kwenye mzunguko
 
 ### Mikakati ya Mzunguko
 
 ```bash
-# Zungusha kulingana na ubora (proksi bora kwanza) — chaguo-msingi
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Mzunguko wa nasibu
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Mfuatano (iliyoidhinishwa zamani zaidi kwanza)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### Kivunja Mzunguko
+### Mvunjaji wa mzunguko
 
-Usawazishaji wa 1proxy una kivunja mzunguko kilichojengewa ndani:
+Usawazishaji wa wakala 1 una kivunja mzunguko kilichojengwa ndani:
 
-- Baada ya **kushindwa kwa usawazishaji mara 5 mfululizo**, majaribio zaidi ya kusawazisha huzuiwa
-- Weka upya kwa kutumia: `resetOneproxyCircuitBreaker()` au anzisha seva upya
-- Hali ya usawazishaji inapatikana kupitia `GET /api/settings/oneproxy?action=status`
+- Baada ya** Hitilafu 5 mfululizo za usawazishaji** , majaribio zaidi ya kusawazisha yamezuiwa
+- Weka upya kwa: `resetOneproxyCircuitBreaker()` au anzisha upya seva
+- Hali ya usawazishaji inapatikana katika `GET /api/settings/oneproxy?action=status`
 
-### Kufuta Proksi za 1proxy
+### Inafuta Wakala 1
 
 ```bash
-# Futa proksi moja ya 1proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Futa proksi ZOTE za 1proxy (proksi zilizowekwa mwenyewe haziguswi)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## Kuzuia Utambuzi na Kuficha Utambulisho
+## Kupambana na Kugundua & Kuficha
 
-OmniRoute haipitishi tu trafiki kupitia proksi — huifanya trafiki ionekane halali:
+OmniRoute haiongoi tu trafiki kupitia proksi — inafanya trafiki ionekane kuwa halali:
 
-### Uigaji wa Alama ya Utambulisho ya TLS
+### TLS Kunyunyiza kwa Alama ya vidole
 
-Hutumia `wreq-js` kutengeneza alama za utambulisho za TLS zinazofanana na za kivinjari, hivyo kukwepa mifumo ya utambuzi wa roboti inayotambua miunganisho ya TLS isiyotoka kwenye kivinjari.
+Hutumia `wreq-js` kutengeneza alama za vidole zinazofanana na kivinjari TLS, kwa kupita mifumo ya utambuzi wa roboti inayoripoti kupeana mikono TLS zisizo na kivinjari.
 
-### Ulinganishaji wa Alama ya Utambulisho ya CLI
+### CLI Kulinganisha Alama za vidole
 
-**Kibadilishaji cha Alama ya Utambulisho ya CLI** (`Mipangilio → Usalama`) hupanga upya vichwa vya HTTP na sehemu za mwili wa JSON ili zilingane na saini kamili ya faili asilia za kutekelezwa za CLI (Claude Code, Codex, n.k.). Hii hufanya kazi **juu ya** proksi:
+The**CLI Kugeuza Alama ya vidole** (`Settings → Security`) hupanga upya vichwa vya HTTP na sehemu za mwili JSON ili kuendana na saini halisi ya jozi asili CLI (Claude Code, Codex, n.k.). Hii inafanya kazi** juu ya** wakala:
 
 ```
-IP yako (imezuiwa) → IP ya proksi (Marekani) → API ya mtoa huduma
-                     + uigaji wa TLS
-                     + alama ya utambulisho ya CLI
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-Unapata **ufichaji wa IP** na **uhalisi wa ombi** kwa wakati mmoja.
+Unapata zote mbili**IP masking** na** omba uhalisi** kwa wakati mmoja.
 
-### Uhifadhi wa IP ya Proksi
+### Wakala IP Uhifadhi
 
-Beji zenye rangi tofauti katika dashibodi huonyesha kiwango cha proksi kinachotumika:
+Beji zenye msimbo wa rangi katika dashibodi zinaonyesha ni kiwango gani cha seva mbadala kinatumika:
 
-| Beji | Kiwango     | Maana                                                             |
-| ---- | ----------- | ----------------------------------------------------------------- |
-| 🟢   | Kimataifa   | Trafiki yote hupitia proksi hii                                   |
-| 🟡   | Mtoa huduma | Trafiki ya mtoa huduma huyu pekee ndiyo hupitishwa kupitia proksi |
-| 🔵   | Muunganisho | Ufunguo/akaunti hii mahususi hutumia proksi hii                   |
+| Beji | Kiwango     | Maana                                                      |
+| ---- | ----------- | ---------------------------------------------------------- |
+| 🟢   | Ulimwenguni | Trafiki yote hupitia proksi hii                            |
+| 🟡   | Mtoa huduma | Trafiki ya mtoa huduma huyu pekee ndiyo iliyowekewa proksi |
+| 🔵   | Muunganisho | key/account hii maalum hutumia proksi hii                  |
 
-Beji pia huonyesha IP ya proksi iliyotambuliwa kwa ajili ya uthibitishaji.
+Beji pia inaonyesha proksi IP iliyotatuliwa kwa uthibitishaji.
 
 ---
 

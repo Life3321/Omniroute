@@ -271,112 +271,112 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ## 1proxy 무료 프록시 마켓플레이스
 
-> 🆕 **[@oyi77](https://github.com/oyi77) 기여** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (이슈 [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** 작성자: [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (문제 [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute는 **[1proxy](https://1proxy-api.aitradepulse.com)** 커뮤니티 플랫폼과 통합되어 전 세계의 **검증된 무료 프록시 수백 개**에 대한 액세스를 제공합니다. 자체 프록시 인프라가 없는 사용자에게 적합합니다.
+OmniRoute 다음과 통합됩니다.** [1프록시](https://1proxy-api.aitradepulse.com)** 액세스를 제공하는 커뮤니티 플랫폼** 수백 개의 검증된 무료 프록시** 전 세계에서. 이는 자체 프록시 인프라가 없는 사용자에게 적합합니다.
 
 ### 작동 방식
 
 ```
-┌─────────────┐     동기화     ┌─────────────────┐    순환       ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ 제공자    │
-│    (외부)    │  최대 500개   │  source=oneproxy │  품질 기준    │   API    │
-└─────────────┘    프록시      └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **동기화** — OmniRoute가 1proxy API에서 검증된 프록시를 가져옵니다
-2. **저장** — 프록시는 동일한 `proxy_registry` 테이블에 `source = 'oneproxy'`로 저장됩니다
-3. **필터링** — 프로토콜, 국가, 품질 점수별로 필터링합니다
-4. **순환** — 품질, 무작위 또는 순차 전략을 사용하여 최적의 프록시를 선택합니다
-5. **자동 성능 저하 처리** — 실패한 프록시는 품질 점수가 감소하며, 임계값 미만이 되면 → 비활성 상태로 표시됩니다
+1. **동조** — OmniRoute 1proxy API 에서 검증된 프록시를 가져옵니다.
+2. **가게** — 프록시는 `source = 'oneproxy'` 와 동일한 `proxy_registry` 테이블에 저장됩니다.
+3. **필터** — 프로토콜, 국가, 품질 점수별로 필터링
+4. **회전** — 품질, 무작위 또는 순차 전략을 사용하여 최고의 프록시를 선택하세요.
+5. **자동 저하** — 실패한 프록시는 품질 점수가 낮아집니다. 임계값 미만 → 비활성으로 표시됨
 
-### 프록시 동기화
+### 프록시 동기화 중
 
-**대시보드에서:**
+**대시보드를 통해:**
 
-1. **Settings → 1proxy** 탭으로 이동합니다
-2. **"Sync Now"**를 클릭합니다
-3. 전체 프록시 수, 활성 프록시 수, 평균 품질, 국가별 분석 등 통계를 확인합니다
+1. 이동** 설정 → 1proxy** 꼬리표
+2. 딸깍 하는 소리** "지금 동기화"**
+3. 통계 보기: 총 프록시, 활성 개수, 평균 품질, 국가별 분석
 
-**API를 통해:**
+**API 통해 :**
 
 ```bash
-# 동기화 실행
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# 응답:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### 프록시 필터링
 
 ```bash
-# 프로토콜별 필터링
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# 국가별 필터링
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# 최소 품질 점수별 필터링
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# 필터 조합
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### 프록시 품질 점수
+### 프록시 품질평가점수
 
-각 1proxy 프록시에는 다음과 같은 메타데이터가 포함됩니다:
+각 1proxy 프록시에는 메타데이터가 제공됩니다.
 
-| 필드            | 설명                                    |
-| --------------- | --------------------------------------- |
-| `qualityScore`  | 1proxy 검증에서 부여된 0-100점 평점     |
-| `latencyMs`     | 측정된 네트워크 지연 시간               |
-| `anonymity`     | `transparent`, `anonymous` 또는 `elite` |
-| `googleAccess`  | 프록시의 Google 서비스 액세스 가능 여부 |
-| `countryCode`   | 두 글자로 된 ISO 국가 코드              |
-| `lastValidated` | 마지막 검증 타임스탬프                  |
+| 필드            | 설명                                             |
+| --------------- | ------------------------------------------------ |
+| `qualityScore`  | 1개의 프록시 검증에서 0~100 등급                 |
+| `latencyMs`     | 측정된 네트워크 대기 시간                        |
+| `anonymity`     | `transparent`, `anonymous` 또는 `elite`          |
+| `googleAccess`  | 프록시가 Google 서비스에 액세스할 수 있는지 여부 |
+| `countryCode`   | 두 글자로 된 ISO 국가 코드                       |
+| `lastValidated` | 마지막 검증의 타임스탬프                         |
 
-품질 점수는 동적으로 조정됩니다:
+품질평가점수는 동적으로 조정됩니다.
 
-- **실패한 요청**은 점수를 10점 감소시킵니다
-- **점수가 ≤10으로 감소** → 프록시가 `inactive`로 표시됩니다
-- 비활성 프록시는 순환 대상에서 제외됩니다
+- **실패한 요청** 점수를 10점 감점하다
+- **점수가 ≤ 10으로 떨어졌습니다.** → 프록시는 `inactive` 로 표시됩니다.
+- 비활성 프록시는 순환에서 제외됩니다.
 
 ### 순환 전략
 
 ```bash
-# 품질별 순환(최상의 프록시 우선) — 기본값
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# 무작위 순환
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# 순차 순환(가장 오래전에 검증된 프록시 우선)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### 서킷 브레이커
+### 회로 차단기
 
-1proxy 동기화에는 서킷 브레이커가 내장되어 있습니다:
+1proxy 동기화에는 회로 차단기가 내장되어 있습니다.
 
-- **동기화가 5회 연속 실패**하면 이후의 동기화 시도가 차단됩니다
-- `resetOneproxyCircuitBreaker()`를 사용하거나 서버를 재시작하여 초기화합니다
-- 동기화 상태는 `GET /api/settings/oneproxy?action=status`에서 확인할 수 있습니다
+- 후에** 5회 연속 동기화 실패** , 추가 동기화 시도가 차단됩니다.
+- 다음으로 재설정: `resetOneproxyCircuitBreaker()` 또는 서버 다시 시작
+- 동기화 상태는 `GET /api/settings/oneproxy?action=status` 에서 확인할 수 있습니다.
 
-### 1proxy 프록시 삭제
+### 1개의 프록시 프록시 지우기
 
 ```bash
-# 단일 1proxy 프록시 삭제
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# 모든 1proxy 프록시 삭제(수동 프록시는 그대로 유지됨)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
@@ -384,35 +384,35 @@ curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 
 ## 탐지 방지 및 스텔스
 
-OmniRoute는 단순히 프록시를 통해 트래픽을 라우팅하는 데 그치지 않고, 트래픽이 정상적인 요청처럼 보이도록 만듭니다.
+OmniRoute 프록시 — 통해 트래픽을 라우팅하는 것이 아니라 트래픽이 합법적인 것처럼 보이게 만듭니다.
 
-### TLS 핑거프린트 스푸핑
+### TLS 지문 스푸핑
 
-`wreq-js`를 사용하여 브라우저와 유사한 TLS 핑거프린트를 생성함으로써, 브라우저가 아닌 TLS 핸드셰이크를 탐지하는 봇 감지 시스템을 우회합니다.
+`wreq-js` 사용하여 브라우저와 유사한 TLS 지문을 생성하고 브라우저가 아닌 TLS 핸드셰이크에 플래그를 지정하는 봇 감지 시스템을 우회합니다.
 
-### CLI 핑거프린트 일치
+### CLI 지문 매칭
 
-**CLI 핑거프린트 토글**(`설정 → 보안`)은 네이티브 CLI 바이너리(Claude Code, Codex 등)의 정확한 시그니처와 일치하도록 HTTP 헤더와 JSON 본문 필드의 순서를 재정렬합니다. 이 기능은 프록시와 **함께** 작동합니다.
+그만큼**CLI 지문 토글** (`Settings → Security`)는 기본 CLI 바이너리(Claude 코드, Codex 등)의 정확한 서명과 일치하도록 HTTP 헤더 및 JSON 본문 필드를 재정렬합니다. 이것은 작동합니다** 위에** 프록시:
 
 ```
-사용자 IP(차단됨) → 프록시 IP(미국) → 제공자 API
-                    + TLS 스푸핑
-                    + CLI 핑거프린트
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-따라서 **IP 마스킹**과 **요청 신뢰성**을 동시에 확보할 수 있습니다.
+당신은 둘 다 얻습니다**IP 마스킹** 그리고** 진정성을 요청하다** 동시에.
 
-### 프록시 IP 유지
+### 프록시 IP 보존
 
-대시보드의 색상 구분 배지는 현재 활성화된 프록시 수준을 보여줍니다.
+대시보드의 색상으로 구분된 배지는 활성화된 프록시 수준을 보여줍니다.
 
-| 배지 | 수준   | 의미                                 |
-| ---- | ------ | ------------------------------------ |
-| 🟢   | 전역   | 모든 트래픽이 이 프록시를 통과함     |
-| 🟡   | 제공자 | 이 제공자의 트래픽만 프록시를 통과함 |
-| 🔵   | 연결   | 이 특정 키/계정이 이 프록시를 사용함 |
+| 배지 | 수준   | 의미                                        |
+| ---- | ------ | ------------------------------------------- |
+| 🟢   | 글로벌 | 모든 트래픽은 이 프록시를 통과합니다.       |
+| 🟡   | 공급자 | 이 공급자의 트래픽만 프록시됩니다.          |
+| 🔵   | 연결   | 이 특정 key/account 이 프록시를 사용합니다. |
 
-배지에는 검증을 위해 확인된 프록시 IP도 표시됩니다.
+배지에는 확인을 위해 해결된 프록시 IP 도 표시됩니다.
 
 ---
 

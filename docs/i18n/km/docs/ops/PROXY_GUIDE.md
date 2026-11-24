@@ -270,60 +270,60 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ---
 
-## ទីផ្សារប្រូកស៊ីឥតគិតថ្លៃ 1proxy
+## 1proxy ទីផ្សារប្រូកស៊ីឥតគិតថ្លៃ
 
-> 🆕 **រួមចំណែកដោយ [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (បញ្ហា [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** រួមចំណែកដោយ [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (បញ្ហា [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute រួមបញ្ចូលជាមួយវេទិកាសហគមន៍ **[1proxy](https://1proxy-api.aitradepulse.com)** ដើម្បីផ្តល់សិទ្ធិចូលប្រើ **ប្រូកស៊ីឥតគិតថ្លៃដែលបានផ្ទៀងផ្ទាត់រាប់រយ** ពីជុំវិញពិភពលោក។ វាស័ក្តិសមបំផុតសម្រាប់អ្នកប្រើប្រាស់ដែលមិនមានហេដ្ឋារចនាសម្ព័ន្ធប្រូកស៊ីផ្ទាល់ខ្លួន។
+OmniRoute រួមបញ្ចូលជាមួយ** [ប្រូកស៊ី 1](https://1proxy-api.aitradepulse.com)** វេទិកាសហគមន៍ដើម្បីផ្តល់សិទ្ធិចូលប្រើ** ប្រូកស៊ីដែលមានសុពលភាពរាប់រយឥតគិតថ្លៃ** ពីជុំវិញពិភពលោក។ នេះគឺល្អឥតខ្ចោះសម្រាប់អ្នកប្រើប្រាស់ដែលមិនមានហេដ្ឋារចនាសម្ព័ន្ធប្រូកស៊ីផ្ទាល់ខ្លួនរបស់ពួកគេ។
 
 ### របៀបដែលវាដំណើរការ
 
 ```
-┌─────────────┐   ធ្វើសមកាលកម្ម   ┌─────────────────┐     បង្វិល      ┌──────────┐
-│  1proxy API │ ────────────────▶ │  proxy_registry  │ ─────────────▶ │ Provider │
-│ (ខាងក្រៅ)   │   រហូតដល់ 500    │  source=oneproxy │ តាមគុណភាព     │   API    │
-└─────────────┘      ប្រូកស៊ី      └─────────────────┘                └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **ធ្វើសមកាលកម្ម** — OmniRoute ទាញយកប្រូកស៊ីដែលបានផ្ទៀងផ្ទាត់ពី 1proxy API
-2. **រក្សាទុក** — ប្រូកស៊ីត្រូវបានរក្សាទុកក្នុងតារាង `proxy_registry` ដូចគ្នា ជាមួយ `source = 'oneproxy'`
-3. **ត្រង** — ត្រងតាមប្រូតូកូល ប្រទេស និងពិន្ទុគុណភាព
-4. **បង្វិល** — ជ្រើសរើសប្រូកស៊ីល្អបំផុតដោយប្រើយុទ្ធសាស្ត្រផ្អែកលើគុណភាព ចៃដន្យ ឬតាមលំដាប់
-5. **បន្ថយគុណភាពដោយស្វ័យប្រវត្តិ** — ប្រូកស៊ីដែលបរាជ័យនឹងត្រូវបន្ថយពិន្ទុគុណភាព។ ប្រសិនបើទាបជាងកម្រិតកំណត់ → ត្រូវបានសម្គាល់ថាអសកម្ម
+1. **ធ្វើសមកាលកម្ម** — OmniRoute ទាញយកប្រូកស៊ីដែលមានសុពលភាពពី 1proxy API
+2. **ហាង** — ប្រូកស៊ីត្រូវបានរក្សាទុកក្នុងតារាង `proxy_registry` ដូចគ្នាជាមួយ `source = 'oneproxy'`
+3. **តម្រង** — ត្រងតាមពិធីការ ប្រទេស ពិន្ទុគុណភាព
+4. **បង្វិល** — ជ្រើសរើសប្រូកស៊ីដ៏ល្អបំផុតដោយប្រើយុទ្ធសាស្រ្តគុណភាព ចៃដន្យ ឬតាមលំដាប់លំដោយ
+5. **បន្ទាបខ្លួនដោយស្វ័យប្រវត្តិ** — ប្រូកស៊ីដែលបរាជ័យទទួលបានពិន្ទុគុណភាពរបស់ពួកគេត្រូវបានកាត់បន្ថយ។ នៅក្រោមកម្រិត → ត្រូវបានសម្គាល់ថាអសកម្ម
 
-### ការធ្វើសមកាលកម្មប្រូកស៊ី
+### ធ្វើសមកាលកម្មប្រូកស៊ី
 
 **តាមរយៈផ្ទាំងគ្រប់គ្រង៖**
 
-1. ចូលទៅកាន់ផ្ទាំង **Settings → 1proxy**
-2. ចុច **"Sync Now"**
-3. មើលស្ថិតិ៖ ប្រូកស៊ីសរុប ចំនួនសកម្ម គុណភាពមធ្យម និងការបែងចែកតាមប្រទេស
+1. ទៅ** ការកំណត់ → 1proxy** ផ្ទាំង
+2. ចុច** "ធ្វើសមកាលកម្មឥឡូវនេះ"**
+3. មើលស្ថិតិ៖ ប្រូកស៊ីសរុប ចំនួនសកម្ម គុណភាពមធ្យម ការវិភាគតាមប្រទេស
 
-**តាមរយៈ API៖**
+**តាមរយៈ API:**
 
 ```bash
-# ចាប់ផ្តើមការធ្វើសមកាលកម្ម
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# ការឆ្លើយតប៖
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### ការត្រងប្រូកស៊ី
+### ត្រងប្រូកស៊ី
 
 ```bash
-# ត្រងតាមប្រូតូកូល
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# ត្រងតាមប្រទេស
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# ត្រងតាមពិន្ទុគុណភាពអប្បបរមា
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# បញ្ចូលតម្រងចូលគ្នា
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
@@ -331,53 +331,53 @@ curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&
 
 ប្រូកស៊ី 1proxy នីមួយៗភ្ជាប់មកជាមួយទិន្នន័យមេតា៖
 
-| វាល             | ការពិពណ៌នា                                    |
-| --------------- | --------------------------------------------- |
-| `qualityScore`  | ពិន្ទុ 0-100 ពីការផ្ទៀងផ្ទាត់របស់ 1proxy      |
-| `latencyMs`     | ភាពយឺតនៃបណ្តាញដែលបានវាស់វែង                   |
-| `anonymity`     | `transparent`, `anonymous` ឬ `elite`          |
-| `googleAccess`  | ថាតើប្រូកស៊ីអាចចូលប្រើសេវាកម្ម Google បានឬអត់ |
-| `countryCode`   | កូដប្រទេស ISO ពីរតួអក្សរ                      |
-| `lastValidated` | ត្រាពេលវេលានៃការផ្ទៀងផ្ទាត់ចុងក្រោយ           |
+| វាល             | ការពិពណ៌នា                                   |
+| --------------- | -------------------------------------------- |
+| `qualityScore`  | ការវាយតម្លៃ 0-100 ពី 1 សុពលភាពប្រូកស៊ី       |
+| `latencyMs`     | ភាពយឺតនៃបណ្តាញដែលបានវាស់វែង                  |
+| `anonymity`     | `transparent`, `anonymous`, ឬ `elite`        |
+| `googleAccess`  | ថាតើប្រូកស៊ីអាចចូលប្រើសេវាកម្ម Google ដែរឬទេ |
+| `countryCode`   | លេខកូដប្រទេស ISO ពីរអក្សរ                    |
+| `lastValidated` | ត្រាពេលវេលានៃការបញ្ជាក់ចុងក្រោយ              |
 
-ពិន្ទុគុណភាពត្រូវបានកែសម្រួលដោយថាមវន្ត៖
+ពិន្ទុគុណភាពត្រូវបានកែសម្រួលថាមវន្ត៖
 
-- **សំណើដែលបរាជ័យ** បន្ថយពិន្ទុចំនួន 10 ពិន្ទុ
-- **ពិន្ទុធ្លាក់ចុះដល់ ≤10** → ប្រូកស៊ីត្រូវបានសម្គាល់ជា `inactive`
+- **សំណើដែលបរាជ័យ** កាត់បន្ថយពិន្ទុ ១០ ពិន្ទុ
+- **ពិន្ទុធ្លាក់ចុះដល់ ≤ 10** → ប្រូកស៊ីត្រូវបានសម្គាល់ `inactive`
 - ប្រូកស៊ីអសកម្មត្រូវបានដកចេញពីការបង្វិល
 
 ### យុទ្ធសាស្ត្របង្វិល
 
 ```bash
-# បង្វិលតាមគុណភាព (ប្រូកស៊ីល្អបំផុតមុន) — លំនាំដើម
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# ការបង្វិលចៃដន្យ
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# តាមលំដាប់ (ប្រូកស៊ីដែលបានផ្ទៀងផ្ទាត់មុនគេបង្អស់ត្រូវបានជ្រើសមុន)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### ឧបករណ៍ផ្តាច់សៀគ្វី
+### ឧបករណ៍បំបែកសៀគ្វី
 
-ការធ្វើសមកាលកម្ម 1proxy មានឧបករណ៍ផ្តាច់សៀគ្វីដែលភ្ជាប់មកជាមួយ៖
+ការធ្វើសមកាលកម្ម 1proxy មានឧបករណ៍បំបែកសៀគ្វីដែលភ្ជាប់មកជាមួយ៖
 
-- បន្ទាប់ពី **ការធ្វើសមកាលកម្មបរាជ័យជាប់គ្នា 5 ដង** ការព្យាយាមធ្វើសមកាលកម្មបន្ថែមនឹងត្រូវបានទប់ស្កាត់
-- កំណត់ឡើងវិញដោយ៖ `resetOneproxyCircuitBreaker()` ឬចាប់ផ្តើមម៉ាស៊ីនបម្រើឡើងវិញ
-- ស្ថានភាពធ្វើសមកាលកម្មអាចរកបាននៅ `GET /api/settings/oneproxy?action=status`
+- បន្ទាប់ពី** ការបរាជ័យនៃការធ្វើសមកាលកម្ម 5 ជាប់គ្នា។** ការព្យាយាមធ្វើសមកាលកម្មបន្ថែមទៀតត្រូវបានរារាំង
+- កំណត់ឡើងវិញជាមួយ៖ `resetOneproxyCircuitBreaker()` ឬចាប់ផ្តើមម៉ាស៊ីនមេឡើងវិញ
+- ស្ថានភាពសមកាលកម្មមាននៅ `GET /api/settings/oneproxy?action=status`
 
-### ការសម្អាតប្រូកស៊ី 1proxy
+### ការសម្អាតប្រូកស៊ី 1 ប្រូកស៊ី
 
 ```bash
-# លុបប្រូកស៊ី 1proxy មួយ
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# សម្អាតប្រូកស៊ី 1proxy ទាំងអស់ (ប្រូកស៊ីដែលបញ្ចូលដោយដៃមិនត្រូវបានប៉ះពាល់)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

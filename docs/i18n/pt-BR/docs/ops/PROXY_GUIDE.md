@@ -10,20 +10,20 @@ O OmniRoute inclui um sistema completo de gerenciamento de proxies que permite r
 
 ---
 
-## Sumário
+## Índice
 
-- [Por que usar proxies?](#por-que-usar-proxies)
-- [Visão geral da arquitetura](#visão-geral-da-arquitetura)
-- [Sistema de proxies em 4 níveis](#sistema-de-proxies-em-4-níveis)
-- [Registro de proxies (CRUD)](#registro-de-proxies-crud)
-- [Marketplace gratuito 1proxy](#marketplace-gratuito-1proxy)
-- [Rotação de proxies](#rotação-de-proxies)
-- [Antidetecção e modo furtivo](#antidetecção-e-modo-furtivo)
-- [Modos de proxy upstream](#modos-de-proxy-upstream)
-- [Interface do painel](#interface-do-painel)
-- [Referência da API](#referência-da-api)
-- [Variáveis de ambiente](#variáveis-de-ambiente)
-- [Solução de problemas](#solução-de-problemas)
+- [Por que usar proxies?](#why-use-proxies)
+- [Visão geral da arquitetura](#architecture-overview)
+- [Sistema proxy de 4 níveis](#4-level-proxy-system)
+- [Registro de proxy (CRUD)](#proxy-registry-crud)
+- [1proxy Mercado Gratuito](#1proxy-free-proxy-marketplace)
+- [Rotação de proxy](#proxy-rotation)
+- [Antidetecção e furtividade](#anti-detection--stealth)
+- [Modos de proxy upstream](#upstream-proxy-modes)
+- [Painel UI](#dashboard-ui)
+- [Referência API](#api-reference)
+- [Variáveis de ambiente](#environment-variables)
+- [Solução de problemas](#troubleshooting)
 
 ---
 
@@ -270,150 +270,150 @@ Isso ocorre uma única vez na primeira inicialização após a atualização. Us
 
 ---
 
-## Marketplace de Proxies Gratuitos 1proxy
+## Mercado de proxy gratuito 1proxy
 
-> 🆕 **Contribuição de [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Issue [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Contribuição de [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (Edição [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-O OmniRoute integra-se à plataforma da comunidade **[1proxy](https://1proxy-api.aitradepulse.com)** para fornecer acesso a **centenas de proxies gratuitos e validados** de todo o mundo. Isso é ideal para usuários que não possuem sua própria infraestrutura de proxies.
+OmniRoute integra-se com o** [1proxy](https://1proxy-api.aitradepulse.com)** plataforma comunitária para fornecer acesso a** centenas de proxies validados e gratuitos** de todo o mundo. Isso é perfeito para usuários que não possuem sua própria infraestrutura de proxy.
 
-### Como Funciona
+### Como funciona
 
 ```
-┌─────────────┐  Sincronizar  ┌─────────────────┐  Rotacionar   ┌──────────┐
-│ API 1proxy  │ ────────────▶ │  proxy_registry  │ ────────────▶ │Provedor  │
-│  (externa)  │   até 500     │  source=oneproxy │ por qualidade │   API    │
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
 └─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Sincronização** — O OmniRoute busca proxies validados na API do 1proxy
-2. **Armazenamento** — Os proxies são salvos na mesma tabela `proxy_registry` com `source = 'oneproxy'`
-3. **Filtragem** — Filtre por protocolo, país e pontuação de qualidade
-4. **Rotação** — Selecione o melhor proxy usando estratégias por qualidade, aleatória ou sequencial
-5. **Degradação automática** — Proxies que falham têm sua pontuação de qualidade reduzida; abaixo do limite → são marcados como inativos
+1. **Sincronizar** — OmniRoute busca proxies validados do 1proxy API
+2. **Loja** Os proxies — são salvos na mesma tabela `proxy_registry` com `source = 'oneproxy'`
+3. **Filtro** — Filtrar por protocolo, país, índice de qualidade
+4. **Girar** — Escolha o melhor proxy usando estratégias de qualidade, aleatórias ou sequenciais
+5. **Degradação automática** — Proxies com falha têm seu índice de qualidade reduzido; abaixo do limite → marcado como inativo
 
 ### Sincronizando Proxies
 
-**Pelo Painel:**
+**Através do painel:**
 
-1. Acesse a aba **Configurações → 1proxy**
-2. Clique em **"Sincronizar Agora"**
-3. Veja as estatísticas: total de proxies, quantidade de ativos, qualidade média e distribuição por país
+1. Vá para** Configurações → 1proxy** guia
+2. Clique** "Sincronizar agora"**
+3. Ver estatísticas: total de proxies, contagem ativa, qualidade média, detalhamento por país
 
-**Pela API:**
+**Via API:**
 
 ```bash
-# Acionar sincronização
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Resposta:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### Filtrando Proxies
 
 ```bash
-# Filtrar por protocolo
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Filtrar por país
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Filtrar pela pontuação mínima de qualidade
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Combinar filtros
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Pontuações de Qualidade dos Proxies
+### Índices de qualidade de proxy
 
-Cada proxy do 1proxy inclui metadados:
+Cada proxy 1proxy vem com metadados:
 
-| Campo           | Descrição                                            |
-| --------------- | ---------------------------------------------------- |
-| `qualityScore`  | Classificação de 0 a 100 da validação do 1proxy      |
-| `latencyMs`     | Latência de rede medida                              |
-| `anonymity`     | `transparent`, `anonymous` ou `elite`                |
-| `googleAccess`  | Indica se o proxy pode acessar os serviços do Google |
-| `countryCode`   | Código ISO do país com duas letras                   |
-| `lastValidated` | Data e hora da última validação                      |
+| Campo           | Descrição                                    |
+| --------------- | -------------------------------------------- |
+| `qualityScore`  | Classificação de 0 a 100 da validação 1proxy |
+| `latencyMs`     | Latência de rede medida                      |
+| `anonymity`     | `transparent`, `anonymous` ou `elite`        |
+| `googleAccess`  | Se o proxy pode acessar os serviços Google   |
+| `countryCode`   | Código de país ISO de duas letras            |
+| `lastValidated` | Carimbo de data e hora da última validação   |
 
-As pontuações de qualidade são ajustadas dinamicamente:
+Os índices de qualidade são ajustados dinamicamente:
 
-- **Solicitações com falha** reduzem a pontuação em 10 pontos
-- **A pontuação cai para ≤10** → o proxy é marcado como `inactive`
+- **Solicitações com falha** reduzir a pontuação em 10 pontos
+- **Pontuação cai para ≤ 10** O proxy → está marcado `inactive`
 - Proxies inativos são excluídos da rotação
 
 ### Estratégias de Rotação
 
 ```bash
-# Rotacionar por qualidade (melhor proxy primeiro) — padrão
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Rotação aleatória
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Sequencial (o validado há mais tempo primeiro)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### Disjuntor
 
-A sincronização do 1proxy possui um disjuntor integrado:
+O 1proxy Sync possui um disjuntor integrado:
 
-- Após **5 falhas consecutivas de sincronização**, novas tentativas de sincronização são bloqueadas
-- Redefina com: `resetOneproxyCircuitBreaker()` ou reinicie o servidor
-- O status da sincronização está disponível em `GET /api/settings/oneproxy?action=status`
+- Depois** 5 falhas de sincronização consecutivas** , outras tentativas de sincronização serão bloqueadas
+- Reinicialize com: `resetOneproxyCircuitBreaker()` ou reinicie o servidor
+- O status de sincronização está disponível em `GET /api/settings/oneproxy?action=status`
 
-### Limpando os Proxies do 1proxy
+### Limpando proxies 1proxy
 
 ```bash
-# Excluir um único proxy do 1proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Limpar TODOS os proxies do 1proxy (os proxies manuais não são afetados)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## Antideteção e Furtividade
+## Antidetecção e furtividade
 
-O OmniRoute não apenas direciona o tráfego por meio de um proxy — ele faz com que o tráfego pareça legítimo:
+OmniRoute não apenas direciona o tráfego através de um proxy — ele faz com que o tráfego pareça legítimo:
 
-### Falsificação de Impressão Digital TLS
+### Falsificação de impressão digital TLS
 
-Usa `wreq-js` para gerar impressões digitais TLS semelhantes às de navegadores, contornando sistemas de detecção de bots que sinalizam handshakes TLS não provenientes de navegadores.
+Usa `wreq-js` para gerar impressões digitais TLS semelhantes a navegador, ignorando sistemas de detecção de bot que sinalizam handshakes TLS fora do navegador.
 
-### Correspondência de Impressão Digital da CLI
+### Correspondência de impressão digital CLI
 
-O **Seletor de Impressão Digital da CLI** (`Configurações → Segurança`) reordena os cabeçalhos HTTP e os campos do corpo JSON para corresponder à assinatura exata dos binários nativos de CLI (Claude Code, Codex etc.). Isso funciona **em conjunto com** o proxy:
+O** Alternar impressão digital CLI** (`Settings → Security`) reordena os cabeçalhos HTTP e os campos do corpo JSON para corresponder à assinatura exata dos binários CLI nativos (Claude Code, Codex, etc.). Isso funciona** em cima de** o procurador:
 
 ```
-Seu IP (bloqueado) → IP do proxy (EUA) → API do provedor
-                     + falsificação de TLS
-                     + impressão digital da CLI
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-Você obtém simultaneamente **mascaramento de IP** e **autenticidade das requisições**.
+Você consegue os dois** mascaramento IP** e** solicitar autenticidade** simultaneamente.
 
-### Preservação do IP do Proxy
+### Preservação de proxy IP
 
-Selos codificados por cores no painel mostram qual nível de proxy está ativo:
+Crachás codificados por cores no painel mostram qual nível de proxy está ativo:
 
-| Selo | Nível    | Significado                                      |
-| ---- | -------- | ------------------------------------------------ |
-| 🟢   | Global   | Todo o tráfego passa por este proxy              |
-| 🟡   | Provedor | Apenas o tráfego deste provedor passa pelo proxy |
-| 🔵   | Conexão  | Esta chave/conta específica usa este proxy       |
+| Distintivo | Nível    | Significado                                |
+| ---------- | -------- | ------------------------------------------ |
+| 🟢         | Global   | Todo o tráfego passa por este proxy        |
+| 🟡         | Provedor | Somente o tráfego deste provedor é proxy   |
+| 🔵         | Conexão  | Este key/account específico usa este proxy |
 
-O selo também mostra o IP resolvido do proxy para verificação.
+O emblema também mostra o proxy IP resolvido para verificação.
 
 ---
 

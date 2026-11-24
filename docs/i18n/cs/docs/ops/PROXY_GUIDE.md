@@ -270,150 +270,150 @@ K tomu dojde jednou při prvním spuštění po upgradu. Pro opětovné spuště
 
 ---
 
-## 1proxy Tržiště bezplatných proxy serverů
+## 1proxy Free Proxy Marketplace
 
-> 🆕 **Přispěl [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Problém [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Přispěl [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (vydání [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute se integruje s komunitní platformou **[1proxy](https://1proxy-api.aitradepulse.com)** a poskytuje přístup ke **stovkám bezplatných, ověřených proxy serverů** z celého světa. To je ideální pro uživatele, kteří nemají vlastní proxy infrastrukturu.
+OmniRoute se integruje s** [1 proxy](https://1proxy-api.aitradepulse.com)** komunitní platforma, ke které bude přístup** stovky bezplatných, ověřených proxy** z celého světa. To je ideální pro uživatele, kteří nemají vlastní infrastrukturu proxy.
 
 ### Jak to funguje
 
 ```
-┌─────────────┐  Synchronizace  ┌─────────────────┐    Rotace     ┌──────────┐
-│  1proxy API │ ───────────────▶ │  proxy_registry  │ ────────────▶ │ Poskytov.│
-│  (externí)  │   až 500 proxy   │  source=oneproxy │  dle kvality │   API    │
-└─────────────┘                  └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Synchronizace** — OmniRoute načítá ověřené proxy servery z API 1proxy
-2. **Uložení** — Proxy servery se ukládají do stejné tabulky `proxy_registry` s hodnotou `source = 'oneproxy'`
-3. **Filtrování** — Filtrování podle protokolu, země a skóre kvality
-4. **Rotace** — Výběr nejlepšího proxy serveru pomocí strategie založené na kvalitě, náhodném nebo sekvenčním výběru
-5. **Automatické snížení hodnocení** — Neúspěšným proxy serverům se sníží skóre kvality; při poklesu pod prahovou hodnotu → jsou označeny jako neaktivní
+1. **Synchronizovat** — OmniRoute načte ověřené proxy z 1 proxy API
+2. **Obchod** — Proxy jsou uloženy ve stejné tabulce `proxy_registry` jako `source = 'oneproxy'`
+3. **Filtr** — Filtrujte podle protokolu, země, skóre kvality
+4. **Střídat** — Vyberte nejlepší proxy pomocí kvalitních, náhodných nebo sekvenčních strategií
+5. **Autodegradace** — Neúspěšným proxy se sníží skóre kvality; pod prahem → označeno jako neaktivní
 
-### Synchronizace proxy serverů
+### Synchronizace proxy
 
-**Prostřednictvím ovládacího panelu:**
+**Prostřednictvím řídicího panelu:**
 
-1. Přejděte na kartu **Nastavení → 1proxy**
-2. Klikněte na **„Synchronizovat nyní“**
-3. Zobrazte statistiky: celkový počet proxy serverů, počet aktivních, průměrná kvalita a rozdělení podle zemí
+1. Přejít na** Nastavení → 1proxy** tab
+2. Klikněte** "Synchronizovat nyní"**
+3. Zobrazit statistiky: celkový počet proxy, aktivní počet, průměrná kvalita, rozdělení podle zemí
 
-**Prostřednictvím API:**
+**Přes API:**
 
 ```bash
-# Spuštění synchronizace
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Odpověď:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### Filtrování proxy serverů
+### Filtrování proxy
 
 ```bash
-# Filtrování podle protokolu
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Filtrování podle země
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Filtrování podle minimálního skóre kvality
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Kombinace filtrů
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Skóre kvality proxy serverů
+### Skóre kvality proxy
 
-Každý proxy server 1proxy obsahuje metadata:
+Každý 1 proxy server je dodáván s metadaty:
 
-| Pole            | Popis                                    |
-| --------------- | ---------------------------------------- |
-| `qualityScore`  | Hodnocení 0–100 z ověření službou 1proxy |
-| `latencyMs`     | Naměřená latence sítě                    |
-| `anonymity`     | `transparent`, `anonymous` nebo `elite`  |
-| `googleAccess`  | Zda má proxy přístup ke službám Google   |
-| `countryCode`   | Dvoupísmenný kód země ISO                |
-| `lastValidated` | Časové razítko posledního ověření        |
+| Pole            | Popis                                        |
+| --------------- | -------------------------------------------- |
+| `qualityScore`  | Hodnocení 0-100 od ověření 1 proxy           |
+| `latencyMs`     | Změřená latence sítě                         |
+| `anonymity`     | `transparent`, `anonymous` nebo `elite`      |
+| `googleAccess`  | Zda může proxy přistupovat ke službám Google |
+| `countryCode`   | Dvoupísmenný kód země ISO                    |
+| `lastValidated` | Časové razítko posledního ověření            |
 
-Skóre kvality se dynamicky upravuje:
+Skóre kvality se dynamicky upravují:
 
-- **Neúspěšné požadavky** snižují skóre o 10 bodů
-- **Skóre klesne na ≤10** → proxy server je označen jako `inactive`
-- Neaktivní proxy servery jsou z rotace vyloučeny
+- **Neúspěšné požadavky** snížit skóre o 10 bodů
+- **Skóre klesá na ≤ 10** → proxy je označena `inactive`
+- Neaktivní proxy jsou z rotace vyloučeny
 
 ### Strategie rotace
 
 ```bash
-# Rotace podle kvality (nejlepší proxy jako první) — výchozí
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Náhodná rotace
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Sekvenční rotace (nejdříve nejdéle neověřený proxy server)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### Jistič
 
-Synchronizace 1proxy obsahuje integrovaný jistič:
+1proxy synchronizace má vestavěný jistič:
 
-- Po **5 po sobě jdoucích selháních synchronizace** jsou další pokusy o synchronizaci zablokovány
-- Resetujte jej pomocí `resetOneproxyCircuitBreaker()` nebo restartujte server
-- Stav synchronizace je dostupný na adrese `GET /api/settings/oneproxy?action=status`
+- Po** 5 po sobě jdoucích selhání synchronizace** , další pokusy o synchronizaci jsou blokovány
+- Resetujte pomocí: `resetOneproxyCircuitBreaker()` nebo restartujte server
+- Stav synchronizace je k dispozici na `GET /api/settings/oneproxy?action=status`
 
-### Vymazání proxy serverů 1proxy
+### Vymazání 1 proxy proxy
 
 ```bash
-# Odstranění jednoho proxy serveru 1proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Vymazání VŠECH proxy serverů 1proxy (ručně přidané proxy zůstanou nedotčeny)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## Ochrana proti detekci a utajení
+## Anti-Detection & Stealth
 
-OmniRoute nesměruje provoz pouze přes proxy — zároveň zajišťuje, aby provoz vypadal legitimně:
+OmniRoute nejen směruje provoz přes proxy — ale provoz vypadá legitimně:
 
-### Napodobení otisku TLS
+### TLS Falšování otisků prstů
 
-Používá `wreq-js` ke generování otisků TLS podobných prohlížečům, čímž obchází systémy detekce botů, které označují navazování spojení TLS nepocházející z prohlížečů.
+Využívá `wreq-js` ke generování otisků prstů TLS podobných prohlížeči, čímž obchází systémy detekce botů, které signalizují handshake TLS bez prohlížeče.
 
-### Napodobení otisku CLI
+### CLI Porovnání otisků prstů
 
-**Přepínač otisku CLI** (`Nastavení → Zabezpečení`) mění pořadí hlaviček HTTP a polí v těle JSON tak, aby přesně odpovídalo signatuře nativních binárních souborů CLI (Claude Code, Codex atd.). Tato funkce pracuje **nad rámec** proxy:
+The**CLI Přepínání otisků prstů** (`Settings → Security`) změní pořadí hlaviček HTTP a těles těla JSON tak, aby odpovídaly přesnému podpisu nativních binárních souborů CLI (kód Claude, Codex atd.). Tohle funguje** na vrcholu** proxy:
 
 ```
-Vaše IP (blokovaná) → IP proxy (USA) → API poskytovatele
-                       + napodobení TLS
-                       + otisk CLI
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-Získáte tak současně **maskování IP adresy** i **autenticitu požadavků**.
+Dostanete obojí**IP maskování** a** požadovat pravost** zároveň.
 
-### Zachování IP adresy proxy
+### Zachování proxy IP
 
-Barevně odlišené štítky na řídicím panelu ukazují, která úroveň proxy je aktivní:
+Barevně odlišené odznaky na řídicím panelu ukazují, která úroveň proxy je aktivní:
 
-| Štítek | Úroveň       | Význam                                                |
-| ------ | ------------ | ----------------------------------------------------- |
-| 🟢     | Globální     | Veškerý provoz prochází přes tuto proxy               |
-| 🟡     | Poskytovatel | Přes proxy prochází pouze provoz tohoto poskytovatele |
-| 🔵     | Připojení    | Tuto proxy používá konkrétní klíč nebo účet           |
+| Odznak | Úroveň       | Význam                                                  |
+| ------ | ------------ | ------------------------------------------------------- |
+| 🟢     | Globální     | Veškerý provoz prochází tímto proxy serverem            |
+| 🟡     | Poskytovatel | Přes proxy se používá pouze provoz tohoto poskytovatele |
+| 🔵     | Spojení      | Tento konkrétní key/account používá tento proxy         |
 
-Štítek pro ověření zobrazuje také zjištěnou IP adresu proxy.
+Odznak také zobrazuje vyřešený proxy IP pro ověření.
 
 ---
 

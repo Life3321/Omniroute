@@ -269,114 +269,114 @@ Proxy registry သည် **host+port ဖြင့် upsert လုပ်ခြ�
 
 ---
 
-## 1proxy အခမဲ့ Proxy စျေးကွက်
+## 1proxy အခမဲ့ Proxy Marketplace
 
-> 🆕 **[@oyi77](https://github.com/oyi77) မှ ပါဝင်ပံ့ပိုးထားသည်** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Issue [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** [@oyi77](https://github.com/oyi77) မှ ပံ့ပိုးပေးပါသည်။** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (ထုတ်ဝေမှု [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute သည် ကမ္ဘာတစ်ဝန်းမှ **အခမဲ့ဖြစ်ပြီး စစ်ဆေးအတည်ပြုထားသော proxy ရာပေါင်းများစွာ** ကို အသုံးပြုနိုင်ရန် **[1proxy](https://1proxy-api.aitradepulse.com)** ကွန်မြူနတီပလက်ဖောင်းနှင့် ပေါင်းစပ်ထားသည်။ ကိုယ်ပိုင် proxy အခြေခံအဆောက်အအုံမရှိသော အသုံးပြုသူများအတွက် အထူးသင့်လျော်သည်။
+OmniRoute သည် the နှင့်ပေါင်းစပ်သည်။** [1 ပရောက်စီ](https://1proxy-api.aitradepulse.com)** သုံးစွဲခွင့် ပေးဆောင်ရန် အသိုင်းအဝိုင်း ပလက်ဖောင်း** ရာနှင့်ချီသော အခမဲ့၊ တရားဝင်သော proxy များ** ကမ္ဘာတစ်ဝှမ်းမှ။ ၎င်းသည် ၎င်းတို့၏ကိုယ်ပိုင် proxy အခြေခံအဆောက်အအုံမရှိသော အသုံးပြုသူများအတွက် ပြီးပြည့်စုံသည်။
 
-### အလုပ်လုပ်ပုံ
+### ဘယ်လိုအလုပ်လုပ်လဲ။
 
 ```
-┌─────────────┐   တစ်ပြေးညီလုပ်ရန်   ┌─────────────────┐   အလှည့်ကျသုံးရန်   ┌────────────┐
-│  1proxy API │ ──────────────────▶ │  proxy_registry  │ ────────────────▶ │ Provider   │
-│  (ပြင်ပ)    │  proxy 500 အထိ      │  source=oneproxy │ အရည်အသွေးအလိုက်   │ API        │
-└─────────────┘                     └─────────────────┘                  └────────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **တစ်ပြေးညီလုပ်ခြင်း** — OmniRoute သည် 1proxy API မှ စစ်ဆေးအတည်ပြုထားသော proxy များကို ရယူသည်
-2. **သိမ်းဆည်းခြင်း** — Proxy များကို `source = 'oneproxy'` ဖြင့် တူညီသော `proxy_registry` ဇယားထဲတွင် သိမ်းဆည်းသည်
-3. **စစ်ထုတ်ခြင်း** — Protocol၊ နိုင်ငံနှင့် အရည်အသွေးရမှတ်တို့အလိုက် စစ်ထုတ်သည်
-4. **အလှည့်ကျအသုံးပြုခြင်း** — အရည်အသွေးအလိုက်၊ ကျပန်း သို့မဟုတ် အစဉ်လိုက် နည်းဗျူဟာများကို အသုံးပြုပြီး အကောင်းဆုံး proxy ကို ရွေးချယ်သည်
-5. **အလိုအလျောက် အဆင့်လျှော့ခြင်း** — မအောင်မြင်သော proxy များ၏ အရည်အသွေးရမှတ်ကို လျှော့ချပြီး သတ်မှတ်ချက်အောက်ရောက်ပါက → အသုံးမပြုနိုင်ဟု အမှတ်အသားပြုသည်
+1. **ထပ်တူကျသည်။** — OmniRoute သည် 1proxy API မှ တရားဝင်သော ပရောက်စီများကို ထုတ်ယူသည်။
+2. **စတိုး** — Proxies များကို `source = 'oneproxy'` ဖြင့် တူညီသော `proxy_registry` ဇယားတွင် သိမ်းဆည်းထားသည်။
+3. **ဇကာ** — ပရိုတိုကော၊ နိုင်ငံ၊ အရည်အသွေးရမှတ်ဖြင့် စစ်ထုတ်ပါ။
+4. **အလှည့်** — အရည်အသွေး၊ ကျပန်း သို့မဟုတ် ဆက်တိုက်နည်းဗျူဟာများကို အသုံးပြု၍ အကောင်းဆုံး proxy ကို ရွေးပါ။
+5. **အလိုအလျောက် ကျဆင်းခြင်း။** — မအောင်မြင်သော ပရောက်စီများသည် ၎င်းတို့၏ အရည်အသွေးရမှတ်များကို လျှော့ချပေးသည်။ → သတ်မှတ်ချက်အောက်တွင် မလှုပ်ရှားကြောင်း အမှတ်အသားပြုထားသည်။
 
-### Proxy များကို တစ်ပြေးညီလုပ်ခြင်း
+### Proxy များကို ထပ်တူပြုခြင်း။
 
-**Dashboard မှတစ်ဆင့်:**
+**Dashboard မှတဆင့်-**
 
-1. **Settings → 1proxy** တက်ဘ်သို့ သွားပါ
-2. **"Sync Now"** ကို နှိပ်ပါ
-3. စာရင်းအင်းများဖြစ်သည့် proxy စုစုပေါင်း၊ အသုံးပြုနိုင်သည့် အရေအတွက်၊ ပျမ်းမျှအရည်အသွေးနှင့် နိုင်ငံအလိုက်ခွဲခြမ်းချက်တို့ကို ကြည့်ရှုပါ
+1. သွားပါ။** ဆက်တင်များ → 1proxy** တက်ဘ်
+2. နှိပ်ပါ။** "ယခု စင့်ခ်လုပ်ပါ"**
+3. ကိန်းဂဏာန်းများကိုကြည့်ပါ- စုစုပေါင်း ပရောက်စီများ၊ တက်ကြွသောရေတွက်မှု၊ ပျမ်းမျှအရည်အသွေး၊ နိုင်ငံအလိုက် ပိုင်းခြားမှု
 
-**API မှတစ်ဆင့်:**
+**API မှတဆင့်**
 
 ```bash
-# တစ်ပြေးညီလုပ်ခြင်းကို စတင်ရန်
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# တုံ့ပြန်ချက်:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### Proxy များကို စစ်ထုတ်ခြင်း
+### Proxies စစ်ထုတ်ခြင်း။
 
 ```bash
-# Protocol အလိုက် စစ်ထုတ်ရန်
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# နိုင်ငံအလိုက် စစ်ထုတ်ရန်
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# အနိမ့်ဆုံး အရည်အသွေးရမှတ်အလိုက် စစ်ထုတ်ရန်
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# စစ်ထုတ်မှုများကို ပေါင်းစပ်ရန်
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
 ### Proxy အရည်အသွေးရမှတ်များ
 
-1proxy proxy တစ်ခုစီတွင် အောက်ပါ metadata များ ပါဝင်သည်-
+1proxy proxy တစ်ခုစီတွင် မက်တာဒေတာများ ပါရှိသည်။
 
-| အကွက်           | ဖော်ပြချက်                                                       |
-| --------------- | ---------------------------------------------------------------- |
-| `qualityScore`  | 1proxy စစ်ဆေးအတည်ပြုမှုမှ 0-100 အဆင့်သတ်မှတ်ချက်                 |
-| `latencyMs`     | တိုင်းတာထားသော ကွန်ရက်တုံ့ပြန်ကြာချိန်                           |
-| `anonymity`     | `transparent`၊ `anonymous` သို့မဟုတ် `elite`                     |
-| `googleAccess`  | Proxy သည် Google ဝန်ဆောင်မှုများကို အသုံးပြုနိုင်ခြင်း ရှိ၊ မရှိ |
-| `countryCode`   | စာလုံးနှစ်လုံးပါ ISO နိုင်ငံကုဒ်                                 |
-| `lastValidated` | နောက်ဆုံးစစ်ဆေးအတည်ပြုခဲ့သည့် အချိန်မှတ်တမ်း                     |
+| လယ်ကွင်း        | ဖော်ပြချက်                                              |
+| --------------- | ------------------------------------------------------- |
+| `qualityScore`  | 1proxy အတည်ပြုခြင်းမှ 0-100 အဆင့်သတ်မှတ်ချက်            |
+| `latencyMs`     | ကွန်ရက် တုံ့ပြန်ချိန်ကို တိုင်းတာသည်။                   |
+| `anonymity`     | `transparent`၊ `anonymous` သို့မဟုတ် `elite`            |
+| `googleAccess`  | ပရောက်စီသည် Google ဝန်ဆောင်မှုများကို ဝင်သုံးနိုင်မလား။ |
+| `countryCode`   | ISO နိုင်ငံကုဒ် စာလုံးနှစ်လုံး                          |
+| `lastValidated` | နောက်ဆုံးအတည်ပြုချက်၏အချိန်တံဆိပ်                       |
 
-အရည်အသွေးရမှတ်များကို အခြေအနေအလိုက် အလိုအလျောက် ချိန်ညှိသည်-
+အရည်အသွေးရမှတ်များကို ဒိုင်းနမစ်ဖြင့် ချိန်ညှိထားသည်-
 
-- **မအောင်မြင်သော request များ** သည် ရမှတ်ကို 10 မှတ် လျှော့ချသည်
-- **ရမှတ် ≤10 သို့ ကျဆင်းပါက** → proxy ကို `inactive` အဖြစ် အမှတ်အသားပြုသည်
-- အသုံးမပြုနိုင်သော proxy များကို အလှည့်ကျရွေးချယ်မှုမှ ဖယ်ထုတ်ထားသည်
+- **တောင်းဆိုချက်များ မအောင်မြင်ပါ။** ရမှတ် 10 မှတ်လျှော့ချပါ။
+- **ရမှတ်သည် ≤ 10 သို့ကျဆင်းသွားသည်။** → ပရောက်စီကို `inactive` အမှတ်အသားပြုထားသည်။
+- မလှုပ်ရှားနိုင်သော ပရောက်စီများကို လည်ပတ်ခြင်းမှ ဖယ်ထုတ်ထားသည်။
 
-### အလှည့်ကျအသုံးပြုမှု နည်းဗျူဟာများ
+### အလှည့်ကျနည်းဗျူဟာများ
 
 ```bash
-# အရည်အသွေးအလိုက် အလှည့်ကျအသုံးပြုရန် (အကောင်းဆုံး proxy ကို ဦးစွာသုံးမည်) — မူလသတ်မှတ်ချက်
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# ကျပန်း အလှည့်ကျအသုံးပြုရန်
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# အစဉ်လိုက်အသုံးပြုရန် (မကြာသေးမီက အနည်းဆုံး စစ်ဆေးအတည်ပြုထားသည့် proxy ကို ဦးစွာသုံးမည်)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### Circuit Breaker
 
-1proxy တစ်ပြေးညီလုပ်ခြင်းတွင် အသင့်ပါဝင်သော circuit breaker တစ်ခု ရှိသည်-
+1proxy စင့်ခ်တွင် တပ်ဆင်ထားသော circuit breaker ပါရှိသည်-
 
-- **တစ်ပြေးညီလုပ်မှု 5 ကြိမ်ဆက်တိုက် မအောင်မြင်ပြီးနောက်** ထပ်မံတစ်ပြေးညီလုပ်ရန် ကြိုးပမ်းမှုများကို ပိတ်ဆို့ထားမည်
-- `resetOneproxyCircuitBreaker()` ဖြင့် ပြန်လည်သတ်မှတ်ပါ သို့မဟုတ် server ကို ပြန်လည်စတင်ပါ
-- တစ်ပြေးညီလုပ်မှု အခြေအနေကို `GET /api/settings/oneproxy?action=status` တွင် ရရှိနိုင်သည်
+- ပြီးနောက်** 5 ဆက်တိုက် ထပ်တူကျမှု မအောင်မြင်ပါ။** နောက်ထပ် ထပ်တူကူးရန် ကြိုးပမ်းမှုများကို ပိတ်ဆို့ထားသည်။
+- `resetOneproxyCircuitBreaker()` ဖြင့် ပြန်လည်သတ်မှတ်ပါ သို့မဟုတ် ဆာဗာကို ပြန်လည်စတင်ပါ။
+- စင့်ခ်လုပ်ခြင်းအခြေအနေကို `GET /api/settings/oneproxy?action=status` တွင်ရနိုင်သည်။
 
-### 1proxy Proxy များကို ရှင်းလင်းခြင်း
+### 1proxy ပရောက်စီများကို ရှင်းလင်းခြင်း။
 
 ```bash
-# 1proxy proxy တစ်ခုတည်းကို ဖျက်ရန်
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# 1proxy proxy အားလုံးကို ရှင်းလင်းရန် (ကိုယ်တိုင်ထည့်ထားသော proxy များကို မထိခိုက်ပါ)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
@@ -559,7 +559,7 @@ curl "http://localhost:20128/api/settings/oneproxy?action=status"
 
 ---
 
-## ဒေတာဘေ့စ်အစီအစဉ်
+## Database Schema
 
 ### `proxy_registry` ဇယား
 

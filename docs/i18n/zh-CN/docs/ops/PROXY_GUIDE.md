@@ -12,18 +12,18 @@ OmniRoute 包含一个功能完备的代理管理系统，可让您通过 HTTP�
 
 ## 目录
 
-- [为什么使用代理？](#为什么使用代理)
-- [架构概览](#架构概览)
-- [四级代理系统](#四级代理系统)
-- [代理注册表（CRUD）](#代理注册表crud)
-- [1proxy 免费代理市场](#1proxy-免费代理市场)
-- [代理轮换](#代理轮换)
-- [反检测与隐匿](#反检测与隐匿)
-- [上游代理模式](#上游代理模式)
-- [控制面板 UI](#控制面板-ui)
-- [API 参考](#api-参考)
-- [环境变量](#环境变量)
-- [故障排除](#故障排除)
+- [为什么使用代理？](#why-use-proxies)
+- [架构概述](#architecture-overview)
+- [四级代理系统](#4-level-proxy-system)
+- [代理注册中心 (CRUD)](#proxy-registry-crud)
+- [1proxy 免费市场](#1proxy-free-proxy-marketplace)
+- [代理轮换](#proxy-rotation)
+- [反探测与隐身](#anti-detection--stealth)
+- [上游代理模式](#upstream-proxy-modes)
+- [仪表板UI](#dashboard-ui)
+- [API参考](#api-reference)
+- [环境变量](#environment-variables)
+- [故障排除](#troubleshooting)
 
 ---
 
@@ -271,148 +271,148 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ## 1proxy 免费代理市场
 
-> 🆕 **由 [@oyi77](https://github.com/oyi77) 贡献** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847)（Issue [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788)）
+> 🆕**贡献者： [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) （问题[#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) ）
 
-OmniRoute 与 **[1proxy](https://1proxy-api.aitradepulse.com)** 社区平台集成，可使用来自世界各地的**数百个经过验证的免费代理**。这非常适合没有自有代理基础设施的用户。
+OmniRoute与**[1个代理](https://1proxy-api.aitradepulse.com)**社区平台提供访问**数百个免费且经过验证的代理**来自世界各地。这对于没有自己的代理基础设施的用户来说是完美的。
 
-### 工作原理
+### 它是如何运作的
 
 ```
-┌─────────────┐     同步      ┌─────────────────┐    轮换      ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ 供应商   │
-│   （外部）   │   最多 500 个  │  source=oneproxy │  按质量选择  │   API    │
-└─────────────┘     代理      └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **同步** — OmniRoute 从 1proxy API 获取经过验证的代理
-2. **存储** — 代理保存在同一个 `proxy_registry` 表中，并设置 `source = 'oneproxy'`
-3. **筛选** — 按协议、国家/地区和质量评分进行筛选
-4. **轮换** — 使用质量优先、随机或顺序策略选择最佳代理
-5. **自动降级** — 失败代理的质量评分会降低；低于阈值时 → 标记为非活动状态
+1. **同步**— OmniRoute从 1proxy API获取经过验证的代理
+2. **店铺**—代理与`source = 'oneproxy'`保存在同一个`proxy_registry`表中
+3. **筛选**—按协议、国家/地区、质量得分过滤
+4. **旋转**—使用质量、随机或顺序策略选择最佳代理
+5. **自动降解**—失败的代理的质量分数会降低；低于阈值→标记为非活动状态
 
 ### 同步代理
 
 **通过仪表板：**
 
-1. 前往 **设置 → 1proxy** 选项卡
+1. 前往**设置→ 1proxy**选项卡
 2. 点击**“立即同步”**
-3. 查看统计信息：代理总数、活动代理数量、平均质量以及按国家/地区划分的明细
+3. 查看统计数据：代理总数、活跃数量、平均质量、按国家/地区细分
 
-**通过 API：**
+**通过API：**
 
 ```bash
-# 触发同步
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# 响应：
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### 筛选代理
+### 过滤代理
 
 ```bash
-# 按协议筛选
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# 按国家/地区筛选
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# 按最低质量评分筛选
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# 组合筛选条件
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### 代理质量评分
+### 代理质量得分
 
-每个 1proxy 代理都包含以下元数据：
+每个 1proxy 代理都带有元数据：
 
-| 字段            | 说明                                  |
-| --------------- | ------------------------------------- |
-| `qualityScore`  | 1proxy 验证给出的 0-100 评分          |
-| `latencyMs`     | 测得的网络延迟                        |
-| `anonymity`     | `transparent`、`anonymous` 或 `elite` |
-| `googleAccess`  | 代理能否访问 Google 服务              |
-| `countryCode`   | 两位 ISO 国家/地区代码                |
-| `lastValidated` | 上次验证的时间戳                      |
+| 场地            | 描述                                 |
+| --------------- | ------------------------------------ |
+| `qualityScore`  | 1proxy 验证的 0-100 评级             |
+| `latencyMs`     | 测量的网络延迟                       |
+| `anonymity`     | `transparent`、 `anonymous`或`elite` |
+| `googleAccess`  | proxy是否可以访问Google服务          |
+| `countryCode`   | 两个字母的ISO国家/地区代码           |
+| `lastValidated` | 上次验证的时间戳                     |
 
-质量评分会动态调整：
+质量分数动态调整：
 
-- **请求失败**会使评分降低 10 分
-- **评分降至 ≤10** → 代理将被标记为 `inactive`
-- 非活动代理不会参与轮换
+- **失败的请求**降低10分
+- **≤分数降至 10** →代理标记为`inactive`
+- 不活动的代理被排除在轮换之外
 
 ### 轮换策略
 
 ```bash
-# 按质量轮换（优先选择最佳代理）— 默认策略
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# 随机轮换
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# 顺序轮换（优先选择最久未验证的代理）
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### 熔断器
+### 断路器
 
-1proxy 同步功能内置了熔断器：
+1proxy 同步有一个内置断路器：
 
-- 在**连续 5 次同步失败**后，后续同步尝试将被阻止
-- 可通过 `resetOneproxyCircuitBreaker()` 重置，或重启服务器
-- 可通过 `GET /api/settings/oneproxy?action=status` 获取同步状态
+- 后**连续 5 次同步失败**，进一步的同步尝试被阻止
+- 重置： `resetOneproxyCircuitBreaker()`或重新启动服务器
+- 同步状态可在`GET /api/settings/oneproxy?action=status`上获取
 
-### 清除 1proxy 代理
+### 清除1proxy代理
 
 ```bash
-# 删除单个 1proxy 代理
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# 清除所有 1proxy 代理（手动添加的代理不受影响）
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## 反检测与隐匿
+## 反探测与隐身
 
-OmniRoute 不只是通过代理路由流量，还会让流量看起来合法：
+OmniRoute不仅仅通过代理—路由流量，它还使流量看起来合法：
 
-### TLS 指纹伪装
+### TLS指纹欺骗
 
-使用 `wreq-js` 生成类似浏览器的 TLS 指纹，从而绕过会标记非浏览器 TLS 握手的机器人检测系统。
+使用`wreq-js`生成类似浏览器的TLS指纹，绕过标记非浏览器TLS握手的机器人检测系统。
 
-### CLI 指纹匹配
+### CLI指纹比对
 
-**CLI 指纹开关**（`设置 → 安全`）会重新排列 HTTP 标头和 JSON 正文字段，以精确匹配原生 CLI 二进制文件（Claude Code、Codex 等）的特征。此功能在代理之上运行：
+这**CLI指纹切换**(`Settings → Security`) 重新排序HTTP标头和JSON正文字段以匹配本机CLI二进制文件的确切签名（Claude Code、 Codex等）。这有效**在上面**代理：
 
 ```
-您的 IP（被阻止）→ 代理 IP（美国）→ 提供者 API
-                   + TLS 伪装
-                   + CLI 指纹
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-您可以同时获得 **IP 隐藏**和**请求真实性**。
+你两者都得到**IP掩码**和**要求真实性**同时地。
 
-### 代理 IP 保留
+### 代理IP保存
 
-仪表板中的彩色徽章会显示当前生效的代理级别：
+仪表板中的颜色编码徽章显示哪个代理级别处于活动状态：
 
-| 徽章 | 级别   | 含义                      |
-| ---- | ------ | ------------------------- |
-| 🟢   | 全局   | 所有流量都通过此代理      |
-| 🟡   | 提供者 | 仅此提供者的流量通过代理  |
-| 🔵   | 连接   | 此特定密钥/账户使用此代理 |
+| 徽章 | 等级   | 意义                              |
+| ---- | ------ | --------------------------------- |
+| 🟢   | 全球的 | 所有流量都经过此代理              |
+| 🟡   | 提供者 | 仅代理该提供者的流量              |
+| 🔵   | 联系   | 这个特定的key/account使用这个代理 |
 
-徽章还会显示解析后的代理 IP，以供验证。
+徽章还显示已解析的代理IP以供验证。
 
 ---
 

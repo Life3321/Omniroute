@@ -269,114 +269,114 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ---
 
-## 1proxy مفت پراکسی مارکیٹ پلیس
+## 1 پراکسی فری پراکسی مارکیٹ پلیس
 
-> 🆕 **تعاون کنندہ: [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (مسئلہ [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** تعاون کردہ بذریعہ [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (مسئلہ [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute، **[1proxy](https://1proxy-api.aitradepulse.com)** کمیونٹی پلیٹ فارم کے ساتھ انضمام کرتا ہے تاکہ دنیا بھر سے **سینکڑوں مفت، تصدیق شدہ پراکسیز** تک رسائی فراہم کی جا سکے۔ یہ ان صارفین کے لیے بہترین ہے جن کے پاس اپنا پراکسی انفراسٹرکچر موجود نہیں ہے۔
+OmniRoute کے ساتھ ضم ہوتا ہے۔** [1 پراکسی](https://1proxy-api.aitradepulse.com)** تک رسائی فراہم کرنے کے لیے کمیونٹی پلیٹ فارم** سینکڑوں مفت، توثیق شدہ پراکسیز** دنیا بھر سے یہ ان صارفین کے لیے بہترین ہے جن کا اپنا پراکسی انفراسٹرکچر نہیں ہے۔
 
-### یہ کیسے کام کرتا ہے
+### یہ کیسے کام کرتا ہے۔
 
 ```
-┌─────────────┐    ہم وقت سازی    ┌─────────────────┐    گردش      ┌──────────┐
-│  1proxy API │ ─────────────────▶ │  proxy_registry  │ ────────────▶ │ فراہم کنندہ │
-│   (بیرونی)  │    500 تک پراکسیز  │  source=oneproxy │  معیار کے لحاظ سے │   API    │
-└─────────────┘                    └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **ہم وقت سازی** — OmniRoute، 1proxy API سے تصدیق شدہ پراکسیز حاصل کرتا ہے
-2. **محفوظ کرنا** — پراکسیز کو اسی `proxy_registry` ٹیبل میں `source = 'oneproxy'` کے ساتھ محفوظ کیا جاتا ہے
-3. **فلٹر کرنا** — پروٹوکول، ملک اور معیار کے اسکور کے لحاظ سے فلٹر کریں
-4. **گردش** — معیار، بے ترتیب یا ترتیبی حکمت عملی استعمال کرتے ہوئے بہترین پراکسی منتخب کریں
-5. **خودکار تنزلی** — ناکام پراکسیز کا معیار اسکور کم کر دیا جاتا ہے؛ حد سے نیچے ہونے پر → غیر فعال نشان زد کر دیا جاتا ہے
+1. **مطابقت پذیری** — OmniRoute 1proxy API سے توثیق شدہ پراکسیز لاتا ہے
+2. **اسٹور** — پراکسیز کو اسی `proxy_registry` ٹیبل میں `source = 'oneproxy'` کے ساتھ محفوظ کیا جاتا ہے۔
+3. **فلٹر** — پروٹوکول، ملک، کوالٹی سکور کے لحاظ سے فلٹر کریں۔
+4. **گھمائیں۔** — معیار، بے ترتیب، یا ترتیب وار حکمت عملیوں کا استعمال کرتے ہوئے بہترین پراکسی کا انتخاب کریں
+5. **آٹو ڈیگریڈ** — ناکام پراکسی اپنے کوالٹی سکور کو کم کر دیتی ہیں۔ نیچے کی حد → غیر فعال نشان زد ہے۔
 
-### پراکسیز کی ہم وقت سازی
+### پراکسیز کی مطابقت پذیری
 
 **ڈیش بورڈ کے ذریعے:**
 
-1. **Settings → 1proxy** ٹیب پر جائیں
-2. **"Sync Now"** پر کلک کریں
-3. اعداد و شمار دیکھیں: پراکسیز کی کل تعداد، فعال تعداد، اوسط معیار اور ملک کے لحاظ سے تفصیل
+1. پر جائیں۔** → 1proxy کی ترتیبات** ٹیب
+2. کلک کریں۔** "اب مطابقت پذیری کریں"**
+3. اعدادوشمار دیکھیں: کل پراکسی، فعال شمار، اوسط معیار، ملک کے لحاظ سے ٹوٹ پھوٹ
 
 **API کے ذریعے:**
 
 ```bash
-# ہم وقت سازی شروع کریں
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# جواب:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### پراکسیز کو فلٹر کرنا
+### پراکسیوں کو فلٹر کرنا
 
 ```bash
-# پروٹوکول کے لحاظ سے فلٹر کریں
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# ملک کے لحاظ سے فلٹر کریں
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# کم از کم معیار اسکور کے لحاظ سے فلٹر کریں
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# فلٹرز کو یکجا کریں
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### پراکسی کے معیار کے اسکورز
+### پراکسی کوالٹی اسکورز
 
-ہر 1proxy پراکسی کے ساتھ میٹا ڈیٹا شامل ہوتا ہے:
+ہر 1 پراکسی پراکسی میٹا ڈیٹا کے ساتھ آتی ہے:
 
-| فیلڈ            | وضاحت                                            |
-| --------------- | ------------------------------------------------ |
-| `qualityScore`  | 1proxy کی تصدیق سے حاصل کردہ 0-100 درجہ بندی     |
-| `latencyMs`     | نیٹ ورک کی ناپی گئی تاخیر                        |
-| `anonymity`     | `transparent`، `anonymous`، یا `elite`           |
-| `googleAccess`  | آیا پراکسی Google سروسز تک رسائی حاصل کر سکتی ہے |
-| `countryCode`   | دو حروف پر مشتمل ISO ملکی کوڈ                    |
-| `lastValidated` | آخری تصدیق کا ٹائم اسٹیمپ                        |
+| میدان           | تفصیل                                             |
+| --------------- | ------------------------------------------------- |
+| `qualityScore`  | 1 پراکسی کی توثیق سے 0-100 درجہ بندی              |
+| `latencyMs`     | نیٹ ورک کی تاخیر کی پیمائش کی گئی۔                |
+| `anonymity`     | `transparent`، `anonymous`، یا `elite`            |
+| `googleAccess`  | آیا پراکسی Google سروسز تک رسائی حاصل کر سکتی ہے۔ |
+| `countryCode`   | دو حرفی ISO کنٹری کوڈ                             |
+| `lastValidated` | آخری توثیق کا ٹائم اسٹیمپ                         |
 
-معیار کے اسکورز کو متحرک طور پر ایڈجسٹ کیا جاتا ہے:
+معیار کے اسکور متحرک طور پر ایڈجسٹ کیے جاتے ہیں:
 
-- **ناکام درخواستیں** اسکور کو 10 پوائنٹس کم کرتی ہیں
-- **اسکور ≤10 تک گر جائے** → پراکسی کو `inactive` نشان زد کر دیا جاتا ہے
-- غیر فعال پراکسیز کو گردش سے خارج کر دیا جاتا ہے
+- **ناکام درخواستیں۔** اسکور کو 10 پوائنٹس سے کم کریں۔
+- **اسکور ≤ 10 تک گر گیا۔** → پراکسی کو `inactive` نشان زد کیا گیا ہے۔
+- غیر فعال پراکسیوں کو گردش سے خارج کر دیا گیا ہے۔
 
-### گردش کی حکمت عملیاں
+### گردش کی حکمت عملی
 
 ```bash
-# معیار کے لحاظ سے گردش (بہترین پراکسی پہلے) — طے شدہ
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# بے ترتیب گردش
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# ترتیبی (جس کی حالیہ تصدیق سب سے پہلے ہوئی ہو)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### سرکٹ بریکر
 
-1proxy کی ہم وقت سازی میں ایک بلٹ اِن سرکٹ بریکر موجود ہے:
+1proxy sync میں ایک بلٹ ان سرکٹ بریکر ہے:
 
-- **مسلسل 5 ہم وقت سازی کی ناکامیوں** کے بعد، مزید کوششیں روک دی جاتی ہیں
-- اس کے ذریعے ری سیٹ کریں: `resetOneproxyCircuitBreaker()` یا سرور دوبارہ شروع کریں
-- ہم وقت سازی کی حالت `GET /api/settings/oneproxy?action=status` پر دستیاب ہے
+- کے بعد** 5 لگاتار مطابقت پذیری کی ناکامیاں** ، مزید مطابقت پذیری کی کوششیں مسدود ہیں۔
+- کے ساتھ ری سیٹ کریں: `resetOneproxyCircuitBreaker()` یا سرور کو دوبارہ شروع کریں۔
+- مطابقت پذیری کی حیثیت `GET /api/settings/oneproxy?action=status` پر دستیاب ہے۔
 
-### 1proxy پراکسیز صاف کرنا
+### 1 پراکسی پراکسیوں کو صاف کرنا
 
 ```bash
-# ایک 1proxy پراکسی حذف کریں
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# تمام 1proxy پراکسیز صاف کریں (دستی پراکسیز متاثر نہیں ہوں گی)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

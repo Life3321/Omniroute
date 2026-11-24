@@ -269,150 +269,150 @@ Dit gebeurt eenmalig bij de eerste keer opstarten na de upgrade. Gebruik `migrat
 
 ---
 
-## 1proxy-marktplaats voor gratis proxy's
+## 1proxy Gratis proxymarktplaats
 
-> 🆕 **Bijgedragen door [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Issue [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Bijgedragen door [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (probleem [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute integreert met het **[1proxy](https://1proxy-api.aitradepulse.com)**-communityplatform om toegang te bieden tot **honderden gratis, gevalideerde proxy's** van over de hele wereld. Dit is ideaal voor gebruikers die geen eigen proxy-infrastructuur hebben.
+OmniRoute integreert met de** [1proxy](https://1proxy-api.aitradepulse.com)** communityplatform waartoe toegang kan worden verleend** honderden gratis, gevalideerde proxy's** van over de hele wereld. Dit is perfect voor gebruikers die niet over een eigen proxy-infrastructuur beschikken.
 
 ### Hoe het werkt
 
 ```
-┌─────────────┐  Synchroniseren ┌─────────────────┐   Roteren    ┌──────────┐
-│  1proxy API │ ───────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
-│  (extern)   │   tot maximaal  │  source=oneproxy │  op kwaliteit │   API    │
-└─────────────┘   500 proxy's   └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Synchroniseren** — OmniRoute haalt gevalideerde proxy's op via de 1proxy-API
-2. **Opslaan** — Proxy's worden opgeslagen in dezelfde `proxy_registry`-tabel met `source = 'oneproxy'`
-3. **Filteren** — Filter op protocol, land en kwaliteitsscore
-4. **Roteren** — Kies de beste proxy met een strategie op basis van kwaliteit, willekeur of volgorde
-5. **Automatisch verlagen** — Bij mislukte proxy's wordt de kwaliteitsscore verlaagd; onder de drempelwaarde → gemarkeerd als inactief
+1. **Synchroniseren** — OmniRoute haalt gevalideerde proxy's op van de 1proxy API
+2. **Winkel** — proxy's worden opgeslagen in dezelfde `proxy_registry` tabel met `source = 'oneproxy'`
+3. **Filter** — Filter op protocol, land, kwaliteitsscore
+4. **Draaien** — Kies de beste proxy met behulp van kwaliteits-, willekeurige of sequentiële strategieën
+5. **Automatische degradatie** — Mislukte proxy's krijgen een lagere kwaliteitsscore; onder drempelwaarde → gemarkeerd als inactief
 
 ### Proxy's synchroniseren
 
-**Via het dashboard:**
+**Via Dashboard:**
 
-1. Ga naar het tabblad **Instellingen → 1proxy**
-2. Klik op **"Nu synchroniseren"**
-3. Bekijk statistieken: totaal aantal proxy's, actief aantal, gemiddelde kwaliteit en uitsplitsing per land
+1. Ga naar** Instellingen → 1proxy** tabblad
+2. Klik** "Nu synchroniseren"**
+3. Bekijk statistieken: totaal aantal proxy's, actieve telling, gemiddelde kwaliteit, uitsplitsing per land
 
-**Via de API:**
+**Via API:**
 
 ```bash
-# Synchronisatie starten
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Antwoord:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### Proxy's filteren
 
 ```bash
-# Filteren op protocol
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Filteren op land
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Filteren op minimale kwaliteitsscore
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Filters combineren
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Kwaliteitsscores van proxy's
+### Proxykwaliteitsscores
 
-Elke 1proxy-proxy bevat metagegevens:
+Elke 1proxy-proxy wordt geleverd met metadata:
 
-| Veld            | Beschrijving                                        |
-| --------------- | --------------------------------------------------- |
-| `qualityScore`  | Beoordeling van 0-100 op basis van 1proxy-validatie |
-| `latencyMs`     | Gemeten netwerklatentie                             |
-| `anonymity`     | `transparent`, `anonymous` of `elite`               |
-| `googleAccess`  | Of de proxy toegang heeft tot Google-services       |
-| `countryCode`   | ISO-landcode van twee letters                       |
-| `lastValidated` | Tijdstempel van de laatste validatie                |
+| Veld            | Beschrijving                                   |
+| --------------- | ---------------------------------------------- |
+| `qualityScore`  | 0-100 beoordeling van 1proxy-validatie         |
+| `latencyMs`     | Gemeten netwerklatentie                        |
+| `anonymity`     | `transparent`, `anonymous` of `elite`          |
+| `googleAccess`  | Of de proxy toegang heeft tot Google -services |
+| `countryCode`   | Tweeletterige ISO landcode                     |
+| `lastValidated` | Tijdstempel van de laatste validatie           |
 
 Kwaliteitsscores worden dynamisch aangepast:
 
-- **Mislukte aanvragen** verlagen de score met 10 punten
-- **Score daalt tot ≤10** → proxy wordt gemarkeerd als `inactive`
-- Inactieve proxy's worden uitgesloten van rotatie
+- **Mislukte verzoeken** verlaag de score met 10 punten
+- **Score daalt naar ≤ 10** → proxy is gemarkeerd `inactive`
+- Inactieve proxy's zijn uitgesloten van rotatie
 
 ### Rotatiestrategieën
 
 ```bash
-# Roteren op kwaliteit (beste proxy eerst) — standaard
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Willekeurige rotatie
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Opeenvolgend (minst recent gevalideerde proxy eerst)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### Circuitonderbreker
+### Stroomonderbreker
 
-De synchronisatie met 1proxy heeft een ingebouwde circuitonderbreker:
+De 1proxy-synchronisatie heeft een ingebouwde stroomonderbreker:
 
-- Na **5 opeenvolgende mislukte synchronisaties** worden verdere synchronisatiepogingen geblokkeerd
-- Reset deze met: `resetOneproxyCircuitBreaker()` of start de server opnieuw
-- De synchronisatiestatus is beschikbaar via `GET /api/settings/oneproxy?action=status`
+- Na** 5 opeenvolgende synchronisatiefouten** , worden verdere synchronisatiepogingen geblokkeerd
+- Reset met: `resetOneproxyCircuitBreaker()` of start de server opnieuw op
+- De synchronisatiestatus is beschikbaar op `GET /api/settings/oneproxy?action=status`
 
 ### 1proxy-proxy's wissen
 
 ```bash
-# Eén 1proxy-proxy verwijderen
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# ALLE 1proxy-proxy's wissen (handmatige proxy's blijven ongewijzigd)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## Anti-detectie & stealth
+## Anti-detectie en stealth
 
-OmniRoute leidt verkeer niet alleen via een proxy — het laat het verkeer er ook legitiem uitzien:
+OmniRoute leidt niet alleen verkeer door een proxy — het zorgt ervoor dat het verkeer er legitiem uitziet:
 
-### TLS-fingerprintspoofing
+### TLS Vingerafdrukspoofing
 
-Gebruikt `wreq-js` om browserachtige TLS-fingerprints te genereren en zo botdetectiesystemen te omzeilen die TLS-handshakes van niet-browsers markeren.
+Gebruikt `wreq-js` om browserachtige TLS vingerafdrukken te genereren, waarbij botdetectiesystemen worden omzeild die niet-browser TLS handshakes markeren.
 
-### CLI-fingerprintmatching
+### CLI -vingerafdrukmatching
 
-De **CLI-fingerprintschakelaar** (`Instellingen → Beveiliging`) wijzigt de volgorde van HTTP-headers en velden in de JSON-body zodat deze overeenkomt met de exacte signatuur van native CLI-binaries (Claude Code, Codex, enz.). Dit werkt **boven op** de proxy:
+De**CLI Vingerafdrukschakelaar** (`Settings → Security`) herschikt HTTP headers en JSON body-velden zodat ze overeenkomen met de exacte handtekening van native CLI binaire bestanden (Claude Code, Codex, enz.). Dit werkt** bovenop** de proxy:
 
 ```
-Uw IP (geblokkeerd) → Proxy-IP (VS) → Provider-API
-                       + TLS-spoofing
-                       + CLI-fingerprint
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-U krijgt tegelijkertijd zowel **IP-maskering** als **authenticiteit van verzoeken**.
+Je krijgt beide**IP maskeren** En** authenticiteit vragen** tegelijkertijd.
 
-### Behoud van het proxy-IP
+### Proxy IP
 
-Kleurgecodeerde badges in het dashboard geven aan welk proxyniveau actief is:
+Kleurgecodeerde badges in het dashboard laten zien welk proxyniveau actief is:
 
-| Badge | Niveau     | Betekenis                                           |
-| ----- | ---------- | --------------------------------------------------- |
-| 🟢    | Globaal    | Al het verkeer loopt via deze proxy                 |
-| 🟡    | Provider   | Alleen verkeer van deze provider wordt geproxyd     |
-| 🔵    | Verbinding | Deze specifieke sleutel/account gebruikt deze proxy |
+| Kenteken | Niveau     | Betekenis                                                |
+| -------- | ---------- | -------------------------------------------------------- |
+| 🟢       | Globaal    | Al het verkeer gaat via deze proxy                       |
+| 🟡       | Aanbieder  | Alleen het verkeer van deze provider wordt geproxyd      |
+| 🔵       | Verbinding | Deze specifieke key/account maakt gebruik van deze proxy |
 
-De badge toont ter verificatie ook het herleide proxy-IP.
+De badge toont ook de opgeloste proxy IP ter verificatie.
 
 ---
 

@@ -270,114 +270,114 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ---
 
-## 1proxy ነፃ ፕሮክሲ የገበያ ቦታ
+## 1 የተኪ ነፃ ተኪ የገበያ ቦታ
 
-> 🆕 **በ[@oyi77](https://github.com/oyi77) የተበረከተ** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (ጉዳይ [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** በ [@oyi77](https://github.com/oyi77) የተበረከተ** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (ጉዳይ [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute በዓለም ዙሪያ ያሉ **በመቶዎች የሚቆጠሩ ነፃና የተረጋገጡ ፕሮክሲዎችን** ለማግኘት ከ**[1proxy](https://1proxy-api.aitradepulse.com)** የማህበረሰብ መድረክ ጋር ይዋሃዳል። ይህ የራሳቸው የፕሮክሲ መሠረተ ልማት ለሌላቸው ተጠቃሚዎች እጅግ ተስማሚ ነው።
+OmniRoute ከ ጋር ይዋሃዳል** [1 ተኪ](https://1proxy-api.aitradepulse.com)** ተደራሽነትን ለማቅረብ የማህበረሰብ መድረክ** በመቶዎች የሚቆጠሩ ነፃ፣ የተረጋገጡ ፕሮክሲዎች** ከዓለም ዙሪያ. ይህ የራሳቸው የተኪ መሠረተ ልማት ለሌላቸው ተጠቃሚዎች ፍጹም ነው።
 
-### እንዴት እንደሚሠራ
+### እንዴት እንደሚሰራ
 
 ```
-┌─────────────┐   ማመሳሰል    ┌─────────────────┐   ማዞር      ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ አቅራቢ API │
-│   (ውጫዊ)    │ እስከ 500      │  source=oneproxy │ በጥራት       │           │
-└─────────────┘  ፕሮክሲዎች     └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **ማመሳሰል** — OmniRoute ከ1proxy API የተረጋገጡ ፕሮክሲዎችን ያመጣል
-2. **ማከማቸት** — ፕሮክሲዎች `source = 'oneproxy'` በሚል በዚያው `proxy_registry` ሰንጠረዥ ውስጥ ይቀመጣሉ
-3. **ማጣራት** — በፕሮቶኮል፣ በአገር እና በጥራት ነጥብ ያጣሩ
-4. **ማዞር** — የጥራት፣ የዘፈቀደ ወይም ተከታታይ ስልቶችን በመጠቀም ምርጡን ፕሮክሲ ይምረጡ
-5. **ራስ-ሰር የጥራት ቅነሳ** — ያልተሳኩ ፕሮክሲዎች የጥራት ነጥባቸው ይቀነሳል፤ ከገደቡ በታች ሲሆን → እንደ ንቁ ያልሆነ ምልክት ይደረግበታል
+1. **አመሳስል** — OmniRoute ከ1ፕሮክሲ API የተረጋገጡ ፕሮክሲዎችን ያመጣል
+2. **ማከማቻ** — ፕሮክሲዎች `source = 'oneproxy'` ጋር በተመሳሳይ `proxy_registry` ሠንጠረዥ ውስጥ ይቀመጣሉ።
+3. **አጣራ** — በፕሮቶኮል፣ በአገር፣ በጥራት ነጥብ አጣራ
+4. **አሽከርክር** — የጥራት፣ የዘፈቀደ ወይም ተከታታይ ስልቶችን በመጠቀም ምርጡን ፕሮክሲ ይምረጡ
+5. **ራስ-ሰር ዝቅ ማድረግ** — ያልተሳኩ ፕሮክሲዎች የጥራት ውጤታቸው ይቀንሳል; ከደፍ → በታች የቦዘነ ምልክት ተደርጎበታል።
 
-### ፕሮክሲዎችን ማመሳሰል
+### ፕሮክሲዎችን በማመሳሰል ላይ
 
-**በዳሽቦርድ በኩል፦**
+**በዳሽቦርድ በኩል፡**
 
-1. ወደ **ቅንብሮች → 1proxy** ትር ይሂዱ
-2. **"አሁን አመሳስል"** የሚለውን ጠቅ ያድርጉ
-3. ስታቲስቲክስን ይመልከቱ፦ ጠቅላላ ፕሮክሲዎች፣ የንቁ ፕሮክሲዎች ብዛት፣ አማካይ ጥራት እና በአገር የተከፋፈለ ዝርዝር
+1. ወደ ሂድ** ቅንብሮች → 1proxy** ትር
+2. ጠቅ ያድርጉ** "አሁን አስምር"**
+3. ስታቲስቲክስን ይመልከቱ፡ ጠቅላላ ፕሮክሲዎች፣ ገቢር ቆጠራ፣ አማካኝ ጥራት፣ በአገር መከፋፈል
 
-**በAPI በኩል፦**
+**በ API በኩል:**
 
 ```bash
-# ማመሳሰልን አስጀምር
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# ምላሽ፦
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### ፕሮክሲዎችን ማጣራት
+### ተኪዎችን በማጣራት ላይ
 
 ```bash
-# በፕሮቶኮል አጣራ
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# በአገር አጣራ
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# በዝቅተኛው የጥራት ነጥብ አጣራ
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# ማጣሪያዎችን አጣምር
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### የፕሮክሲ ጥራት ነጥቦች
+### የተኪ ጥራት ውጤቶች
 
-እያንዳንዱ የ1proxy ፕሮክሲ ከሜታዳታ ጋር ይመጣል፦
+እያንዳንዱ ፕሮክሲ ፕሮክሲ ከሜታዳታ ጋር ነው የሚመጣው፡-
 
-| መስክ             | መግለጫ                                   |
-| --------------- | -------------------------------------- |
-| `qualityScore`  | ከ1proxy ማረጋገጫ የተገኘ የ0-100 ደረጃ          |
-| `latencyMs`     | የተለካ የአውታረ መረብ መዘግየት                   |
-| `anonymity`     | `transparent`፣ `anonymous` ወይም `elite` |
-| `googleAccess`  | ፕሮክሲው የGoogle አገልግሎቶችን ማግኘት መቻሉን       |
-| `countryCode`   | ባለሁለት ፊደል ISO የአገር ኮድ                  |
-| `lastValidated` | የመጨረሻው ማረጋገጫ የጊዜ ማህተም                  |
+| መስክ             | መግለጫ                                    |
+| --------------- | --------------------------------------- |
+| `qualityScore`  | 0-100 ደረጃ ከ 1ፕሮክሲ ማረጋገጫ                 |
+| `latencyMs`     | የሚለካው የአውታረ መረብ መዘግየት                   |
+| `anonymity`     | `transparent`, `anonymous`, ወይም `elite` |
+| `googleAccess`  | ተኪው Google አገልግሎቶችን ማግኘት ይችል እንደሆነ      |
+| `countryCode`   | ባለ ሁለት ፊደል ISO የአገር ኮድ                  |
+| `lastValidated` | የመጨረሻው የማረጋገጫ ጊዜ ማህተም                   |
 
-የጥራት ነጥቦች በተለዋዋጭ ሁኔታ ይስተካከላሉ፦
+የጥራት ውጤቶች በተለዋዋጭ ተስተካክለዋል፡-
 
-- **ያልተሳኩ ጥያቄዎች** ነጥቡን በ10 ይቀንሳሉ
-- **ነጥቡ ወደ ≤10 ይወርዳል** → ፕሮክሲው `inactive` ተብሎ ምልክት ይደረግበታል
-- ንቁ ያልሆኑ ፕሮክሲዎች ከማዞሪያው ይገለላሉ
+- **ያልተሳኩ ጥያቄዎች** ውጤቱን በ 10 ነጥብ ይቀንሱ
+- **ነጥብ ወደ ≤ 10 ዝቅ ይላል።** → ተኪ `inactive` ምልክት ተደርጎበታል።
+- የቦዘኑ ፕሮክሲዎች ከመሽከርከር የተገለሉ ናቸው።
 
 ### የማዞሪያ ስልቶች
 
 ```bash
-# በጥራት አዙር (ምርጡ ፕሮክሲ መጀመሪያ) — ነባሪ
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# የዘፈቀደ ማዞሪያ
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# ተከታታይ (በቅርቡ ያልተረጋገጠው መጀመሪያ)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### የወረዳ ተቋራጭ
+### የወረዳ ሰባሪ
 
-የ1proxy ማመሳሰል አብሮገነብ የወረዳ ተቋራጭ አለው፦
+የ1ፕሮክሲ ማመሳሰል አብሮ የተሰራ የወረዳ የሚላተም አለው፡-
 
-- **5 ተከታታይ የማመሳሰል አለመሳካቶች** ካጋጠሙ በኋላ፣ ተጨማሪ የማመሳሰል ሙከራዎች ይታገዳሉ
-- በዚህ ዳግም ያስጀምሩ፦ `resetOneproxyCircuitBreaker()` ወይም አገልጋዩን ዳግም ያስጀምሩ
-- የማመሳሰል ሁኔታ በ`GET /api/settings/oneproxy?action=status` ይገኛል
+- በኋላ** 5 ተከታታይ የማመሳሰል አለመሳካቶች** , ተጨማሪ የማመሳሰል ሙከራዎች ታግደዋል
+- በ `resetOneproxyCircuitBreaker()` ዳግም ያስጀምሩ ወይም አገልጋዩን እንደገና ያስጀምሩ
+- የማመሳሰል ሁኔታ `GET /api/settings/oneproxy?action=status` ላይ ይገኛል።
 
-### የ1proxy ፕሮክሲዎችን ማጽዳት
+### 1 ተኪ ፕሮክሲዎችን በማጽዳት ላይ
 
 ```bash
-# አንድ የ1proxy ፕሮክሲ ሰርዝ
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# ሁሉንም የ1proxy ፕሮክሲዎች አጽዳ (በእጅ የተጨመሩ ፕሮክሲዎች አይነኩም)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

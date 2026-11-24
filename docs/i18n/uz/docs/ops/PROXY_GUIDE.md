@@ -270,150 +270,150 @@ Bu yangilangandan keyingi ilk ishga tushirishda bir marta amalga oshadi. Qayta i
 
 ---
 
-## 1proxy bepul proksi bozori
+## 1 proksi bepul proksi bozori
 
-> 🆕 **[@oyi77](https://github.com/oyi77) tomonidan qoʻshilgan** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Muammo [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** [@oyi77](https://github.com/oyi77) hissa qo'shgan** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (ZQe [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute butun dunyo boʻylab **yuzlab bepul, tekshirilgan proksilardan** foydalanish imkonini berish uchun **[1proxy](https://1proxy-api.aitradepulse.com)** hamjamiyat platformasi bilan integratsiyalashadi. Bu oʻz proksi infratuzilmasiga ega boʻlmagan foydalanuvchilar uchun juda mos keladi.
+OmniRoute bilan birlashadi** [1 proksi](https://1proxy-api.aitradepulse.com)** kirishni ta'minlash uchun jamoat platformasi** yuzlab bepul, tasdiqlangan proksi-serverlar** butun dunyodan. Bu proksi-server infratuzilmasiga ega bo'lmagan foydalanuvchilar uchun juda mos keladi.
 
-### Bu qanday ishlaydi
+### U qanday ishlaydi
 
 ```
-┌─────────────┐  Sinxronlash  ┌─────────────────┐  Almashtirish ┌──────────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provayder API │
-│  (tashqi)   │  500 tagacha  │  source=oneproxy │  sifat boʻyicha│              │
-└─────────────┘   proksi      └─────────────────┘               └──────────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Sinxronlash** — OmniRoute tekshirilgan proksilarni 1proxy API orqali oladi
-2. **Saqlash** — Proksilar ayni `proxy_registry` jadvalida `source = 'oneproxy'` qiymati bilan saqlanadi
-3. **Filtrlash** — Protokol, mamlakat va sifat bali boʻyicha filtrlang
-4. **Almashtirish** — Sifat, tasodifiy yoki ketma-ket strategiyalar yordamida eng yaxshi proksini tanlang
-5. **Avtomatik pasaytirish** — Ishlamagan proksilarning sifat bali kamaytiriladi; chegara qiymatidan past boʻlsa → nofaol deb belgilanadi
+1. **Sinxronlash** — OmniRoute 1proxy API dan tasdiqlangan proksi-serverlarni oladi
+2. **Do'kon** — Proksi-serverlar `source = 'oneproxy'` bilan bir xil `proxy_registry` jadvalida saqlanadi
+3. **Filtr** — Protokol, mamlakat, sifat ko‘rsatkichi bo‘yicha filtrlash
+4. **Aylantirish** — Sifatli, tasodifiy yoki ketma-ket strategiyalardan foydalangan holda eng yaxshi proksi-serverni tanlang
+5. **Avtomatik pasaytirish** — Muvaffaqiyatsiz proksi-serverlar sifat ko'rsatkichlarini pasaytiradi; → chegarasidan pastda faol emas deb belgilangan
 
-### Proksilarni sinxronlash
+### Proksi-serverlarni sinxronlash
 
 **Boshqaruv paneli orqali:**
 
-1. **Sozlamalar → 1proxy** ichki oynasiga oʻting
-2. **"Hozir sinxronlash"** tugmasini bosing
-3. Statistikani koʻring: proksilarning umumiy soni, faol proksilar soni, oʻrtacha sifat va mamlakatlar boʻyicha taqsimot
+1. ga boring** Sozlamalar → 1proxy** tab
+2. bosing** "Endi sinxronlash"**
+3. Statistikani koʻrish: jami proksi-serverlar, faollar soni, oʻrtacha sifat, mamlakatlar boʻyicha taqsimot
 
 **API orqali:**
 
 ```bash
-# Sinxronlashni ishga tushirish
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Javob:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### Proksilarni filtrlash
+### Proksi-serverlarni filtrlash
 
 ```bash
-# Protokol boʻyicha filtrlash
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Mamlakat boʻyicha filtrlash
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Minimal sifat bali boʻyicha filtrlash
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Filtrlarni birlashtirish
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Proksi sifat ballari
+### Proksi sifati ballari
 
-Har bir 1proxy proksisi quyidagi metadata bilan taqdim etiladi:
+Har bir proksi-server metadata bilan birga keladi:
 
-| Maydon          | Tavsif                                              |
-| --------------- | --------------------------------------------------- |
-| `qualityScore`  | 1proxy tekshiruvi asosidagi 0-100 oraligʻidagi baho |
-| `latencyMs`     | Oʻlchangan tarmoq kechikishi                        |
-| `anonymity`     | `transparent`, `anonymous` yoki `elite`             |
-| `googleAccess`  | Proksi Google xizmatlariga kira olishi              |
-| `countryCode`   | Ikki harfli ISO mamlakat kodi                       |
-| `lastValidated` | Oxirgi tekshiruv vaqt belgisi                       |
+| Maydon          | Tavsif                                                     |
+| --------------- | ---------------------------------------------------------- |
+| `qualityScore`  | 1 proksi tekshiruvidan 0-100 reyting                       |
+| `latencyMs`     | O'lchangan tarmoq kechikishi                               |
+| `anonymity`     | `transparent`, `anonymous` yoki `elite`                    |
+| `googleAccess`  | Proksi-server Google xizmatlariga kira oladimi yoki yo'qmi |
+| `countryCode`   | Ikki harfli ISO mamlakat kodi                              |
+| `lastValidated` | Oxirgi tasdiqlash vaqt belgisi                             |
 
-Sifat ballari dinamik ravishda oʻzgartiriladi:
+Sifat ko'rsatkichlari dinamik ravishda o'rnatiladi:
 
-- **Bajarilmagan soʻrovlar** ballni 10 punktga kamaytiradi
-- **Ball ≤10 gacha tushsa** → proksi `inactive` deb belgilanadi
-- Nofaol proksilar almashtirish jarayonidan chiqarib tashlanadi
+- **Muvaffaqiyatsiz so'rovlar** ballni 10 ballga qisqartirish
+- **Bal ≤ 10 ga tushadi** → proksi `inactive` bilan belgilangan
+- Nofaol proksi-serverlar aylanishdan chiqarib tashlanadi
 
-### Almashtirish strategiyalari
+### Rotatsiya strategiyalari
 
 ```bash
-# Sifat boʻyicha almashtirish (eng yaxshi proksi birinchi) — standart
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Tasodifiy almashtirish
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Ketma-ket (eng oldin tekshirilgan proksi birinchi)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### Avtomatik uzgich
+### O'chirish to'xtatuvchisi
 
-1proxy sinxronlashida ichki avtomatik uzgich mavjud:
+1proksi sinxronlashda o'rnatilgan o'chirgich mavjud:
 
-- **Ketma-ket 5 ta sinxronlash xatosidan** keyin keyingi sinxronlash urinishlari bloklanadi
-- `resetOneproxyCircuitBreaker()` yordamida qayta oʻrnating yoki serverni qayta ishga tushiring
-- Sinxronlash holati `GET /api/settings/oneproxy?action=status` manzilida mavjud
+- Keyin** 5 ta ketma-ket sinxronlash xatosi** , keyingi sinxronlash urinishlari bloklanadi
+- Qayta tiklash: `resetOneproxyCircuitBreaker()` yoki serverni qayta ishga tushiring
+- Sinxronizatsiya holati `GET /api/settings/oneproxy?action=status` da mavjud
 
-### 1proxy proksilarini tozalash
+### 1 proksi-serverni tozalash
 
 ```bash
-# Bitta 1proxy proksisini oʻchirish
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# BARCHA 1proxy proksilarini tozalash (qoʻlda qoʻshilgan proksilarga tegilmaydi)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## Aniqlashdan himoyalanish va yashirinlik
+## Anti-aniqlash va yashirin
 
-OmniRoute trafikni shunchaki proksi orqali yoʻnaltiribgina qolmay, uni haqiqiy trafikdek koʻrsatadi:
+OmniRoute nafaqat proksi-server — orqali trafikni yo'naltiradi, balki trafikni qonuniy ko'rinishga olib keladi:
 
-### TLS raqamli izini soxtalashtirish
+### TLS Barmoq izi spoofing
 
-Brauzerga oʻxshash TLS raqamli izlarini yaratish uchun `wreq-js`dan foydalanadi va brauzerga tegishli boʻlmagan TLS ulanishlarini belgilaydigan botlarni aniqlash tizimlarini chetlab oʻtadi.
+Brauzerga o'xshash TLS barmoq izlarini yaratish uchun `wreq-js` foydalanadi, bunda brauzerdan tashqari TLS qo'l siqishlarini belgilovchi botlarni aniqlash tizimlarini chetlab o'tadi.
 
-### CLI raqamli iziga moslash
+### CLI Barmoq izini moslashtirish
 
-**CLI raqamli izi almashtirgichi** (`Sozlamalar → Xavfsizlik`) HTTP sarlavhalari va JSON tanasi maydonlarini mahalliy CLI ikkilik fayllarining (Claude Code, Codex va boshqalar) aniq signaturasiga mos ravishda qayta tartiblaydi. Bu proksi bilan **birgalikda** ishlaydi:
+The**CLI Barmoq izini almashtirish** (`Settings → Security`) HTTP sarlavhalari va JSON tana maydonlarini mahalliy CLI ikkilik fayllarining (Claude Code, Codex va boshqalar) aniq imzosiga mos kelishi uchun qayta tartiblaydi. Bu ishlaydi** tepasida** proksi:
 
 ```
-Sizning IP manzilingiz (bloklangan) → Proksi IP manzili (AQSH) → Provayder API
-                                      + TLS soxtalashtirish
-                                      + CLI raqamli izi
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-Shu tariqa bir vaqtning oʻzida ham **IP manzilni yashirish**, ham **soʻrovning haqiqiyligi** taʼminlanadi.
+Ikkalasini ham olasiz**IP maskalash** va** haqiqiylikni talab qilish** bir vaqtning o'zida.
 
-### Proksi IP manzilini saqlash
+### Proksi IP saqlanishi
 
-Boshqaruv panelidagi rang bilan kodlangan nishonlar qaysi proksi darajasi faol ekanini koʻrsatadi:
+Boshqaruv panelidagi rangli kodli nishonlar qaysi proksi darajasi faol ekanligini ko‘rsatadi:
 
-| Nishon | Daraja    | Maʼnosi                                          |
-| ------ | --------- | ------------------------------------------------ |
-| 🟢     | Global    | Barcha trafik ushbu proksi orqali oʻtadi         |
-| 🟡     | Provayder | Faqat ushbu provayder trafiki proksilanadi       |
-| 🔵     | Ulanish   | Ushbu aniq kalit/hisob shu proksidan foydalanadi |
+| Belgi | Daraja    | Ma'nosi                                                  |
+| ----- | --------- | -------------------------------------------------------- |
+| 🟢    | Global    | Barcha trafik ushbu proksi-server orqali o'tadi          |
+| 🟡    | Provayder | Faqatgina ushbu provayderning trafigi proksilangan       |
+| 🔵    | Ulanish   | Bu maxsus key/account ushbu proksi-serverdan foydalanadi |
 
-Nishon tekshirish uchun aniqlangan proksi IP manzilini ham koʻrsatadi.
+Belgida tekshirish uchun hal qilingan proksi IP ham ko‘rsatilgan.
 
 ---
 

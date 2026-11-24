@@ -270,114 +270,114 @@ Acest lucru se întâmplă o singură dată, la prima pornire după actualizare.
 
 ---
 
-## Piața de proxy-uri gratuite 1proxy
+## 1 piață proxy gratuită
 
-> 🆕 **Contribuție de la [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Problemă [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Contribuție de [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (Problema [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute se integrează cu platforma comunitară **[1proxy](https://1proxy-api.aitradepulse.com)** pentru a oferi acces la **sute de proxy-uri gratuite și validate** din întreaga lume. Această opțiune este ideală pentru utilizatorii care nu dispun de propria infrastructură de proxy-uri.
+OmniRoute se integrează cu** [1 proxy](https://1proxy-api.aitradepulse.com)** platformă comunitară pentru a oferi acces la** sute de proxy-uri gratuite, validate** din întreaga lume. Acest lucru este perfect pentru utilizatorii care nu au propria infrastructură proxy.
 
 ### Cum funcționează
 
 ```
-┌─────────────┐  Sincronizare  ┌─────────────────┐    Rotație    ┌──────────┐
-│ API 1proxy  │ ─────────────▶ │  proxy_registry  │ ────────────▶ │ Furnizor │
-│  (extern)   │ până la 500 de │  source=oneproxy │ după calitate │   API    │
-└─────────────┘   proxy-uri    └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Sincronizare** — OmniRoute preia proxy-uri validate din API-ul 1proxy
-2. **Stocare** — Proxy-urile sunt salvate în același tabel `proxy_registry`, cu `source = 'oneproxy'`
-3. **Filtrare** — Filtrați după protocol, țară și scor de calitate
-4. **Rotație** — Selectați cel mai bun proxy folosind strategii bazate pe calitate, selecție aleatorie sau secvențială
-5. **Degradare automată** — Proxy-urilor care eșuează li se reduce scorul de calitate; sub prag → sunt marcate ca inactive
+1. **Sincronizare** — OmniRoute preia proxy-urile validate din 1proxy API
+2. **Magazin** — Proxy-urile sunt salvate în același tabel `proxy_registry` cu `source = 'oneproxy'`
+3. **Filtra** — Filtrați după protocol, țară, scor de calitate
+4. **Roti** — Alegeți cel mai bun proxy folosind strategii de calitate, aleatorii sau secvenţiale
+5. **Auto-degradare** — Proxy-urile eșuate își reduc scorul de calitate; sub pragul → marcat ca inactiv
 
 ### Sincronizarea proxy-urilor
 
-**Prin panoul de control:**
+**Prin tabloul de bord:**
 
-1. Accesați fila **Setări → 1proxy**
-2. Faceți clic pe **„Sincronizați acum”**
-3. Vizualizați statisticile: numărul total de proxy-uri, numărul celor active, calitatea medie și distribuția pe țări
+1. Du-te la** Setări → 1proxy** fila
+2. Clic** „Sincronizează acum”**
+3. Vedeți statistici: total proxy, număr activ, calitate medie, defalcare în funcție de țară
 
 **Prin API:**
 
 ```bash
-# Declanșează sincronizarea
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Răspuns:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### Filtrarea proxy-urilor
 
 ```bash
-# Filtrează după protocol
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Filtrează după țară
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Filtrează după scorul minim de calitate
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Combină filtrele
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Scorurile de calitate ale proxy-urilor
+### Scoruri de calitate proxy
 
-Fiecare proxy 1proxy include metadate:
+Fiecare proxy 1 proxy vine cu metadate:
 
-| Câmp            | Descriere                                              |
-| --------------- | ------------------------------------------------------ |
-| `qualityScore`  | Evaluare între 0 și 100 rezultată din validarea 1proxy |
-| `latencyMs`     | Latența de rețea măsurată                              |
-| `anonymity`     | `transparent`, `anonymous` sau `elite`                 |
-| `googleAccess`  | Indică dacă proxy-ul poate accesa serviciile Google    |
-| `countryCode`   | Codul ISO al țării, format din două litere             |
-| `lastValidated` | Marcajul temporal al ultimei validări                  |
+| Domeniu         | Descriere                                    |
+| --------------- | -------------------------------------------- |
+| `qualityScore`  | Evaluare 0-100 de la validarea 1proxy        |
+| `latencyMs`     | Latența rețelei măsurată                     |
+| `anonymity`     | `transparent`, `anonymous` sau `elite`       |
+| `googleAccess`  | Dacă proxy-ul poate accesa serviciile Google |
+| `countryCode`   | Cod de țară ISO din două litere              |
+| `lastValidated` | Marca temporală a ultimei validări           |
 
 Scorurile de calitate sunt ajustate dinamic:
 
-- **Solicitările eșuate** reduc scorul cu 10 puncte
-- **Scorul scade la ≤10** → proxy-ul este marcat ca `inactive`
+- **Solicitări nereușite** reduce scorul cu 10 puncte
+- **Scorul scade la ≤ 10** proxy-ul → este marcat `inactive`
 - Proxy-urile inactive sunt excluse din rotație
 
 ### Strategii de rotație
 
 ```bash
-# Rotație după calitate (mai întâi cel mai bun proxy) — implicit
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Rotație aleatorie
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Secvențială (mai întâi cel validat cel mai demult)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### Întrerupător de circuit
+### Întrerupător
 
-Sincronizarea 1proxy dispune de un întrerupător de circuit încorporat:
+Sincronizarea 1proxy are un întrerupător de circuit încorporat:
 
-- După **5 eșecuri consecutive de sincronizare**, încercările ulterioare de sincronizare sunt blocate
-- Resetați-l cu: `resetOneproxyCircuitBreaker()` sau reporniți serverul
-- Starea sincronizării este disponibilă la `GET /api/settings/oneproxy?action=status`
+- După** 5 erori consecutive de sincronizare** , încercările ulterioare de sincronizare sunt blocate
+- Resetați cu: `resetOneproxyCircuitBreaker()` sau reporniți serverul
+- Starea de sincronizare este disponibilă la `GET /api/settings/oneproxy?action=status`
 
-### Ștergerea proxy-urilor 1proxy
+### Ștergerea 1 proxy-uri
 
 ```bash
-# Șterge un singur proxy 1proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Șterge TOATE proxy-urile 1proxy (proxy-urile manuale nu sunt afectate)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

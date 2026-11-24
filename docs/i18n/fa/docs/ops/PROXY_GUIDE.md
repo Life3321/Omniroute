@@ -270,114 +270,114 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ---
 
-## بازار پراکسی رایگان 1proxy
+## 1پروکسی بازار پراکسی رایگان
 
-> 🆕 **مشارکت توسط [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Issue [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** ارائه شده توسط [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (مسئله [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute با پلتفرم جامعهمحور **[1proxy](https://1proxy-api.aitradepulse.com)** یکپارچه میشود تا دسترسی به **صدها پراکسی رایگان و اعتبارسنجیشده** از سراسر جهان را فراهم کند. این قابلیت برای کاربرانی که زیرساخت پراکسی اختصاصی ندارند، ایدئال است.
+OmniRoute با** [1 پروکسی](https://1proxy-api.aitradepulse.com)** پلت فرم جامعه برای ارائه دسترسی به** صدها پروکسی رایگان و معتبر** از سراسر جهان این برای کاربرانی که زیرساخت پروکسی خود را ندارند عالی است.
 
-### نحوه عملکرد
+### چگونه کار می کند
 
 ```
-┌─────────────┐  همگامسازی  ┌─────────────────┐    چرخش      ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ ارائهدهنده │
-│   (خارجی)   │  تا ۵۰۰       │  source=oneproxy │ بر اساس کیفیت │    API     │
-└─────────────┘    پراکسی     └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **همگامسازی** — OmniRoute پراکسیهای اعتبارسنجیشده را از 1proxy API دریافت میکند
-2. **ذخیرهسازی** — پراکسیها در همان جدول `proxy_registry` و با `source = 'oneproxy'` ذخیره میشوند
-3. **فیلتر** — فیلتر بر اساس پروتکل، کشور و امتیاز کیفیت
-4. **چرخش** — انتخاب بهترین پراکسی با استفاده از راهبردهای مبتنی بر کیفیت، تصادفی یا ترتیبی
-5. **تنزل خودکار** — امتیاز کیفیت پراکسیهای ناموفق کاهش مییابد؛ پایینتر از آستانه ← بهعنوان غیرفعال علامتگذاری میشوند
+1. **همگام سازی** — OmniRoute پراکسی های تایید شده را از 1proxy API واکشی می کند
+2. **فروشگاه** پروکسی های — در همان جدول `proxy_registry` با `source = 'oneproxy'` ذخیره می شوند
+3. **فیلتر کنید** — فیلتر بر اساس پروتکل، کشور، امتیاز کیفیت
+4. **چرخش** — بهترین پروکسی را با استفاده از استراتژی های با کیفیت، تصادفی یا متوالی انتخاب کنید
+5. **تخریب خودکار** پروکسی های ناموفق — نمره کیفیت خود را کاهش می دهند. زیر آستانه → غیرفعال علامت گذاری شد
 
-### همگامسازی پراکسیها
+### همگام سازی پراکسی ها
 
 **از طریق داشبورد:**
 
-1. به زبانه **Settings → 1proxy** بروید
-2. روی **"Sync Now"** کلیک کنید
-3. آمار را مشاهده کنید: تعداد کل پراکسیها، تعداد فعالها، میانگین کیفیت و تفکیک بر اساس کشور
+1. رفتن به** تنظیمات → 1proxy** برگه
+2. کلیک کنید** "اکنون همگام سازی"**
+3. مشاهده آمار: کل پراکسی ها، تعداد فعال، کیفیت متوسط، تفکیک کشوری
 
 **از طریق API:**
 
 ```bash
-# آغاز همگامسازی
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# پاسخ:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### فیلترکردن پراکسیها
+### فیلتر کردن پروکسی ها
 
 ```bash
-# فیلتر بر اساس پروتکل
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# فیلتر بر اساس کشور
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# فیلتر بر اساس حداقل امتیاز کیفیت
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# ترکیب فیلترها
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### امتیازهای کیفیت پراکسی
+### امتیازات کیفیت پروکسی
 
-هر پراکسی 1proxy دارای فرادادههای زیر است:
+هر پروکسی 1پروکسی همراه با ابرداده است:
 
-| فیلد            | توضیحات                                                 |
-| --------------- | ------------------------------------------------------- |
-| `qualityScore`  | امتیاز 0-100 حاصل از اعتبارسنجی 1proxy                  |
-| `latencyMs`     | تأخیر اندازهگیریشده شبکه                                |
-| `anonymity`     | `transparent`، `anonymous` یا `elite`                   |
-| `googleAccess`  | آیا پراکسی میتواند به سرویسهای Google دسترسی داشته باشد |
-| `countryCode`   | کد دوحرفی ISO کشور                                      |
-| `lastValidated` | مُهر زمانی آخرین اعتبارسنجی                             |
+| میدان           | توضیحات                                                            |
+| --------------- | ------------------------------------------------------------------ |
+| `qualityScore`  | امتیاز 0-100 از اعتبار سنجی 1پراکسی                                |
+| `latencyMs`     | تأخیر شبکه اندازه گیری شده                                         |
+| `anonymity`     | `transparent`، `anonymous`، یا `elite`                             |
+| `googleAccess`  | اینکه آیا پروکسی می تواند به خدمات Google دسترسی داشته باشد یا خیر |
+| `countryCode`   | کد کشور دو حرفی ISO                                                |
+| `lastValidated` | مهر زمانی آخرین اعتبارسنجی                                         |
 
-امتیازهای کیفیت بهصورت پویا تنظیم میشوند:
+امتیازهای کیفیت به صورت پویا تنظیم می شوند:
 
-- **درخواستهای ناموفق** امتیاز را ۱۰ واحد کاهش میدهند
-- **کاهش امتیاز به ≤10** ← پراکسی بهعنوان `inactive` علامتگذاری میشود
-- پراکسیهای غیرفعال از چرخش کنار گذاشته میشوند
+- **درخواست های ناموفق** امتیاز را 10 امتیاز کاهش دهید
+- **امتیاز به ≤ 10 کاهش می یابد** پروکسی → `inactive` مشخص شده است
+- پراکسی های غیرفعال از چرخش حذف می شوند
 
-### راهبردهای چرخش
+### استراتژی های چرخش
 
 ```bash
-# چرخش بر اساس کیفیت (ابتدا بهترین پراکسی) — پیشفرض
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# چرخش تصادفی
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# ترتیبی (ابتدا پراکسیای که مدت بیشتری از آخرین اعتبارسنجی آن گذشته است)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### قطعکننده مدار
+### مدار شکن
 
-همگامسازی 1proxy دارای یک قطعکننده مدار داخلی است:
+1proxy sync دارای یک مدار شکن داخلی است:
 
-- پس از **۵ شکست متوالی در همگامسازی**، تلاشهای بعدی برای همگامسازی مسدود میشوند
-- بازنشانی با `resetOneproxyCircuitBreaker()` یا راهاندازی مجدد سرور
-- وضعیت همگامسازی در `GET /api/settings/oneproxy?action=status` در دسترس است
+- بعد از** 5 شکست متوالی همگام سازی** ، تلاش های بیشتر برای همگام سازی مسدود شده است
+- بازنشانی با: `resetOneproxyCircuitBreaker()` یا راه اندازی مجدد سرور
+- وضعیت همگام سازی در `GET /api/settings/oneproxy?action=status` در دسترس است
 
-### پاککردن پراکسیهای 1proxy
+### پاک کردن 1 پراکسی پروکسی
 
 ```bash
-# حذف یک پراکسی 1proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# پاککردن همه پراکسیهای 1proxy (پراکسیهای دستی دستنخورده باقی میمانند)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
