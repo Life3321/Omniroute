@@ -271,150 +271,150 @@ Tai atliekama vieną kartą, pirmą kartą paleidus po atnaujinimo. Norėdami pa
 
 ---
 
-## 1proxy nemokamų tarpinių serverių prekyvietė
+## 1proxy Nemokama tarpinio serverio prekyvietė
 
-> 🆕 **Pridėjo [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (problema [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Prisidėjo [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) ( [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) problema)
 
-OmniRoute integruojama su **[1proxy](https://1proxy-api.aitradepulse.com)** bendruomenės platforma ir suteikia prieigą prie **šimtų nemokamų, patikrintų tarpinių serverių** iš viso pasaulio. Tai puikiai tinka naudotojams, neturintiems nuosavos tarpinių serverių infrastruktūros.
+OmniRoute integruojasi su** [1 tarpinis serveris](https://1proxy-api.aitradepulse.com)** bendruomenės platforma, prie kurios galima suteikti prieigą** šimtai nemokamų, patvirtintų tarpinių serverių** iš viso pasaulio. Tai puikiai tinka vartotojams, kurie neturi savo tarpinio serverio infrastruktūros.
 
 ### Kaip tai veikia
 
 ```
-┌─────────────┐  Sinchronizuoti  ┌─────────────────┐   Keisti     ┌────────────┐
-│  1proxy API │ ───────────────▶ │  proxy_registry  │ ───────────▶ │ Teikėjo API│
-│  (išorinė)  │    iki 500       │  source=oneproxy │  pagal kokybę│            │
-└─────────────┘ tarpinių serverių└─────────────────┘               └────────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Sinchronizavimas** — OmniRoute gauna patikrintus tarpinius serverius iš 1proxy API
-2. **Saugojimas** — tarpiniai serveriai išsaugomi toje pačioje `proxy_registry` lentelėje su `source = 'oneproxy'`
-3. **Filtravimas** — filtruokite pagal protokolą, šalį ir kokybės balą
-4. **Keitimas** — pasirinkite geriausią tarpinį serverį naudodami kokybe pagrįstą, atsitiktinę arba nuoseklią strategiją
-5. **Automatinis kokybės mažinimas** — nesėkmingai veikusio tarpinio serverio kokybės balas sumažinamas; nukritus žemiau ribos → jis pažymimas kaip neaktyvus
+1. **Sinchronizuoti** — OmniRoute paima patvirtintus tarpinius serverius iš 1proxy API
+2. **Parduotuvė** — Tarpiniai serveriai išsaugomi toje pačioje `proxy_registry` lentelėje su `source = 'oneproxy'`
+3. **Filtruoti** — Filtruoti pagal protokolą, šalį, kokybės balą
+4. **Pasukti** — Pasirinkite geriausią tarpinį serverį naudodami kokybiškas, atsitiktines arba nuoseklias strategijas
+5. **Automatinis pablogėjimas** — Nepavykusių tarpinių serverių kokybės balas sumažinamas; žemiau slenksčio → pažymėtas kaip neaktyvus
 
 ### Tarpinių serverių sinchronizavimas
 
-**Per valdymo skydelį:**
+**Per prietaisų skydelį:**
 
-1. Eikite į skirtuką **Settings → 1proxy**
-2. Spustelėkite **„Sync Now“**
-3. Peržiūrėkite statistiką: bendrą tarpinių serverių skaičių, aktyvių serverių skaičių, vidutinę kokybę ir suskirstymą pagal šalis
+1. Eikite į** → 1proxy nustatymai** skirtuką
+2. Spustelėkite** „Sinchronizuoti dabar“**
+3. Žiūrėti statistiką: bendras tarpinių serverių skaičius, aktyvių skaičius, vidutinė kokybė, suskirstymas pagal šalį
 
 **Per API:**
 
 ```bash
-# Pradėti sinchronizavimą
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Atsakymas:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### Tarpinių serverių filtravimas
 
 ```bash
-# Filtruoti pagal protokolą
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Filtruoti pagal šalį
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Filtruoti pagal mažiausią kokybės balą
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Sujungti filtrus
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Tarpinių serverių kokybės balai
+### Tarpinio serverio kokybės balai
 
-Kiekvienas 1proxy tarpinis serveris turi metaduomenis:
+Kiekvienas tarpinis serveris yra su metaduomenimis:
 
-| Laukas          | Aprašymas                                           |
-| --------------- | --------------------------------------------------- |
-| `qualityScore`  | 1proxy patvirtinimo įvertinimas nuo 0 iki 100       |
-| `latencyMs`     | Išmatuota tinklo delsa                              |
-| `anonymity`     | `transparent`, `anonymous` arba `elite`             |
-| `googleAccess`  | Ar tarpinis serveris gali pasiekti Google paslaugas |
-| `countryCode`   | Dviejų raidžių ISO šalies kodas                     |
-| `lastValidated` | Paskutinio patvirtinimo laiko žyma                  |
+| Laukas          | Aprašymas                                             |
+| --------------- | ----------------------------------------------------- |
+| `qualityScore`  | 0–100 įvertinimas iš 1 tarpinio serverio patvirtinimo |
+| `latencyMs`     | Išmatuota tinklo delsa                                |
+| `anonymity`     | `transparent`, `anonymous` arba `elite`               |
+| `googleAccess`  | Ar tarpinis serveris gali pasiekti Google paslaugas   |
+| `countryCode`   | Dviejų raidžių ISO šalies kodas                       |
+| `lastValidated` | Paskutinio patvirtinimo laiko žyma                    |
 
 Kokybės balai koreguojami dinamiškai:
 
-- **Nesėkmingos užklausos** sumažina balą 10 taškų
-- **Balui nukritus iki ≤10** → tarpinis serveris pažymimas kaip `inactive`
-- Neaktyvūs tarpiniai serveriai neįtraukiami į keitimą
+- **Nepavykusios užklausos** sumažinti rezultatą 10 taškų
+- **Rezultatas sumažėja iki ≤ 10** → tarpinis serveris pažymėtas `inactive`
+- Neaktyvūs tarpiniai serveriai neįtraukiami į sukimąsi
 
-### Keitimo strategijos
+### Rotacijos strategijos
 
 ```bash
-# Keisti pagal kokybę (pirmiausia geriausias tarpinis serveris) — numatytoji strategija
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Atsitiktinis keitimas
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Nuoseklus keitimas (pirmiausia seniausiai patikrintas)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### Grandinės pertraukiklis
 
-1proxy sinchronizavimas turi integruotą grandinės pertraukiklį:
+1proxy sinchronizavimas turi įmontuotą grandinės pertraukiklį:
 
-- Po **5 iš eilės nepavykusių sinchronizavimų** tolesni sinchronizavimo bandymai blokuojami
-- Nustatykite iš naujo naudodami `resetOneproxyCircuitBreaker()` arba paleiskite serverį iš naujo
+- Po to** 5 iš eilės sinchronizavimo gedimai** , tolesni sinchronizavimo bandymai blokuojami
+- Iš naujo nustatykite naudodami: `resetOneproxyCircuitBreaker()` arba paleiskite serverį iš naujo
 - Sinchronizavimo būsena pasiekiama adresu `GET /api/settings/oneproxy?action=status`
 
-### 1proxy tarpinių serverių išvalymas
+### 1 tarpinio serverio išvalymas
 
 ```bash
-# Ištrinti vieną 1proxy tarpinį serverį
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Išvalyti VISUS 1proxy tarpinius serverius (rankiniu būdu pridėti tarpiniai serveriai nekeičiami)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## Apsauga nuo aptikimo ir maskavimas
+## Aptikimo apsauga ir slaptumas
 
-OmniRoute ne tik nukreipia srautą per tarpinį serverį — jis užtikrina, kad srautas atrodytų teisėtas:
+OmniRoute ne tik nukreipia srautą per tarpinį serverį — bet ir leidžia eismui atrodyti teisėtai:
 
-### TLS kontrolinio atspaudo klastojimas
+### TLS Pirštų atspaudų klastojimas
 
-Naudoja `wreq-js`, kad sugeneruotų naršyklėms būdingus TLS kontrolinius atspaudus ir apeitų robotų aptikimo sistemas, kurios pažymi ne naršyklių TLS rankos paspaudimus.
+Naudoja `wreq-js`, kad generuotų į naršyklę panašius TLS pirštų atspaudus, aplenkdamas robotų aptikimo sistemas, kurios pažymi ne naršyklės TLS rankų paspaudimus.
 
-### CLI kontrolinio atspaudo atitikimas
+### CLI pirštų atspaudų atitikimas
 
-**CLI kontrolinio atspaudo jungiklis** (`Nustatymai → Saugumas`) pertvarko HTTP antraštes ir JSON turinio laukus, kad jie tiksliai atitiktų vietinių CLI vykdomųjų failų (Claude Code, Codex ir kt.) parašą. Tai veikia **kartu su** tarpiniu serveriu:
+The**CLI pirštų atspaudų perjungiklis** (`Settings → Security`) pertvarko HTTP antraštes ir JSON kūno laukus, kad tiksliai atitiktų vietinių CLI dvejetainių failų parašą (Claude kodas, Codex ir kt.). Tai veikia** ant viršaus** įgaliotasis serveris:
 
 ```
-Jūsų IP (užblokuotas) → Tarpinio serverio IP (JAV) → Teikėjo API
-                         + TLS klastojimas
-                         + CLI kontrolinis atspaudas
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-Vienu metu gaunate ir **IP maskavimą**, ir **užklausų autentiškumą**.
+Gauni abu**IP maskavimas** ir** prašyti autentiškumo** vienu metu.
 
-### Tarpinio serverio IP išsaugojimas
+### Proxy IP išsaugojimas
 
-Spalvomis pažymėti ženkleliai valdymo skydelyje rodo, kuris tarpinio serverio lygis yra aktyvus:
+Spalvomis pažymėti ženkleliai prietaisų skydelyje rodo, kuris tarpinio serverio lygis yra aktyvus:
 
-| Ženklelis | Lygis      | Reikšmė                                                   |
-| --------- | ---------- | --------------------------------------------------------- |
-| 🟢        | Visuotinis | Visas srautas siunčiamas per šį tarpinį serverį           |
-| 🟡        | Teikėjo    | Per tarpinį serverį siunčiamas tik šio teikėjo srautas    |
-| 🔵        | Ryšio      | Šis konkretus raktas / paskyra naudoja šį tarpinį serverį |
+| Ženklas | Lygis      | Reikšmė                                              |
+| ------- | ---------- | ---------------------------------------------------- |
+| 🟢      | Pasaulinis | Visas srautas eina per šį tarpinį serverį            |
+| 🟡      | Teikėjas   | Perduotas tik šio teikėjo srautas                    |
+| 🔵      | Ryšys      | Šis konkretus key/account naudoja šį tarpinį serverį |
 
-Ženklelyje taip pat rodomas nustatytas tarpinio serverio IP, kad būtų galima jį patikrinti.
+Ženklelyje taip pat rodomas patvirtintas tarpinis serveris IP.
 
 ---
 

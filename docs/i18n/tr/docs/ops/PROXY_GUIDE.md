@@ -273,58 +273,58 @@ Bu işlem, yükseltmeden sonraki ilk başlatmada bir kez gerçekleşir. Yeniden 
 
 ## 1proxy Ücretsiz Proxy Pazarı
 
-> 🆕 **[@oyi77](https://github.com/oyi77) tarafından katkıda bulunulmuştur** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Sorun [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Katkıda bulunan: [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (Sayı [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute, dünyanın dört bir yanından **yüzlerce ücretsiz, doğrulanmış proxy'ye** erişim sağlamak için **[1proxy](https://1proxy-api.aitradepulse.com)** topluluk platformuyla entegre olur. Bu, kendi proxy altyapısına sahip olmayan kullanıcılar için idealdir.
+OmniRoute ile entegre olur** [1 vekil](https://1proxy-api.aitradepulse.com)** erişim sağlamak için topluluk platformu** yüzlerce ücretsiz, doğrulanmış proxy** dünyanın dört bir yanından. Bu, kendi proxy altyapısına sahip olmayan kullanıcılar için mükemmeldir.
 
 ### Nasıl Çalışır?
 
 ```
-┌─────────────┐   Senkronize Et   ┌─────────────────┐    Döndür     ┌───────────┐
-│  1proxy API │ ─────────────────▶ │  proxy_registry  │ ────────────▶ │ Sağlayıcı │
-│   (harici)  │  500 proxy'ye kadar│  source=oneproxy │ kaliteye göre │    API     │
-└─────────────┘                    └─────────────────┘                └───────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Senkronize et** — OmniRoute, doğrulanmış proxy'leri 1proxy API'sinden alır
-2. **Sakla** — Proxy'ler aynı `proxy_registry` tablosuna `source = 'oneproxy'` ile kaydedilir
-3. **Filtrele** — Protokole, ülkeye ve kalite puanına göre filtreleyin
-4. **Döndür** — Kalite, rastgele veya sıralı stratejileri kullanarak en iyi proxy'yi seçin
-5. **Otomatik düşürme** — Başarısız proxy'lerin kalite puanı düşürülür; eşik değerin altına düşenler → etkin değil olarak işaretlenir
+1. **Senkronizasyon** — OmniRoute, 1proxy API doğrulanmış proxy'leri getirir
+2. **Mağaza** — Proxy'ler `source = 'oneproxy'` ile aynı `proxy_registry` tablosuna kaydedilir
+3. **Filtre** — Protokole, ülkeye, kalite puanına göre filtrele
+4. **Döndür** — Kalite, rastgele veya sıralı stratejiler kullanarak en iyi proxy'yi seçin
+5. **Otomatik bozulma** — Başarısız proxy'lerin kalite puanları düşer; eşiğin altında → etkin değil olarak işaretlendi
 
 ### Proxy'leri Senkronize Etme
 
-**Kontrol Paneli Üzerinden:**
+**Kontrol Paneli aracılığıyla:**
 
-1. **Ayarlar → 1proxy** sekmesine gidin
-2. **"Şimdi Senkronize Et"** düğmesine tıklayın
-3. İstatistikleri görüntüleyin: toplam proxy sayısı, etkin proxy sayısı, ortalama kalite ve ülkelere göre dağılım
+1. Git** Ayarlar → 1proxy** sekme
+2. Tıklamak** "Şimdi Eşitle"**
+3. İstatistikleri görüntüleyin: toplam proxy sayısı, aktif sayı, ortalama kalite, ülkeye göre dağılım
 
-**API Üzerinden:**
+**API aracılığıyla:**
 
 ```bash
-# Senkronizasyonu tetikle
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Yanıt:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### Proxy'leri Filtreleme
 
 ```bash
-# Protokole göre filtrele
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Ülkeye göre filtrele
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Minimum kalite puanına göre filtrele
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Filtreleri birleştir
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
@@ -332,34 +332,34 @@ curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&
 
 Her 1proxy proxy'si meta verilerle birlikte gelir:
 
-| Alan            | Açıklama                                         |
-| --------------- | ------------------------------------------------ |
-| `qualityScore`  | 1proxy doğrulamasından alınan 0-100 arası puan   |
-| `latencyMs`     | Ölçülen ağ gecikmesi                             |
-| `anonymity`     | `transparent`, `anonymous` veya `elite`          |
-| `googleAccess`  | Proxy'nin Google hizmetlerine erişip erişemediği |
-| `countryCode`   | İki harfli ISO ülke kodu                         |
-| `lastValidated` | Son doğrulamanın zaman damgası                   |
+| Alan            | Tanım                                              |
+| --------------- | -------------------------------------------------- |
+| `qualityScore`  | 1proxy doğrulamasından 0-100 derecelendirme        |
+| `latencyMs`     | Ölçülen ağ gecikmesi                               |
+| `anonymity`     | `transparent`, `anonymous` veya `elite`            |
+| `googleAccess`  | Proxy'nin Google hizmetlerine erişip erişemeyeceği |
+| `countryCode`   | İki harfli ISO ülke kodu                           |
+| `lastValidated` | Son doğrulamanın zaman damgası                     |
 
 Kalite puanları dinamik olarak ayarlanır:
 
-- **Başarısız istekler** puanı 10 azaltır
-- **Puan ≤10'a düşerse** → proxy `inactive` olarak işaretlenir
-- Etkin olmayan proxy'ler döndürme işlemine dahil edilmez
+- **Başarısız istekler** puanı 10 puan düşürün
+- **Puan ≤ 10'a düşüyor** → proxy'si `inactive` işaretlenmiştir
+- Etkin olmayan proxy'ler rotasyonun dışında bırakılır
 
-### Döndürme Stratejileri
+### Rotasyon Stratejileri
 
 ```bash
-# Kaliteye göre döndür (önce en iyi proxy) — varsayılan
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Rastgele döndürme
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Sıralı (önce en uzun süredir doğrulanmamış olan)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
@@ -368,53 +368,53 @@ curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
 
 1proxy senkronizasyonunda yerleşik bir devre kesici bulunur:
 
-- **Art arda 5 senkronizasyon hatasından** sonra diğer senkronizasyon girişimleri engellenir
+- Sonrasında** 5 ardışık senkronizasyon hatası** , daha fazla senkronizasyon girişimi engellenir
 - Şununla sıfırlayın: `resetOneproxyCircuitBreaker()` veya sunucuyu yeniden başlatın
-- Senkronizasyon durumu `GET /api/settings/oneproxy?action=status` adresinden alınabilir
+- Senkronizasyon durumu `GET /api/settings/oneproxy?action=status` mevcuttur
 
 ### 1proxy Proxy'lerini Temizleme
 
 ```bash
-# Tek bir 1proxy proxy'sini sil
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# TÜM 1proxy proxy'lerini temizle (manuel proxy'lere dokunulmaz)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## Algılama Önleme ve Gizlilik
+## Algılanma Önleme ve Gizlilik
 
-OmniRoute, trafiği yalnızca bir proxy üzerinden yönlendirmekle kalmaz — trafiğin meşru görünmesini de sağlar:
+OmniRoute trafiği yalnızca bir proxy — üzerinden yönlendirmez, trafiğin meşru görünmesini sağlar:
 
-### TLS Parmak İzi Sahteciliği
+### TLS Parmak İzi Sahtekarlığı
 
-Tarayıcı benzeri TLS parmak izleri oluşturmak için `wreq-js` kullanarak tarayıcı dışı TLS el sıkışmalarını işaretleyen bot algılama sistemlerini atlatır.
+Tarayıcı dışı TLS el sıkışmalarını işaretleyen bot algılama sistemlerini atlayarak tarayıcı benzeri TLS parmak izleri oluşturmak için `wreq-js` kullanır.
 
 ### CLI Parmak İzi Eşleştirme
 
-**CLI Parmak İzi Anahtarı** (`Ayarlar → Güvenlik`), HTTP başlıklarını ve JSON gövde alanlarını yerel CLI ikili dosyalarının (Claude Code, Codex vb.) imzasıyla tam olarak eşleşecek şekilde yeniden sıralar. Bu özellik, proxy'nin **üzerine ek olarak** çalışır:
+**CLI Parmak İzi Geçişi** (`Settings → Security`) HTTP başlıklarını ve JSON gövde alanlarını, yerel CLI ikili dosyalarının (Claude Code, Codex vb.) tam imzasıyla eşleşecek şekilde yeniden sıralar. Bu işe yarıyor** üstüne** vekil:
 
 ```
-IP adresiniz (engellenmiş) → Proxy IP'si (ABD) → Sağlayıcı API'si
-                              + TLS sahteciliği
-                              + CLI parmak izi
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-Aynı anda hem **IP maskeleme** hem de **istek özgünlüğü** elde edersiniz.
+İkisini de alırsın**IP maskeleme** Ve** özgünlük iste** aynı anda.
 
-### Proxy IP'sini Koruma
+### Proxy IP Koruması
 
-Kontrol panelindeki renk kodlu rozetler, hangi proxy düzeyinin etkin olduğunu gösterir:
+Kontrol panelindeki renk kodlu rozetler hangi proxy düzeyinin etkin olduğunu gösterir:
 
-| Rozet | Düzey     | Anlamı                                           |
-| ----- | --------- | ------------------------------------------------ |
-| 🟢    | Genel     | Tüm trafik bu proxy üzerinden geçer              |
-| 🟡    | Sağlayıcı | Yalnızca bu sağlayıcının trafiği proxy'den geçer |
-| 🔵    | Bağlantı  | Bu belirli anahtar/hesap bu proxy'yi kullanır    |
+| Rozet | Seviye    | Anlam                                                |
+| ----- | --------- | ---------------------------------------------------- |
+| 🟢    | Küresel   | Tüm trafik bu proxy üzerinden geçiyor                |
+| 🟡    | sağlayıcı | Yalnızca bu sağlayıcının trafiğine proxy uygulanıyor |
+| 🔵    | Bağlantı  | Bu belirli key/account bu proxy'yi kullanıyor        |
 
-Rozet ayrıca doğrulama için çözümlenen proxy IP'sini de gösterir.
+Rozet ayrıca doğrulama için çözümlenen proxy IP da gösterir.
 
 ---
 

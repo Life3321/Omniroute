@@ -269,114 +269,114 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ---
 
-## 1proxy ਮੁਫ਼ਤ ਪ੍ਰਾਕਸੀ ਮਾਰਕੀਟਪਲੇਸ
+## 1ਪ੍ਰੌਕਸੀ ਮੁਫਤ ਪ੍ਰੌਕਸੀ ਮਾਰਕੀਟਪਲੇਸ
 
-> 🆕 **[@oyi77](https://github.com/oyi77) ਵੱਲੋਂ ਯੋਗਦਾਨ** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (ਮੁੱਦਾ [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** [@oyi77](https://github.com/oyi77) ਦੁਆਰਾ ਯੋਗਦਾਨ ਪਾਇਆ ਗਿਆ** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) ( ਮੁੱਦਾ [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute ਦੁਨੀਆ ਭਰ ਦੀਆਂ **ਸੈਂਕੜੇ ਮੁਫ਼ਤ, ਪ੍ਰਮਾਣਿਤ ਪ੍ਰਾਕਸੀਆਂ** ਤੱਕ ਪਹੁੰਚ ਪ੍ਰਦਾਨ ਕਰਨ ਲਈ **[1proxy](https://1proxy-api.aitradepulse.com)** ਕਮਿਊਨਿਟੀ ਪਲੇਟਫਾਰਮ ਨਾਲ ਏਕੀਕ੍ਰਿਤ ਹੁੰਦਾ ਹੈ। ਇਹ ਉਹਨਾਂ ਵਰਤੋਂਕਾਰਾਂ ਲਈ ਉੱਤਮ ਹੈ ਜਿਨ੍ਹਾਂ ਕੋਲ ਆਪਣਾ ਪ੍ਰਾਕਸੀ ਬੁਨਿਆਦੀ ਢਾਂਚਾ ਨਹੀਂ ਹੈ।
+OmniRoute ਨਾਲ ਏਕੀਕ੍ਰਿਤ ਹੈ** [1 ਪ੍ਰੌਕਸੀ](https://1proxy-api.aitradepulse.com)** ਤੱਕ ਪਹੁੰਚ ਪ੍ਰਦਾਨ ਕਰਨ ਲਈ ਕਮਿਊਨਿਟੀ ਪਲੇਟਫਾਰਮ** ਸੈਂਕੜੇ ਮੁਫ਼ਤ, ਪ੍ਰਮਾਣਿਤ ਪ੍ਰੌਕਸੀਜ਼** ਦੁਨੀਆ ਭਰ ਤੋਂ। ਇਹ ਉਹਨਾਂ ਉਪਭੋਗਤਾਵਾਂ ਲਈ ਸੰਪੂਰਨ ਹੈ ਜਿਨ੍ਹਾਂ ਕੋਲ ਆਪਣਾ ਪ੍ਰੌਕਸੀ ਬੁਨਿਆਦੀ ਢਾਂਚਾ ਨਹੀਂ ਹੈ।
 
 ### ਇਹ ਕਿਵੇਂ ਕੰਮ ਕਰਦਾ ਹੈ
 
 ```
-┌─────────────┐     ਸਿੰਕ      ┌─────────────────┐    ਰੋਟੇਟ     ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ ਪ੍ਰਦਾਤਾ  │
-│   (ਬਾਹਰੀ)   │    500 ਤੱਕ    │  source=oneproxy │ ਗੁਣਵੱਤਾ ਅਨੁਸਾਰ │   API    │
-└─────────────┘   ਪ੍ਰਾਕਸੀਆਂ   └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **ਸਿੰਕ** — OmniRoute, 1proxy API ਤੋਂ ਪ੍ਰਮਾਣਿਤ ਪ੍ਰਾਕਸੀਆਂ ਪ੍ਰਾਪਤ ਕਰਦਾ ਹੈ
-2. **ਸਟੋਰ** — ਪ੍ਰਾਕਸੀਆਂ ਉਸੇ `proxy_registry` ਟੇਬਲ ਵਿੱਚ `source = 'oneproxy'` ਨਾਲ ਸੰਭਾਲੀਆਂ ਜਾਂਦੀਆਂ ਹਨ
-3. **ਫਿਲਟਰ** — ਪ੍ਰੋਟੋਕੋਲ, ਦੇਸ਼ ਅਤੇ ਗੁਣਵੱਤਾ ਸਕੋਰ ਅਨੁਸਾਰ ਫਿਲਟਰ ਕਰੋ
-4. **ਰੋਟੇਟ** — ਗੁਣਵੱਤਾ, ਬੇਤਰਤੀਬ ਜਾਂ ਕ੍ਰਮਵਾਰ ਰਣਨੀਤੀਆਂ ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਸਭ ਤੋਂ ਵਧੀਆ ਪ੍ਰਾਕਸੀ ਚੁਣੋ
-5. **ਆਟੋ-ਡੀਗ੍ਰੇਡ** — ਅਸਫਲ ਪ੍ਰਾਕਸੀਆਂ ਦਾ ਗੁਣਵੱਤਾ ਸਕੋਰ ਘਟਾਇਆ ਜਾਂਦਾ ਹੈ; ਥ੍ਰੈਸ਼ਹੋਲਡ ਤੋਂ ਹੇਠਾਂ → ਅਕਿਰਿਆਸ਼ੀਲ ਵਜੋਂ ਚਿੰਨ੍ਹਿਤ
+1. **ਸਿੰਕ** — OmniRoute 1proxy API ਤੋਂ ਪ੍ਰਮਾਣਿਤ ਪ੍ਰੌਕਸੀ ਲਿਆਉਂਦਾ ਹੈ
+2. **ਸਟੋਰ** — ਪ੍ਰੌਕਸੀਆਂ ਨੂੰ `source = 'oneproxy'` ਨਾਲ ਉਸੇ `proxy_registry` ਟੇਬਲ ਵਿੱਚ ਸੁਰੱਖਿਅਤ ਕੀਤਾ ਜਾਂਦਾ ਹੈ
+3. **ਫਿਲਟਰ** — ਪ੍ਰੋਟੋਕੋਲ, ਦੇਸ਼, ਗੁਣਵੱਤਾ ਸਕੋਰ ਦੁਆਰਾ ਫਿਲਟਰ ਕਰੋ
+4. **ਘੁੰਮਾਓ** — ਗੁਣਵੱਤਾ, ਬੇਤਰਤੀਬੇ, ਜਾਂ ਕ੍ਰਮਵਾਰ ਰਣਨੀਤੀਆਂ ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਸਭ ਤੋਂ ਵਧੀਆ ਪ੍ਰੌਕਸੀ ਚੁਣੋ
+5. **ਆਟੋ-ਡਿਗਰੇਡ** — ਅਸਫਲ ਪ੍ਰੌਕਸੀ ਆਪਣੇ ਗੁਣਵੱਤਾ ਸਕੋਰ ਨੂੰ ਘਟਾ ਦਿੰਦੇ ਹਨ; ਥ੍ਰੈਸ਼ਹੋਲਡ ਦੇ ਹੇਠਾਂ → ਨੂੰ ਅਕਿਰਿਆਸ਼ੀਲ ਚਿੰਨ੍ਹਿਤ ਕੀਤਾ ਗਿਆ ਹੈ
 
-### ਪ੍ਰਾਕਸੀਆਂ ਨੂੰ ਸਿੰਕ ਕਰਨਾ
+### ਸਮਕਾਲੀਕਰਨ ਪ੍ਰੌਕਸੀ
 
 **ਡੈਸ਼ਬੋਰਡ ਰਾਹੀਂ:**
 
-1. **ਸੈਟਿੰਗਾਂ → 1proxy** ਟੈਬ 'ਤੇ ਜਾਓ
-2. **"ਹੁਣੇ ਸਿੰਕ ਕਰੋ"** 'ਤੇ ਕਲਿੱਕ ਕਰੋ
-3. ਅੰਕੜੇ ਵੇਖੋ: ਕੁੱਲ ਪ੍ਰਾਕਸੀਆਂ, ਕਿਰਿਆਸ਼ੀਲ ਗਿਣਤੀ, ਔਸਤ ਗੁਣਵੱਤਾ ਅਤੇ ਦੇਸ਼-ਅਨੁਸਾਰ ਵੇਰਵਾ
+1. 'ਤੇ ਜਾਓ** ਸੈਟਿੰਗਾਂ → 1proxy** ਟੈਬ
+2. ਕਲਿੱਕ ਕਰੋ** "ਹੁਣ ਸਿੰਕ ਕਰੋ"**
+3. ਅੰਕੜੇ ਵੇਖੋ: ਕੁੱਲ ਪ੍ਰੌਕਸੀਜ਼, ਕਿਰਿਆਸ਼ੀਲ ਗਿਣਤੀ, ਔਸਤ ਗੁਣਵੱਤਾ, ਦੇਸ਼ ਦੇ ਅਨੁਸਾਰ ਟੁੱਟਣਾ
 
 **API ਰਾਹੀਂ:**
 
 ```bash
-# ਸਿੰਕ ਸ਼ੁਰੂ ਕਰੋ
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# ਜਵਾਬ:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### ਪ੍ਰਾਕਸੀਆਂ ਨੂੰ ਫਿਲਟਰ ਕਰਨਾ
+### ਫਿਲਟਰਿੰਗ ਪ੍ਰੌਕਸੀਜ਼
 
 ```bash
-# ਪ੍ਰੋਟੋਕੋਲ ਅਨੁਸਾਰ ਫਿਲਟਰ ਕਰੋ
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# ਦੇਸ਼ ਅਨੁਸਾਰ ਫਿਲਟਰ ਕਰੋ
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# ਘੱਟੋ-ਘੱਟ ਗੁਣਵੱਤਾ ਸਕੋਰ ਅਨੁਸਾਰ ਫਿਲਟਰ ਕਰੋ
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# ਫਿਲਟਰਾਂ ਨੂੰ ਜੋੜੋ
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### ਪ੍ਰਾਕਸੀ ਗੁਣਵੱਤਾ ਸਕੋਰ
+### ਪ੍ਰੌਕਸੀ ਕੁਆਲਿਟੀ ਸਕੋਰ
 
-ਹਰੇਕ 1proxy ਪ੍ਰਾਕਸੀ ਨਾਲ ਮੈਟਾਡੇਟਾ ਆਉਂਦਾ ਹੈ:
+ਹਰੇਕ 1 ਪ੍ਰੌਕਸੀ ਪ੍ਰੌਕਸੀ ਮੈਟਾਡੇਟਾ ਦੇ ਨਾਲ ਆਉਂਦੀ ਹੈ:
 
-| ਫੀਲਡ            | ਵੇਰਵਾ                                          |
+| ਖੇਤਰ            | ਵਰਣਨ                                           |
 | --------------- | ---------------------------------------------- |
-| `qualityScore`  | 1proxy ਪ੍ਰਮਾਣਿਕਤਾ ਤੋਂ ਮਿਲੀ 0-100 ਰੇਟਿੰਗ        |
-| `latencyMs`     | ਮਾਪੀ ਗਈ ਨੈੱਟਵਰਕ ਲੇਟੈਂਸੀ                        |
+| `qualityScore`  | 1 ਪ੍ਰੌਕਸੀ ਪ੍ਰਮਾਣਿਕਤਾ ਤੋਂ 0-100 ਰੇਟਿੰਗ          |
+| `latencyMs`     | ਮਾਪਿਆ ਨੈੱਟਵਰਕ ਲੇਟੈਂਸੀ                          |
 | `anonymity`     | `transparent`, `anonymous`, ਜਾਂ `elite`        |
-| `googleAccess`  | ਕੀ ਪ੍ਰਾਕਸੀ Google ਸੇਵਾਵਾਂ ਤੱਕ ਪਹੁੰਚ ਕਰ ਸਕਦੀ ਹੈ |
-| `countryCode`   | ਦੋ-ਅੱਖਰੀ ISO ਦੇਸ਼ ਕੋਡ                          |
+| `googleAccess`  | ਕੀ ਪ੍ਰੌਕਸੀ Google ਸੇਵਾਵਾਂ ਤੱਕ ਪਹੁੰਚ ਕਰ ਸਕਦੀ ਹੈ |
+| `countryCode`   | ਦੋ-ਅੱਖਰਾਂ ਦਾ ISO ਦੇਸ਼ ਕੋਡ                      |
 | `lastValidated` | ਆਖਰੀ ਪ੍ਰਮਾਣਿਕਤਾ ਦਾ ਟਾਈਮਸਟੈਂਪ                   |
 
-ਗੁਣਵੱਤਾ ਸਕੋਰ ਗਤੀਸ਼ੀਲ ਢੰਗ ਨਾਲ ਵਿਵਸਥਿਤ ਕੀਤੇ ਜਾਂਦੇ ਹਨ:
+ਕੁਆਲਿਟੀ ਸਕੋਰ ਗਤੀਸ਼ੀਲ ਤੌਰ 'ਤੇ ਐਡਜਸਟ ਕੀਤੇ ਜਾਂਦੇ ਹਨ:
 
-- **ਅਸਫਲ ਬੇਨਤੀਆਂ** ਸਕੋਰ ਨੂੰ 10 ਅੰਕ ਘਟਾਉਂਦੀਆਂ ਹਨ
-- **ਸਕੋਰ ≤10 ਤੱਕ ਡਿੱਗਦਾ ਹੈ** → ਪ੍ਰਾਕਸੀ ਨੂੰ `inactive` ਵਜੋਂ ਚਿੰਨ੍ਹਿਤ ਕੀਤਾ ਜਾਂਦਾ ਹੈ
-- ਅਕਿਰਿਆਸ਼ੀਲ ਪ੍ਰਾਕਸੀਆਂ ਨੂੰ ਰੋਟੇਸ਼ਨ ਵਿੱਚੋਂ ਬਾਹਰ ਰੱਖਿਆ ਜਾਂਦਾ ਹੈ
+- **ਅਸਫਲ ਬੇਨਤੀਆਂ** ਸਕੋਰ ਨੂੰ 10 ਅੰਕ ਘਟਾਓ
+- **ਸਕੋਰ ≤ 10 ਤੱਕ ਘੱਟ ਗਿਆ** → ਪ੍ਰੌਕਸੀ ਨੂੰ `inactive` ਵਜੋਂ ਚਿੰਨ੍ਹਿਤ ਕੀਤਾ ਗਿਆ ਹੈ
+- ਅਕਿਰਿਆਸ਼ੀਲ ਪ੍ਰੌਕਸੀਆਂ ਨੂੰ ਰੋਟੇਸ਼ਨ ਤੋਂ ਬਾਹਰ ਰੱਖਿਆ ਗਿਆ ਹੈ
 
 ### ਰੋਟੇਸ਼ਨ ਰਣਨੀਤੀਆਂ
 
 ```bash
-# ਗੁਣਵੱਤਾ ਅਨੁਸਾਰ ਰੋਟੇਟ ਕਰੋ (ਸਭ ਤੋਂ ਵਧੀਆ ਪ੍ਰਾਕਸੀ ਪਹਿਲਾਂ) — ਡਿਫਾਲਟ
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# ਬੇਤਰਤੀਬ ਰੋਟੇਸ਼ਨ
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# ਕ੍ਰਮਵਾਰ (ਸਭ ਤੋਂ ਪਹਿਲਾਂ ਉਹ ਜੋ ਸਭ ਤੋਂ ਲੰਮੇ ਸਮੇਂ ਤੋਂ ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ ਹੋਈ)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### ਸਰਕਿਟ ਬ੍ਰੇਕਰ
+### ਸਰਕਟ ਤੋੜਨ ਵਾਲਾ
 
-1proxy ਸਿੰਕ ਵਿੱਚ ਇੱਕ ਬਿਲਟ-ਇਨ ਸਰਕਿਟ ਬ੍ਰੇਕਰ ਹੈ:
+1 ਪ੍ਰੌਕਸੀ ਸਿੰਕ ਵਿੱਚ ਇੱਕ ਬਿਲਟ-ਇਨ ਸਰਕਟ ਬ੍ਰੇਕਰ ਹੈ:
 
-- **ਲਗਾਤਾਰ 5 ਸਿੰਕ ਅਸਫਲਤਾਵਾਂ** ਤੋਂ ਬਾਅਦ, ਅਗਲੀਆਂ ਸਿੰਕ ਕੋਸ਼ਿਸ਼ਾਂ ਨੂੰ ਬਲੌਕ ਕਰ ਦਿੱਤਾ ਜਾਂਦਾ ਹੈ
-- ਇਸ ਨਾਲ ਰੀਸੈੱਟ ਕਰੋ: `resetOneproxyCircuitBreaker()` ਜਾਂ ਸਰਵਰ ਨੂੰ ਮੁੜ ਚਾਲੂ ਕਰੋ
-- ਸਿੰਕ ਸਥਿਤੀ `GET /api/settings/oneproxy?action=status` 'ਤੇ ਉਪਲਬਧ ਹੈ
+- ਤੋਂ ਬਾਅਦ** 5 ਲਗਾਤਾਰ ਸਿੰਕ ਅਸਫਲਤਾਵਾਂ** , ਹੋਰ ਸਮਕਾਲੀਕਰਨ ਕੋਸ਼ਿਸ਼ਾਂ ਨੂੰ ਬਲੌਕ ਕੀਤਾ ਗਿਆ ਹੈ
+- ਇਸ ਨਾਲ ਰੀਸੈਟ ਕਰੋ: `resetOneproxyCircuitBreaker()` ਜਾਂ ਸਰਵਰ ਨੂੰ ਮੁੜ ਚਾਲੂ ਕਰੋ
+- ਸਿੰਕ ਸਥਿਤੀ `GET /api/settings/oneproxy?action=status`'ਤੇ ਉਪਲਬਧ ਹੈ
 
-### 1proxy ਪ੍ਰਾਕਸੀਆਂ ਨੂੰ ਸਾਫ਼ ਕਰਨਾ
+### 1 ਪਰਾਕਸੀ ਪ੍ਰੌਕਸੀਆਂ ਨੂੰ ਕਲੀਅਰ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ
 
 ```bash
-# ਇੱਕ 1proxy ਪ੍ਰਾਕਸੀ ਮਿਟਾਓ
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# ਸਾਰੀਆਂ 1proxy ਪ੍ਰਾਕਸੀਆਂ ਸਾਫ਼ ਕਰੋ (ਮੈਨੂਅਲ ਪ੍ਰਾਕਸੀਆਂ ਨੂੰ ਨਹੀਂ ਬਦਲਿਆ ਜਾਂਦਾ)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

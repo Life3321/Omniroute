@@ -48,7 +48,7 @@ OpenAI-உடன் இணக்கமான நெறிமுறை மற்�
 
 ---
 
-## Chat Completions
+## அரட்டை நிறைவுகள்
 
 ```bash
 POST /v1/chat/completions
@@ -66,31 +66,32 @@ Content-Type: application/json
 
 ### தனிப்பயன் தலைப்புகள்
 
-| Header                   | Direction | Description                                                                                                                                                                                                                                         |
-| ------------------------ | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `X-OmniRoute-No-Cache`   | கோரிக்கை  | தற்காலிகச் சேமிப்பைப் புறக்கணிக்க `true` ஆக அமைக்கவும்                                                                                                                                                                                              |
-| `x-omniroute-no-memory`  | கோரிக்கை  | இந்தக் கோரிக்கைக்கான நினைவகம் + திறன்கள் உட்சேர்ப்பைத் தவிர்க்க `true` ஆக அமைக்கவும் (no-cache-ஐப் பிரதிபலிக்கிறது; ஒவ்வொரு அழைப்புக்குமான டோக்கன்/செலவு மேல்செலவைத் தவிர்க்கிறது)                                                                  |
-| `X-OmniRoute-Progress`   | கோரிக்கை  | முன்னேற்ற நிகழ்வுகளுக்கு `true` ஆக அமைக்கவும்                                                                                                                                                                                                       |
-| `X-Session-Id`           | கோரிக்கை  | வெளிப்புற அமர்வு ஒட்டுமைக்கான நிலையான அமர்வு விசை                                                                                                                                                                                                   |
-| `x_session_id`           | கோரிக்கை  | அடிக்கோடு மாறுபாடும் ஏற்கப்படுகிறது (நேரடி HTTP)                                                                                                                                                                                                    |
-| `X-OmniRoute-Session-Id` | கோரிக்கை  | அழைப்பாளர் வழங்கிய அமர்வு/உரையாடல் குறிச்சொல் (நினைவகத்திற்கும் வழங்கப்படுகிறது). இது இருந்தால், ஒவ்வொரு அமர்வுக்குமான செலவுப் பண்புக்கூறலுக்காக (#8249) `call_logs.session_tag`-இல் அப்படியே சேமிக்கப்படும் — இல்லாதபோது ஒருபோதும் உருவாக்கப்படாது |
-| `Idempotency-Key`        | கோரிக்கை  | நகல் நீக்கல் விசை (5 வினாடி காலவரம்பு)                                                                                                                                                                                                              |
-| `X-Request-Id`           | கோரிக்கை  | மாற்று நகல் நீக்கல் விசை                                                                                                                                                                                                                            |
-| `x-omniroute-connection` | கோரிக்கை  | ஒற்றை-மாதிரி கோரிக்கையை அதன் அடையாளத்தின் மூலம் ஒரு வழங்குநர் இணைப்பில் (கணக்கில்) நிலைநிறுத்தவும் — [ஒரு கோரிக்கைக்கான கணக்கு நிலைநிறுத்தல்](#account-pinning-per-request) என்பதைப் பார்க்கவும்                                                    |
-| `X-OmniRoute-Cache`      | பதில்     | `HIT` அல்லது `MISS` (ஸ்ட்ரீமிங் அல்லாதது)                                                                                                                                                                                                           |
-| `X-OmniRoute-Idempotent` | பதில்     | நகல் நீக்கம் செய்யப்பட்டிருந்தால் `true`                                                                                                                                                                                                            |
-| `X-OmniRoute-Progress`   | பதில்     | முன்னேற்றக் கண்காணிப்பு இயக்கப்பட்டிருந்தால் `enabled`                                                                                                                                                                                              |
-| `X-OmniRoute-Session-Id` | பதில்     | OmniRoute பயன்படுத்திய செயல்திறன் அமர்வு ID                                                                                                                                                                                                         |
-| `X-OmniRoute-Request-Id` | பதில்     | கோரிக்கை தொடர்பு ID (தெரிந்திருக்கும்போது)                                                                                                                                                                                                          |
-| `X-OmniRoute-Version`    | பதில்     | OmniRoute உருவாக்கப் பதிப்பு (எப்போதும் இருக்கும்)                                                                                                                                                                                                  |
-| `X-OmniRoute-Cost-Saved` | பதில்     | `HIT`-இல் தற்காலிகச் சேமிப்பால் தவிர்க்கப்பட்ட USD செலவு (தற்காலிகச் சேமிப்பு வெற்றிகளுக்கு மட்டும்)                                                                                                                                                |
-| `X-OmniRoute-Decision`   | பதில்     | வழிமாற்றுத் தடம்: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` என்பது கூட்டு உத்தி; கூட்டு அல்லாத கோரிக்கைக்கு `single`) — நிறைவு பதில்களில் எப்போதும் இருக்கும்                                                                   |
+| தலைப்பு                  | திசை     | விளக்கம்                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `X-OmniRoute-No-Cache`   | கோரிக்கை | தற்காலிக சேமிப்பை புறக்கணிக்க `true` க்கு அமைக்கவும்                                                                                                                                                                                                                                                                                                                                                              |
+| `x-omniroute-no-memory`  | கோரிக்கை | இந்த கோரிக்கைக்கான நினைவக + திறன்கள் உட்செலுத்தலைத் தவிர்க்க `true` க்கு அமைக்கவும் (ஒவ்வொரு அழைப்பிற்கும் token/cost மேல்நிலையைத் தவிர்க்கிறது)                                                                                                                                                                                                                                                                  |
+| `x-omniroute-no-log`     | கோரிக்கை | இந்த அனுமானக் கோரிக்கைக்கான அழைப்புப் பதிவுகளிலிருந்து request/response பேலோடுகளைத் தவிர்க்க `true` க்கு அமைக்கவும் (அனைத்து அரட்டை-குடும்ப வழிகள்: அரட்டை நிறைவுகள், பதில்கள், செய்திகள், நிறைவுகள், Gemini). நேர முத்திரை, மாதிரி, நிலை, கால அளவு மற்றும் டோக்கன் எண்ணிக்கை இன்னும் பதிவு செய்யப்பட்டுள்ளது. முழு உள்ளடக்கம் விலகுவதற்கு `x-omniroute-no-memory` மற்றும் `x-omniroute-no-cache` உடன் இணைக்கவும் |
+| `X-OmniRoute-Progress`   | கோரிக்கை | முன்னேற்ற நிகழ்வுகளுக்கு `true` அமைக்கவும்                                                                                                                                                                                                                                                                                                                                                                        |
+| `X-Session-Id`           | கோரிக்கை | வெளிப்புற அமர்வு தொடர்புக்கான ஒட்டும் அமர்வு விசை                                                                                                                                                                                                                                                                                                                                                                 |
+| `x_session_id`           | கோரிக்கை | அடிக்கோடிட்டு மாறுபாடும் ஏற்றுக்கொள்ளப்பட்டது (நேரடி HTTP)                                                                                                                                                                                                                                                                                                                                                        |
+| `X-OmniRoute-Session-Id` | கோரிக்கை | Caller-supplied session/conversation tag (also feeds memory). When present, persisted verbatim to `call_logs.session_tag` for per-session cost attribution (#8249) — never synthesized when absent                                                                                                                                                                                                                |
+| `Idempotency-Key`        | கோரிக்கை | டெடப் விசை (5 வி சாளரம்)                                                                                                                                                                                                                                                                                                                                                                                          |
+| `X-Request-Id`           | கோரிக்கை | மாற்று டிடப் விசை                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `x-omniroute-connection` | கோரிக்கை | ஒற்றை மாதிரி கோரிக்கையை அதன் ஐடி — மூலம் ஒரு வழங்குநர் இணைப்பில் (கணக்கு) பின் செய்யவும். [ஒவ்வொரு கோரிக்கைக்கும் கணக்கு பின்னிங்](#account-pinning-per-request) பார்க்கவும்                                                                                                                                                                                                                                      |
+| `X-OmniRoute-Cache`      | பதில்    | `HIT` அல்லது `MISS` (ஸ்ட்ரீமிங் அல்லாதது)                                                                                                                                                                                                                                                                                                                                                                         |
+| `X-OmniRoute-Idempotent` | பதில்    | நகல் என்றால்`true`                                                                                                                                                                                                                                                                                                                                                                                                |
+| `X-OmniRoute-Progress`   | பதில்    | `enabled` என்றால் முன்னேற்றம் கண்காணிப்பு                                                                                                                                                                                                                                                                                                                                                                         |
+| `X-OmniRoute-Session-Id` | பதில்    | OmniRoute ஆல் பயன்படுத்தப்படும் பயனுள்ள அமர்வு ID                                                                                                                                                                                                                                                                                                                                                                 |
+| `X-OmniRoute-Request-Id` | பதில்    | தொடர்பு ஐடியைக் கோரவும் (தெரிந்தால்)                                                                                                                                                                                                                                                                                                                                                                              |
+| `X-OmniRoute-Version`    | பதில்    | OmniRoute உருவாக்க பதிப்பு (எப்போதும் இருக்கும்)                                                                                                                                                                                                                                                                                                                                                                  |
+| `X-OmniRoute-Cost-Saved` | பதில்    | USD கேச் ஒரு HIT இல் தவிர்க்கப்பட்டது (கேச் ஹிட்ஸ் மட்டும்)                                                                                                                                                                                                                                                                                                                                                       |
+| `X-OmniRoute-Decision`   | பதில்    | ரூட்டிங் ட்ரேஸ்: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` என்பது காம்போ உத்தி, அல்லது `single` அல்லாத சேர்க்கை கோரிக்கை) — எப்போதும் நிறைவு பதில்களில் இருக்கும்                                                                                                                                                                                                                             |
 
-> Nginx குறிப்பு: அடிக்கோடு கொண்ட தலைப்புகளை (எடுத்துக்காட்டாக `x_session_id`) சார்ந்திருந்தால், `underscores_in_headers on;` என்பதை இயக்கவும்.
+> Nginx குறிப்பு: நீங்கள் அடிக்கோடிட்டு தலைப்புகளை நம்பினால் (உதாரணமாக `x_session_id`), `underscores_in_headers on;` இயக்கவும்.
 
-#### ஒரு கோரிக்கைக்கான கணக்கு நிலைநிறுத்தல்
+#### ஒரு கோரிக்கைக்கு கணக்கு பின்னிங்
 
-ஒரு வழங்குநரிடம் பல இணைப்புகள் (கணக்குகள் அல்லது விசைகள்) இருக்கும்போது, OmniRoute பொதுவாக அதன் கணக்குத் தேர்வு உத்தியின் மூலம் ஒன்றைத் தேர்ந்தெடுக்கும். அதற்குப் பதிலாக, ஒரு கோரிக்கை குறிப்பிட்ட இணைப்பொன்றை `x-omniroute-connection` தலைப்பின் மூலம் நிலைநிறுத்தலாம்:
+ஒரு வழங்குநருக்கு பல இணைப்புகள் (கணக்குகள் அல்லது விசைகள்) இருக்கும்போது, OmniRoute பொதுவாக அதன் கணக்கு-தேர்வு உத்தி மூலம் ஒன்றைத் தேர்ந்தெடுக்கும். ஒரு கோரிக்கையானது `x-omniroute-connection` தலைப்புடன் ஒரு குறிப்பிட்ட இணைப்பைப் பொருத்தலாம்:
 
 ```bash
 curl http://localhost:20128/v1/chat/completions \
@@ -100,28 +101,13 @@ curl http://localhost:20128/v1/chat/completions \
   -d '{"model": "codex/gpt-5.5", "messages": [{"role": "user", "content": "hi"}]}'
 ```
 
-- **id-ஐ எங்கே கண்டறிவது.** Dashboard-இல் provider பக்கத்தைத் திறந்து
-  (**Dashboard → Providers → <provider>**), connection வரிசையில் உள்ள `xxxxxxxx…` id chip-ஐக் கிளிக்
-  செய்யவும் — அது முழு connection id-ஐ நகலெடுக்கும்.
-- **எந்தக் கோரிக்கைகள் இதை மதிக்கும்.** `/v1/chat/completions`, `/v1/messages` மற்றும்
-  `/v1/responses` ஆகியவற்றில் உள்ள ஒற்றை-model கோரிக்கைகள் (`provider/model`). Combos இந்த
-  header-ஐப் புறக்கணிக்கும்: ஒவ்வொரு combo படிக்கும் அதன் சொந்த connection மூலம் account-ஐ pin
-  செய்யவும்.
-- **இந்த pin ஒரு கடுமையான கட்டுப்பாடு; விருப்பத்தேர்வு அல்ல.** Pin செய்யப்பட்ட connection மட்டுமே
-  பயன்படுத்தப்படும். கோரிக்கைக்குள் ஏற்படும் தோல்வி account-இன் cooldown-ஐப் பதிவு செய்யும்; ஆனால்
-  அதே provider-இன் sibling account-க்கு மாறாது.
-- **Cooldown மற்றும் quota ஆகியவை pin-ஐ விடுவிக்கும்.** Pin செய்யப்பட்ட connection cooldown-இல்
-  இருக்கும் போது, quota முடிந்திருந்தால் அல்லது quota policy காரணமாகத் தடுக்கப்பட்டிருந்தால், அடுத்த
-  கோரிக்கைகள் provider-இன் பிற connections-க்கு fallback ஆகும்; இது pin செய்யப்படாத traffic போலவே
-  செயல்படும்.
-- **அறியப்படாத அல்லது முடக்கப்பட்ட ids தோல்வியடையும்.** Provider-இன் active pool-இல் இல்லாத id
-  (நீக்கப்பட்டது, செயலிழக்கச் செய்யப்பட்டது அல்லது வேறு provider-க்கு சொந்தமானது) eligible account
-  எதுவும் இல்லாத நிலையை உருவாக்கும்; எனவே கோரிக்கை வேறு இடத்துக்கு அமைதியாக route ஆகாமல்
-  தோல்வியடையும்.
+- **ஐடியை எங்கே கண்டுபிடிப்பது.** டாஷ்போர்டில் வழங்குநர் பக்கத்தைத் திறக்கவும் (** டாஷ்போர்டு → வழங்குநர்கள் → <provider>** ) மற்றும் இணைப்பு வரிசையில் உள்ள `xxxxxxxx…` ஐடி சிப்பைக் கிளிக் செய்யவும் — அது முழு இணைப்பு ஐடியையும் நகலெடுக்கிறது.
+- **எந்த கோரிக்கைகள் அதை மதிக்கின்றன.** `/v1/chat/completions`, `/v1/messages` மற்றும் `/v1/responses` இல் ஒற்றை மாதிரி கோரிக்கைகள் (`provider/model`). காம்போஸ் தலைப்பைப் புறக்கணிக்கிறது: அதற்குப் பதிலாக படியின் சொந்த இணைப்பு மூலம் ஒரு காம்போ படிக்கு ஒரு கணக்கைப் பின் செய்யவும்.
+- **முள் கண்டிப்பானது, விருப்பம் அல்ல.** பின் செய்யப்பட்ட இணைப்பு பிரத்தியேகமாக பயன்படுத்தப்படுகிறது. கோரிக்கையின் உள்ளே ஒரு தோல்வி கணக்கின் கூல்டவுனைப் பதிவு செய்கிறது, ஆனால் அது செய்கிறது** இல்லை** அதே வழங்குநரின் உடன்பிறந்த கணக்கிற்குச் சுழற்றவும்.
+- **கூல்டவுன் மற்றும் கோட்டா பின்னை வெளியிடுகிறது.** பின் செய்யப்பட்ட இணைப்பு குளிர்ச்சியடையும் போது, ஒதுக்கீடு முடிந்துவிட்டது அல்லது ஒதுக்கீட்டுக் கொள்கையால் தடுக்கப்பட்டது, பின்னிணைக்கப்படாத ட்ராஃபிக்கைப் போலவே, பிற்கால கோரிக்கைகள் வழங்குநரின் பிற இணைப்புகளுக்குத் திரும்பும்.
+- **தெரியாத அல்லது முடக்கப்பட்ட ஐடிகள் தோல்வியடைந்தன.** வழங்குநரின் செயலில் இல்லாத ஒரு ஐடி (நீக்கப்பட்டது, செயலிழக்கப்பட்டது அல்லது வேறொரு வழங்குநருக்கு சொந்தமானது) தகுதியான கணக்கை விட்டுவிடாது, எனவே கோரிக்கையானது அமைதியாக வேறு இடத்திற்குச் செல்வதற்குப் பதிலாக தோல்வியடைகிறது.
 
-Claude Code தனிப்பயன் headers-ஐ `ANTHROPIC_CUSTOM_HEADERS` மூலம் அனுப்புகிறது. அதை
-`~/.claude/settings.json` இன் `env` block-இல் அமைக்கவும்; அல்லது ஒவ்வொரு project-க்கும் வேறு
-account-ஐ pin செய்ய project-level `.claude/settings.json` இல் அமைக்கவும்:
+Claude குறியீடு தனிப்பயன் தலைப்புகளை `ANTHROPIC_CUSTOM_HEADERS` மூலம் அனுப்புகிறது. `~/.claude/settings.json` இன் `env` தொகுதியிலோ அல்லது திட்ட நிலை `.claude/settings.json` யிலோ ஒரு திட்டத்திற்கு வேறு கணக்கைப் பின் செய்யவும்:
 
 ```jsonc
 {
@@ -133,12 +119,11 @@ account-ஐ pin செய்ய project-level `.claude/settings.json` இல் 
 }
 ```
 
-மூலம்: `src/sse/handlers/chat.ts` (header read), `src/sse/services/auth.ts` மற்றும்
-`src/sse/services/sessionAffinityPin.ts` (pin release மற்றும் pool-இல் இல்லாததற்கான சரிபார்ப்பு).
+ஆதாரம்: `src/sse/handlers/chat.ts` (தலைப்பு வாசிப்பு), `src/sse/services/auth.ts` மற்றும் `src/sse/services/sessionAffinityPin.ts` (முள் வெளியீடு மற்றும் குளத்திலிருந்து விடுபட்ட சரிபார்ப்பு).
 
-> **Cost telemetry headers:** streaming அல்லாத வெற்றிகரமான responses-களிலும் `X-OmniRoute-*` cost-telemetry தொகுப்பு இருக்கும் — `X-OmniRoute-Response-Cost` (USD, நிலையான 10 தசமங்கள்; இலவசம்/விலை நிர்ணயிக்கப்படாததற்கு `0.0000000000`), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit`, மற்றும் `X-OmniRoute-Fallback-Attempts` (`> 0` இருக்கும் போது மட்டும்), மேலும் `X-OmniRoute-Request-Id` மற்றும் `X-OmniRoute-Version`. இவை chat completions, `/v1/responses`, `/v1/messages`, **மற்றும் media endpoints** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations`, மற்றும் `/v1/moderations` — அனைத்திலும் வெளியிடப்படும் (`/v1/moderations` இல் எப்போதும் cost `0`). Pricing கிடைக்கும் போது media cost ஒவ்வொரு modality-க்கும் (ஒவ்வொரு image-க்கும், ஒவ்வொரு second-க்கும், ஒவ்வொரு character-க்கும், ஒவ்வொரு search-unit-க்கும்) கணக்கிடப்படும்; இல்லையெனில் `0` (fail-open).
+> **செலவு டெலிமெட்ரி தலைப்புகள்:** ஸ்ட்ரீமிங் அல்லாத வெற்றி பதில்கள் `X-OmniRoute-*` செலவு-டெலிமெட்ரி தொகுப்பு — `X-OmniRoute-Response-Cost` (USD, நிலையான 10 தசமங்கள்; free/unpriced க்கான `0.0000000000` ), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit`(மற்றும் > `X-OmniRoute-Version` `X-OmniRoute-Fallback-Attempts` ), `X-OmniRoute-Request-Id` இவை அரட்டை நிறைவுகள், `/v1/responses`, `/v1/messages`,** மற்றும் ஊடக முடிவு புள்ளிகள்** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations`, மற்றும் `/v1/moderations` (எப்போதும் `0` விலை). விலை நிர்ணயம் கிடைக்கும் போது ஊடகச் செலவு ஒரு முறைக்கு (படத்திற்கு, வினாடிக்கு, ஒரு எழுத்துக்கு, ஒரு தேடல் அலகுக்கு) கணக்கிடப்படுகிறது, இல்லையெனில் `0` (தோல்வி-திறந்த).
 
-> **Cache-hit cost semantics:** semantic-cache HIT-இல் (`X-OmniRoute-Cache-Hit: true`) upstream call எதுவும் செய்யப்படாது; எனவே `X-OmniRoute-Response-Cost` என்பது `0.0000000000` (அந்த hit-ஐ வழங்குவதற்கான **incremental** cost). முதலில் இருந்த/இருந்திருக்கக்கூடிய cost தனியாக `X-OmniRoute-Cost-Saved` இல் தெரிவிக்கப்படும். Billing consumers `X-OmniRoute-Response-Cost`-ஐ கூட்ட வேண்டும் (hits-க்கு எந்தச் செலவும் இல்லை); cache analytics `X-OmniRoute-Cost-Saved`-ஐத் தொகுக்கலாம்.
+> **கேச்-ஹிட் காஸ்ட் செமாண்டிக்ஸ்:** செமாண்டிக்-கேச் HIT (`X-OmniRoute-Cache-Hit: true`) இல் அப்ஸ்ட்ரீம் அழைப்பு எதுவும் செய்யப்படவில்லை, எனவே `X-OmniRoute-Response-Cost` என்பது `0.0000000000` (தி** அதிகரிக்கும்** வெற்றிக்கு சேவை செய்வதற்கான செலவு). original/would-have-been செலவு தனித்தனியாக `X-OmniRoute-Cost-Saved` இல் தெரிவிக்கப்பட்டுள்ளது. பில்லிங் நுகர்வோர் `X-OmniRoute-Response-Cost` ஐத் தொகுக்க வேண்டும் (வெற்றிகளுக்கு எதுவும் செலவாகாது); கேச் அனலிட்டிக்ஸ் `X-OmniRoute-Cost-Saved` ஒருங்கிணைக்க முடியும்.
 
 ## பிரத்தியேக நிர்வகிக்கப்படும் அமர்வு குத்தகைகள்
 
@@ -336,6 +321,8 @@ Content-Type: application/json
 
 `n` `n` படங்களை `data[]` இல் வழங்குகிறது. ஒரு அழைப்புக்கு ஒரு படத்தை அப்ஸ்ட்ரீம் API வழங்கும் வழங்குநர்கள் (Black Forest Labs, Stability AI, Leonardo, Ideogram, Haiper, Hyperbolic, Magnific/Freepik, NVIDIA NIM, Cloudflare Workers AI) அதிகபட்சம் 4 விமானங்களில் `n` தனி அப்ஸ்ட்ரீம் அழைப்புகளைப் பெறுவார்கள். நிலையான `seed` ஆனது அழைப்பு குறியீட்டால் ஈடுசெய்யப்படுகிறது (`seed`, `seed + 1`, …), எனவே படங்கள் வேறுபடும் ஆனால் மீண்டும் உருவாக்கக்கூடியதாக இருக்கும். `n` 10 ஆக உள்ளது. ஏதேனும் அழைப்பு தோல்வியுற்றால் கோரிக்கை முழுவதுமாக தோல்வியடையும். ஃபேன்-அவுட் வடிவங்களின் பட்டியல் `open-sse/handlers/imageGeneration/fanOut.ts` இல் `SINGLE_IMAGE_FANOUT_FORMATS` ஆகும்.
 
+Codex GPT பட மாதிரிகள் (`codex/gpt-image-*`) PNG மட்டும் திரும்பும்: `jpeg` அல்லது `webp` கோரப்பட்டாலும் கூட அப்ஸ்ட்ரீம் `200` PNG பைட்டுகளுடன் பதிலளிக்கிறது. வேறு எந்த `output_format` (`webp`, `jpeg`, ...) உடனான கோரிக்கையும் அமைதியாகப் புறக்கணிக்கப்படுவதற்குப் பதிலாக HTTP 400 உடன் நிராகரிக்கப்படுகிறது; அதை தவிர்க்கவும் அல்லது `png` அனுப்பவும். `output_compression` அனுப்பப்படவில்லை.
+
 ZenMux ஏற்கனவே உள்ள API-விசை இணைப்பை மீண்டும் பயன்படுத்துகிறது மற்றும் `zenmux/` அல்லது `zm/` முன்னொட்டுகளை ஏற்கிறது:
 
 - `zenmux/openai/gpt-image-2` ZenMux இன் OpenAI படங்கள் API பயன்படுத்துகிறது. விருப்பங்களில் `size`, `quality`, `n`, `output_format`, `output_compression`, `background` மற்றும் `response_format` ஆகியவை அடங்கும்.
@@ -353,7 +340,7 @@ GET /v1/images/generations
 
 ---
 
-## ஆவண OCR
+## ஆவணம் OCR
 
 ```bash
 POST /v1/ocr
@@ -369,17 +356,15 @@ Content-Type: application/json
 }
 ```
 
-`model`, `provider/model` முன்னொட்டு மூலம் OCR வழங்குநரைத் தேர்ந்தெடுக்கிறது; முன்னொட்டு இல்லாத மாதிரி id (எ.கா.
-`mistral-ocr-latest`), பதிவுசெய்யப்பட்ட அதன் வழங்குநருக்குத் தீர்மானிக்கப்படும்; `model` குறிப்பிடப்படாவிட்டால்,
-Mistral-க்கு (`mistral-ocr-latest`) இயல்புநிலையாகும். பதிவுசெய்யப்பட்ட வழங்குநர்கள் (`open-sse/config/ocrRegistry.ts`):
+`model` OCR வழங்குநரை `provider/model` முன்னொட்டு வழியாகத் தேர்ந்தெடுக்கிறது; ஒரு வெற்று மாதிரி ஐடி (எ.கா. `mistral-ocr-latest`) அதன் பதிவுசெய்யப்பட்ட வழங்குநருக்குத் தீர்க்கப்படும், மேலும் ஒரு தவிர்க்கப்பட்ட `model` இயல்புநிலையாக Mistral (`mistral-ocr-latest`) ஆக இருக்கும். பதிவுசெய்யப்பட்ட வழங்குநர்கள் (`open-sse/config/ocrRegistry.ts`):
 
-| Provider id                   | Model id             | `model` value                                               | Notes                                                                                                                         |
-| ----------------------------- | -------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `mistral`                     | `mistral-ocr-latest` | `mistral/mistral-ocr-latest` (or bare `mistral-ocr-latest`) | ஒத்திசைவு — ஒரே upstream அழைப்பிலிருந்து பதில் நேரடியாகத் திருப்பி வழங்கப்படும்.                                              |
-| `azure-document-intelligence` | `prebuilt-read`      | `azure-document-intelligence/prebuilt-read`                 | ஒத்திசைவற்ற upstream (`analyze` + poll) — கீழே காண்க.                                                                         |
-| `vertex-deepseek-ocr`         | `deepseek-ocr-maas`  | `vertex-deepseek-ocr/deepseek-ocr-maas`                     | ஒத்திசைவு, Vertex AI-ன் `openapi/chat/completions` partner endpoint வழியாக — அங்கீகாரம்/URL குறித்த விவரங்களுக்கு கீழே காண்க. |
+| வழங்குநர் ஐடி                 | மாதிரி ஐடி                                    | `model` மதிப்பு                                                   | குறிப்புகள்                                                                                                                                                                                                                                     |
+| ----------------------------- | --------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mistral`                     | `mistral-ocr-latest`                          | `mistral/mistral-ocr-latest` (அல்லது வெற்று `mistral-ocr-latest`) | ஒத்திசைவான — ஒற்றை அப்ஸ்ட்ரீம் அழைப்பிலிருந்து நேரடியாக பதில் அளிக்கப்படும்.                                                                                                                                                                    |
+| `azure-document-intelligence` | `prebuilt-read`                               | `azure-document-intelligence/prebuilt-read`                       | ஒத்திசைவற்ற அப்ஸ்ட்ரீம் (`analyze` + கருத்துக்கணிப்பு) — கீழே பார்க்கவும்.                                                                                                                                                                      |
+| `vertex-deepseek-ocr`         | சுய-பணியாக்கம் (உள்ளமைக்கப்பட்ட மாதிரி இல்லை) | `vertex-deepseek-ocr/<your-deployed-model-id>`                    | ஒத்திசைவானது, உங்கள் சொந்த வெர்டெக்ஸ் AI மாடல் கார்டன் டீப்சீக்-OCR இறுதிப்புள்ளி (`openapi/chat/completions` வடிவம்) வழியாக; Google நிர்வகிக்கப்பட்ட `deepseek-ocr-maas` 2026-10-21 (#20423) அன்று ஓய்வு பெற்றது, இதனால் ஐடி 400 ஐத் தருகிறது. |
 
-மூன்று வழங்குநர்களும் ஒரே Mistral-வடிவிலான body-ஐத் திருப்பி வழங்குகின்றனர்:
+மூன்று வழங்குநர்களும் ஒரே மிஸ்ட்ரல் வடிவ உடலில் பதிலளிக்கின்றனர்:
 
 ```json
 {
@@ -389,25 +374,13 @@ Mistral-க்கு (`mistral-ocr-latest`) இயல்புநிலையா
 }
 ```
 
-### Azure Document Intelligence poll flow
+### Azure Document Intelligence கருத்துக்கணிப்பு ஓட்டம்
 
-Azure Document Intelligence-ன் `analyze` API ஒத்திசைவற்றதாகும்: தொடக்கக் கோரிக்கை body-க்குப் பதிலாக
-`Operation-Location` header-ஐத் திருப்பி வழங்கும்; மேலும், முடிவைப் பெற poll செய்ய வேண்டும். handler
-(`open-sse/handlers/ocr.ts`), அந்த URL-ஐ ஒவ்வொரு வினாடியும் அதிகபட்சம் 30 முயற்சிகளுக்கு poll செய்யும்; `ok` அல்லாத poll பதில் அல்லது `"failed"` status ஏற்பட்டால், உடனடியாகத் தோல்வியடையும் (poll செய்வதைத் தொடராது); மேலும், முயற்சி வரம்பு முடிந்த பிறகும் operation இயங்கிக்கொண்டிருந்தால் `504`-ஐத் திருப்பி வழங்கும். இறுதி Azure பதில்,
-caller-க்குத் திருப்பி வழங்கப்படுவதற்கு முன், Mistral பயன்படுத்தும் அதே `pages`/`markdown` வடிவத்திற்கு
-இயல்பாக்கப்படும்; ஆகவே client code-ல் வழங்குநருக்கேற்ப தனிப்பட்ட செயலாக்கம் தேவையில்லை.
+Azure Document Intelligence இன் `analyze` API ஒத்திசைவற்றது: ஆரம்பக் கோரிக்கையானது ஒரு பாடிக்கு பதிலாக `Operation-Location` ஹெடரை வழங்கும், அதன் முடிவு வாக்களிக்கப்பட வேண்டும். 30 முயற்சிகள் வரை ஒவ்வொரு நொடியும் URL செய்யும் ஹேண்ட்லர் (`open-sse/handlers/ocr.ts`) வாக்கெடுப்பு,`ok` அல்லாத வாக்கெடுப்பு பதில் அல்லது `"failed"` நிலை ஆகியவற்றில் வேகமாக தோல்வியடைந்து (வாக்கெடுப்பைத் தொடரவில்லை), மேலும் முயற்சியின் வரவு செலவுத் திட்டம் தீர்ந்த பிறகும் செயல்பாடு இயங்கினால் `504` திருப்பித் தரும். இறுதி Azure மறுமொழியானது, அழைப்பாளரிடம் திரும்புவதற்கு முன், Mistral ஆல் பயன்படுத்தப்பட்ட அதே `pages`/`markdown` வடிவத்தில் இயல்பாக்கப்படுகிறது, எனவே கிளையன்ட் குறியீடு வழங்குநருக்கு சிறப்புத் தேவை இல்லை.
 
-### Vertex AI DeepSeek OCR auth and endpoint resolution
+### வெர்டெக்ஸ் AI DeepSeek OCR அங்கீகாரம் மற்றும் இறுதிப்புள்ளி தீர்மானம்
 
-`vertex-deepseek-ocr`, chat/image traffic-க்காக OmniRoute ஏற்கனவே ஆதரிக்கும் அதே Vertex AI authentication-ஐ மீண்டும் பயன்படுத்துகிறது
-(`open-sse/executors/vertex.ts`): connection-ன் API key, Service Account JSON credential ஆக இருந்து JWT-bearer
-flow மூலம் குறுகிய கால OAuth access token-ஆக மாற்றப்படலாம், அல்லது ஏற்கனவே உருவாக்கப்பட்ட OAuth access token
-அப்படியே பயன்படுத்தப்படலாம். upstream endpoint URL, connection-ன் project மற்றும் region-இலிருந்து உருவாக்கப்படும் Vertex-ன்
-பொதுவான `openapi/chat/completions` partner endpoint ஆகும் — வெளிப்படையாக வழங்கப்படும்
-`providerSpecificData.project`/`providerSpecificData.region` எப்போதும் முன்னுரிமை பெறும்; இல்லையெனில் project,
-Service Account JSON-ன் `project_id`-இலிருந்து பெறப்படும்; region, `us-central1` ஆக இயல்புநிலைப்படும். இரண்டு தீர்மானங்களும்
-`open-sse/handlers/ocr.ts` (`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`) இல் நடைபெறும்; மேலும்
-`handleOcr`-க்கு dispatch செய்வதற்கு முன் `src/app/api/v1/ocr/route.ts` மூலம் பயன்படுத்தப்படும்.
+chat/image ட்ராஃபிக்கை OmniRoute ஏற்கனவே ஆதரிக்கும் அதே Vertex AI அங்கீகாரத்தை`vertex-deepseek-ocr` மீண்டும் பயன்படுத்துகிறது (`open-sse/executors/vertex.ts`): இணைப்பின் API விசை ஒரு சேவை கணக்கு JSON நற்சான்றிதழ் (JWT- தாங்கி பாய்ச்சல் வழியாக குறுகிய கால OAuth அணுகல் டோக்கனுக்காக மாற்றப்பட்டது) அல்லது ஏற்கனவே பயன்படுத்தப்பட்ட OAuth வடிவமைக்கப்பட்ட . அப்ஸ்ட்ரீம் எண்ட்பாயிண்ட் URL என்பது வெர்டெக்ஸின் ஜெனரிக் `openapi/chat/completions` பார்ட்னர் எண்ட்பாயிண்ட் ஆகும், இது இணைப்பின் ப்ராஜெக்ட் மற்றும் ரீஜியன் — இலிருந்து கட்டப்பட்டது ஒரு வெளிப்படையான `providerSpecificData.project`/`providerSpecificData.region` எப்போதும் வெற்றி பெறும்; இல்லையெனில் திட்டமானது சேவைக் கணக்கின் JSON இன் `project_id` இலிருந்து பெறப்பட்டது மற்றும் பிராந்தியமானது இயல்புநிலையாக `us-central1` ஆக இருக்கும். இரண்டு தீர்மானங்களும் `open-sse/handlers/ocr.ts` (`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`) இல் நிகழ்கின்றன, `handleOcr` க்கு அனுப்பும் முன் `src/app/api/v1/ocr/route.ts` ஆல் நுகரப்படும்.
 
 ---
 

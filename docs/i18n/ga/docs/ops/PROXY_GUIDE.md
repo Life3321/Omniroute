@@ -270,150 +270,150 @@ Tarlaíonn sé seo uair amháin ar an gcéad tosú tar éis uasghrádaithe. Ús�
 
 ---
 
-## Margadh Saor-Ionadaithe Saor in Aisce 1proxy
+## Margadh seachfhreastalaí 1 seachfhreastalaí
 
-> 🆕 **Arna chur leis ag [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Saincheist [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Arna chur suas ag [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) ( Issue [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-Comhtháthaíonn OmniRoute le hardán pobail **[1proxy](https://1proxy-api.aitradepulse.com)** chun rochtain a sholáthar ar **na céadta seachfhreastalaí saor in aisce atá bailíochtaithe** ó gach cearn den domhan. Tá sé seo foirfe d’úsáideoirí nach bhfuil a mbonneagar seachfhreastalaí féin acu.
+chomhtháthaíonn OmniRoute leis an** [1seachfhreastalaí](https://1proxy-api.aitradepulse.com)** ardán pobail chun rochtain a sholáthar ar** na céadta seachvótálaithe saor in aisce, deimhnithe** ó ar fud an domhain. Tá sé seo foirfe d'úsáideoirí nach bhfuil a mbonneagar seachfhreastalaí féin acu.
 
-### Conas a Oibríonn Sé
+### Conas a Oibríonn sé
 
 ```
-┌─────────────┐  Sioncronú   ┌─────────────────┐    Rothlú      ┌────────────┐
-│ API 1proxy  │ ────────────▶ │  proxy_registry │ ────────────▶ │ Soláthraí  │
-│  (seachtrach)│ suas le 500  │ source=oneproxy │ de réir cáil. │    API     │
-└─────────────┘ seachfhreast. └─────────────────┘               └────────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Sioncronú** — Faigheann OmniRoute seachfhreastalaithe bailíochtaithe ó API 1proxy
-2. **Stóráil** — Sábháiltear seachfhreastalaithe sa tábla céanna `proxy_registry` le `source = 'oneproxy'`
-3. **Scagadh** — Scagtar de réir prótacail, tíre agus scór cáilíochta
-4. **Rothlú** — Roghnaítear an seachfhreastalaí is fearr trí straitéis cháilíochta, randamach nó sheicheamhach a úsáid
-5. **Uathdhíghrádú** — Laghdaítear scór cáilíochta seachfhreastalaithe a dteipeann orthu; faoi bhun na tairsí → marcáiltear mar neamhghníomhach iad
+1. **Sioncrónaigh** Faigheann — OmniRoute seachvótálaithe ón 1proxy API
+2. **Stóráil** — Déantar seachfhreastalaí a shábháil sa tábla `proxy_registry` céanna le `source = 'oneproxy'`
+3. **Scagaire** — Scag de réir prótacail, tíre, scór cáilíochta
+4. **Rothlaigh** — Roghnaigh an seachfhreastalaí is fearr ag baint úsáide as straitéisí cáilíochta, randamacha nó seicheamhacha
+5. **Díghrádaigh go huathoibríoch** — Laghdaítear scór cáilíochta na seachvótálaithe ar theip orthu; faoi bhun na tairsí tá → marcáilte neamhghníomhach
 
-### Seachfhreastalaithe a Shioncronú
+### Proxies a shioncronú
 
 **Tríd an Deais:**
 
-1. Téigh chuig an táb **Socruithe → 1proxy**
-2. Cliceáil **"Sioncronaigh Anois"**
-3. Féach ar na staitisticí: líon iomlán na seachfhreastalaithe, líon gníomhach, meáncháilíocht agus miondealú de réir tíre
+1. Téigh go dtí** Socruithe → 1proxy** cluaisín
+2. Cliceáil** "Sioncronaigh Anois"**
+3. Féach ar staitisticí: seachfhreastalaí iomlána, comhaireamh gníomhach, meánchaighdeán, miondealú de réir tíre
 
-**Tríd an API:**
+**Trí API:**
 
 ```bash
-# Cuir tús leis an sioncronú
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Freagra:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### Seachfhreastalaithe a Scagadh
+### Proxies Scagtha
 
 ```bash
-# Scag de réir prótacail
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Scag de réir tíre
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Scag de réir íosscóir cáilíochta
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Comhcheangail scagairí
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Scóir Cháilíochta Seachfhreastalaí
+### Scóir Cáilíochta Seachfhreastalaí
 
-Tagann meiteashonraí le gach seachfhreastalaí 1proxy:
+Tagann meiteashonraí le gach seachfhreastalaí 1:
 
-| Réimse          | Cur Síos                                                       |
-| --------------- | -------------------------------------------------------------- |
-| `qualityScore`  | Rátáil 0-100 ó bhailíochtú 1proxy                              |
-| `latencyMs`     | Aga folaigh líonra tomhaiste                                   |
-| `anonymity`     | `transparent`, `anonymous`, nó `elite`                         |
-| `googleAccess`  | An féidir leis an seachfhreastalaí seirbhísí Google a rochtain |
-| `countryCode`   | Cód tíre ISO dhá litir                                         |
-| `lastValidated` | Stampa ama an bhailíochtaithe is déanaí                        |
+| Réimse          | Cur síos                                                                 |
+| --------------- | ------------------------------------------------------------------------ |
+| `qualityScore`  | rátáil 0-100 ó bhailíochtú 1seachfhreastalaí                             |
+| `latencyMs`     | latency líonra tomhaiste                                                 |
+| `anonymity`     | `transparent`, `anonymous`, nó `elite`                                   |
+| `googleAccess`  | An féidir leis an seachfhreastalaí rochtain a fháil ar sheirbhísí Google |
+| `countryCode`   | Cód tíre dhá litir ISO                                                   |
+| `lastValidated` | Stampa ama an bhailíochtaithe deiridh                                    |
 
-Coigeartaítear scóir cháilíochta go dinimiciúil:
+Déantar scóir cháilíochta a choigeartú go dinimiciúil:
 
-- Laghdaíonn **iarratais ar theip orthu** an scór faoi 10 bpointe
-- **Titeann an scór go ≤10** → marcáiltear an seachfhreastalaí mar `inactive`
-- Eisiatar seachfhreastalaithe neamhghníomhacha ón rothlú
+- **Theip ar iarratais** an scór a laghdú de 10 bpointe
+- **Titeann an scór go ≤ 10** Tá seachfhreastalaí → marcáilte `inactive`
+- Déantar seachvótálaithe neamhghníomhacha a eisiamh ón rothlú
 
 ### Straitéisí Rothlaithe
 
 ```bash
-# Rothlaigh de réir cáilíochta (an seachfhreastalaí is fearr ar dtús) — réamhshocrú
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Rothlú randamach
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Seicheamhach (an ceann is faide ó bailíochtaíodh é ar dtús)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### Scoradán Ciorcaid
+### Briseadh Cuarda
 
-Tá scoradán ciorcaid ionsuite ag sioncronú 1proxy:
+Tá scoradán ciorcad ionsuite ag an sioncrónú 1proxy:
 
-- Tar éis **5 theip shioncronaithe as a chéile**, cuirtear bac ar iarrachtaí sioncronaithe breise
+- Tar éis** 5 theip sioncronaithe as a chéile** , tá bac ar iarrachtaí sioncronaithe breise
 - Athshocraigh le: `resetOneproxyCircuitBreaker()` nó atosaigh an freastalaí
-- Tá stádas an tsioncronaithe ar fáil ag `GET /api/settings/oneproxy?action=status`
+- Tá stádas sioncronaithe ar fáil ag `GET /api/settings/oneproxy?action=status`
 
-### Seachfhreastalaithe 1proxy a Ghlanadh
+### Seachfhreastalaí 1seachfhreastalaí a ghlanadh
 
 ```bash
-# Scrios seachfhreastalaí aonair 1proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Glan GACH seachfhreastalaí 1proxy (ní dhéantar aon athrú ar sheachfhreastalaithe láimhe)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## Frithbhraiteacht & Rúndacht
+## Frithbhrath & Stealth
 
-Ní hamháin go seolann OmniRoute trácht trí sheachfhreastalaí — cuireann sé cuma dhlisteanach ar an trácht:
+Ní hamháin go stiúrann OmniRoute trácht trí sheachvótálaí — cuireann sé cuma dlisteanach ar an trácht:
 
-### Bréagú Méarloirg TLS
+### TLS Spoofing Méarloirg
 
-Úsáideann sé `wreq-js` chun méarloirg TLS atá cosúil le méarloirg brabhsálaí a ghiniúint, rud a sheachnaíonn córais braite róbat a mharcálann croitheadh láimhe TLS nach dtagann ó bhrabhsálaí.
+Úsáideann sé `wreq-js` chun méarloirg TLS cosúil le brabhsálaí a ghiniúint, ag seachaint córais braite bot a thugann bratach do chroitheadh láimhe TLS neamhbhrabhsálaí.
 
-### Meaitseáil Méarloirg CLI
+### CLI Meaitseáil Méarloirg
 
-Déanann an **Scorán Méarloirg CLI** (`Socruithe → Slándáil`) ceanntásca HTTP agus réimsí i gcorp JSON a athordú chun síniú beacht dénártha dúchasacha CLI (Claude Code, Codex, srl.) a mheaitseáil. Oibríonn sé seo **anuas ar** an seachfhreastalaí:
+Tá an**CLI Méarloirg Scoránaigh** (`Settings → Security`) athordaíonn ceanntásca HTTP agus réimsí coirp JSON chun síniú beacht na ndénártha CLI dúchais a mheaitseáil ( Cód Claude, Codex, etc.). Oibríonn sé seo** ar bharr** an seachfhreastalaí:
 
 ```
-Do IP (blocáilte) → IP an tSeachfhreastalaí (SAM) → API an tSoláthraí
-                    + bréagú TLS
-                    + méarlorg CLI
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-Faigheann tú **folú IP** agus **barántúlacht iarratais** ag an am céanna.
+Faigheann tú an dá** chumhdaigh IP** agus** barántúlacht iarraidh** ag an am céanna.
 
-### Caomhnú IP an tSeachfhreastalaí
+### Seachfhreastalaí IP Caomhnú
 
-Taispeánann suaitheantais dathchódaithe sa deais cén leibhéal seachfhreastalaí atá gníomhach:
+Léiríonn suaitheantais dathchódaithe sa deais cén leibhéal seachfhreastalaí atá gníomhach:
 
-| Suaitheantas | Leibhéal  | Brí                                                             |
-| ------------ | --------- | --------------------------------------------------------------- |
-| 🟢           | Domhanda  | Téann an trácht ar fad tríd an seachfhreastalaí seo             |
-| 🟡           | Soláthraí | Ní sheoltar ach trácht an tsoláthraí seo trí sheachfhreastalaí  |
-| 🔵           | Ceangal   | Úsáideann an eochair/cuntas sonrach seo an seachfhreastalaí seo |
+| Suaitheantas | Leibhéal  | Brí                                                        |
+| ------------ | --------- | ---------------------------------------------------------- |
+| 🟢           | Domhanda  | Téann an trácht go léir tríd an seachfhreastalaí seo       |
+| 🟡           | Soláthraí | Ní dhéantar ach trácht an tsoláthraí seo a sheachfhreastal |
+| 🔵           | Ceangal   | Úsáideann key/account sonrach seo an seachfhreastalaí      |
 
-Taispeánann an suaitheantas IP réitithe an tseachfhreastalaí freisin lena fhíorú.
+Taispeánann an suaitheantas freisin an seachfhreastalaí réitithe IP lena fhíorú.
 
 ---
 

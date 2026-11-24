@@ -271,114 +271,114 @@ Isang beses itong nangyayari sa unang pag-start pagkatapos ng pag-upgrade. Gamit
 
 ---
 
-## Marketplace ng Libreng Proxy ng 1proxy
+## 1proxy Libreng Proxy Marketplace
 
-> 🆕 **Iniambag ni [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Isyu [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Iniambag ni [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (Isyu [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-Nakikipag-integrate ang OmniRoute sa platform ng komunidad na **[1proxy](https://1proxy-api.aitradepulse.com)** upang magbigay ng access sa **daan-daang libre at napatunayang proxy** mula sa buong mundo. Perpekto ito para sa mga user na walang sariling imprastraktura ng proxy.
+OmniRoute integrates sa** [1proxy](https://1proxy-api.aitradepulse.com)** platform ng komunidad upang magbigay ng access sa** daan-daang libre, napatunayang proxy** mula sa buong mundo. Ito ay perpekto para sa mga user na walang sariling proxy infrastructure.
 
 ### Paano Ito Gumagana
 
 ```
-┌─────────────┐  Pag-sync   ┌─────────────────┐   Pag-rotate   ┌──────────┐
-│  1proxy API │ ───────────▶ │  proxy_registry │ ─────────────▶ │ Provider │
-│  (panlabas) │  hanggang   │  source=oneproxy │  ayon sa       │   API    │
-└─────────────┘  500 proxy  └─────────────────┘  kalidad        └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Pag-sync** — Kinukuha ng OmniRoute ang mga napatunayang proxy mula sa 1proxy API
-2. **Pag-store** — Sine-save ang mga proxy sa parehong talahanayang `proxy_registry` na may `source = 'oneproxy'`
-3. **Pag-filter** — Mag-filter ayon sa protocol, bansa, at marka ng kalidad
-4. **Pag-rotate** — Piliin ang pinakamahusay na proxy gamit ang mga estratehiyang batay sa kalidad, random, o sunud-sunod
-5. **Awtomatikong pagpapababa** — Binabawasan ang marka ng kalidad ng mga pumalyang proxy; kapag mas mababa sa threshold → minamarkahang hindi aktibo
+1. **I-sync** Kinukuha ng — OmniRoute ang mga validated na proxy mula sa 1proxy API
+2. **Tindahan** — Proxies ay nai-save sa parehong `proxy_registry` table na may `source = 'oneproxy'`
+3. **Salain** — I-filter ayon sa protocol, bansa, marka ng kalidad
+4. **Iikot** — Piliin ang pinakamahusay na proxy gamit ang kalidad, random, o sunud-sunod na mga diskarte
+5. **Auto-degrade** — Binabawasan ng mga nabigong proxy ang kanilang marka ng kalidad; sa ibaba ng threshold → ay minarkahan na hindi aktibo
 
-### Pag-sync ng mga Proxy
+### Sini-sync ang mga Proxies
 
 **Sa pamamagitan ng Dashboard:**
 
-1. Pumunta sa tab na **Settings → 1proxy**
-2. I-click ang **"Sync Now"**
-3. Tingnan ang mga estadistika: kabuuang proxy, bilang ng aktibo, average na kalidad, at paghahati-hati ayon sa bansa
+1. Pumunta sa** Mga setting → 1proxy** tab
+2. I-click** "I-sync Ngayon"**
+3. Tingnan ang mga istatistika: kabuuang mga proxy, aktibong bilang, average na kalidad, ayon sa bansa breakdown
 
-**Sa pamamagitan ng API:**
+**Sa pamamagitan API:**
 
 ```bash
-# Simulan ang pag-sync
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Tugon:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### Pag-filter ng mga Proxy
+### Pag-filter ng mga Proxies
 
 ```bash
-# Mag-filter ayon sa protocol
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Mag-filter ayon sa bansa
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Mag-filter ayon sa minimum na marka ng kalidad
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Pagsamahin ang mga filter
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
 ### Mga Marka ng Kalidad ng Proxy
 
-May kasamang metadata ang bawat proxy ng 1proxy:
+Ang bawat 1proxy proxy ay may metadata:
 
-| Field           | Paglalarawan                                        |
-| --------------- | --------------------------------------------------- |
-| `qualityScore`  | Rating na 0-100 mula sa pagpapatunay ng 1proxy      |
-| `latencyMs`     | Nasukat na latency ng network                       |
-| `anonymity`     | `transparent`, `anonymous`, o `elite`               |
-| `googleAccess`  | Kung maa-access ng proxy ang mga serbisyo ng Google |
-| `countryCode`   | Dalawang-letrang ISO code ng bansa                  |
-| `lastValidated` | Timestamp ng huling pagpapatunay                    |
+| Patlang         | Paglalarawan                                     |
+| --------------- | ------------------------------------------------ |
+| `qualityScore`  | 0-100 rating mula sa 1proxy validation           |
+| `latencyMs`     | Sinusukat ang latency ng network                 |
+| `anonymity`     | `transparent`, `anonymous`, o `elite`            |
+| `googleAccess`  | Kung maa-access ng proxy ang mga serbisyo Google |
+| `countryCode`   | Dalawang titik ISO country code                  |
+| `lastValidated` | Timestamp ng huling pagpapatunay                 |
 
-Dinamikong ina-adjust ang mga marka ng kalidad:
+Ang mga marka ng kalidad ay dynamic na inaayos:
 
-- Binabawasan ng **mga pumalyang request** ang marka nang 10 puntos
-- **Kapag bumaba ang marka sa ≤10** → minamarkahan ang proxy bilang `inactive`
-- Hindi isinasama sa pag-rotate ang mga hindi aktibong proxy
+- **Mga nabigong kahilingan** bawasan ang iskor ng 10 puntos
+- **Bumaba ang marka sa ≤ 10** → proxy ay may markang `inactive`
+- Ang mga hindi aktibong proxy ay hindi kasama sa pag-ikot
 
-### Mga Estratehiya sa Pag-rotate
+### Mga Istratehiya sa Pag-ikot
 
 ```bash
-# Mag-rotate ayon sa kalidad (pinakamahusay na proxy muna) — default
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Random na pag-rotate
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Sunud-sunod (pinakamatagal mula noong huling napatunayan muna)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### Circuit Breaker
 
-May built-in na circuit breaker ang pag-sync ng 1proxy:
+Ang 1proxy sync ay may built-in na circuit breaker:
 
-- Pagkatapos ng **5 magkakasunod na pagkabigo sa pag-sync**, bina-block ang mga susunod pang pagtatangka sa pag-sync
+- Pagkatapos** 5 magkakasunod na pagkabigo sa pag-sync** , ang mga karagdagang pagtatangka sa pag-sync ay hinarangan
 - I-reset gamit ang: `resetOneproxyCircuitBreaker()` o i-restart ang server
-- Makukuha ang status ng pag-sync sa `GET /api/settings/oneproxy?action=status`
+- Available ang status ng pag-sync sa `GET /api/settings/oneproxy?action=status`
 
-### Pag-clear ng mga Proxy ng 1proxy
+### Pag-clear ng 1proxy Proxies
 
 ```bash
-# Mag-delete ng isang proxy ng 1proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# I-clear ang LAHAT ng proxy ng 1proxy (hindi gagalawin ang mga manual na proxy)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

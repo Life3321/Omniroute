@@ -49,7 +49,7 @@ Hər bir yerləşdirmə spesifikasiyanın öz nüsxəsini `/openapi.yaml` ünvan
 
 ---
 
-## Çat tamamlamaları
+## Söhbət Tamamlamaları
 
 ```bash
 POST /v1/chat/completions
@@ -65,33 +65,34 @@ Content-Type: application/json
 }
 ```
 
-### Fərdi başlıqlar
+### Fərdi Başlıqlar
 
-| Header                   | Direction | Description                                                                                                                                                                                                                                 |
-| ------------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `X-OmniRoute-No-Cache`   | Request   | Keşi keçmək üçün `true` olaraq təyin edin                                                                                                                                                                                                   |
-| `x-omniroute-no-memory`  | Request   | Bu sorğu üçün yaddaş + bacarıq inyeksiyasını ötürmək məqsədilə `true` olaraq təyin edin (no-cache-i əks etdirir; hər çağırış üzrə token/maliyyət əlavə yükünün qarşısını alır)                                                              |
-| `X-OmniRoute-Progress`   | Request   | Tərəqqi hadisələri üçün `true` olaraq təyin edin                                                                                                                                                                                            |
-| `X-Session-Id`           | Request   | Xarici sessiya əlaqələndirməsi üçün yapışqan sessiya açarı                                                                                                                                                                                  |
-| `x_session_id`           | Request   | Alt xəttli variant da qəbul edilir (birbaşa HTTP)                                                                                                                                                                                           |
-| `X-OmniRoute-Session-Id` | Request   | Çağıran tərəfindən təqdim edilən sessiya/söhbət teqi (həmçinin yaddaşa ötürülür). Mövcud olduqda, sessiya üzrə maliyyətlərin aid edilməsi üçün `call_logs.session_tag` sahəsinə olduğu kimi yazılır (#8249) — olmadıqda heç vaxt yaradılmır |
-| `Idempotency-Key`        | Request   | Təkrarların qarşısını alma açarı (5 saniyəlik pəncərə)                                                                                                                                                                                      |
-| `X-Request-Id`           | Request   | Alternativ təkrarların qarşısını alma açarı                                                                                                                                                                                                 |
-| `x-omniroute-connection` | Request   | Tək model sorğusunu ID-si ilə müəyyən edilən bir provayder bağlantısına (hesaba) sabitləyir — [Sorğu üzrə hesabın sabitlənməsinə](#account-pinning-per-request) baxın                                                                       |
-| `X-OmniRoute-Cache`      | Response  | Keşləmə (axınsız) üçün `HIT` və ya `MISS`                                                                                                                                                                                                   |
-| `X-OmniRoute-Idempotent` | Response  | Təkrarların qarşısı alınıbsa `true`                                                                                                                                                                                                         |
-| `X-OmniRoute-Progress`   | Response  | Tərəqqinin izlənməsi aktivdirsə `enabled`                                                                                                                                                                                                   |
-| `X-OmniRoute-Session-Id` | Response  | OmniRoute tərəfindən istifadə edilən effektiv sessiya ID-si                                                                                                                                                                                 |
-| `X-OmniRoute-Request-Id` | Response  | Sorğunun korrelyasiya ID-si (məlum olduqda)                                                                                                                                                                                                 |
-| `X-OmniRoute-Version`    | Response  | OmniRoute build versiyası (həmişə mövcuddur)                                                                                                                                                                                                |
-| `X-OmniRoute-Cost-Saved` | Response  | `HIT` zamanı keşin qənaət etdiyi ABŞ dolları məbləği (yalnız keş uyğunluqları üçün)                                                                                                                                                         |
-| `X-OmniRoute-Decision`   | Response  | Marşrutlaşdırma izi: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` kombinə edilmiş strategiyadır, yaxud kombinə edilməmiş sorğu üçün `single`-dır) — tamamlanma cavablarında həmişə mövcuddur                               |
+| Başlıq                   | İstiqamət | Təsvir                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------------ | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `X-OmniRoute-No-Cache`   | Sorğu     | Keşi keçmək üçün `true` olaraq təyin edin                                                                                                                                                                                                                                                                                                                                                       |
+| `x-omniroute-no-memory`  | Sorğu     | Bu sorğu üçün yaddaş + bacarıqlarının inyeksiyasını ötürmək üçün `true` -ya ayarlayın (keşsiz güzgülər; hər zəng üçün token/cost əlavə yükün qarşısını alır)                                                                                                                                                                                                                                    |
+| `x-omniroute-no-log`     | Sorğu     | Bu nəticə çıxarma sorğusu (bütün söhbət ailəsi marşrutları: Söhbət Tamamlamaları, Cavablar, Mesajlar, Tamamlamalar, Gemini) üçün zəng qeydlərindən request/response yüklərini buraxmaq üçün `true` -ya təyin edin. Vaxt möhürü, model, status, müddət və işarə sayıları hələ də qeydə alınır. Tam məzmundan imtina etmək üçün `x-omniroute-no-memory` və `x-omniroute-no-cache` ilə birləşdirin |
+| `X-OmniRoute-Progress`   | Sorğu     | Tərəqqi hadisələri üçün `true` olaraq təyin edin                                                                                                                                                                                                                                                                                                                                                |
+| `X-Session-Id`           | Sorğu     | Xarici sessiya yaxınlığı üçün yapışqan sessiya açarı                                                                                                                                                                                                                                                                                                                                            |
+| `x_session_id`           | Sorğu     | Alt xətt variantı da qəbul edilir (birbaşa HTTP)                                                                                                                                                                                                                                                                                                                                                |
+| `X-OmniRoute-Session-Id` | Sorğu     | Zəng edən tərəfindən təmin edilən session/conversation etiketi (həmçinin yaddaşı qidalandırır). Mövcud olduqda, sessiya başına xərc aidiyyatı (#8249) üçün davamlı olaraq `call_logs.session_tag` -yə — olmadıqda heç vaxt sintez edilmir                                                                                                                                                       |
+| `Idempotency-Key`        | Sorğu     | Təkmilləşdirmə açarı (5s pəncərəsi)                                                                                                                                                                                                                                                                                                                                                             |
+| `X-Request-Id`           | Sorğu     | Alternativ dedup açarı                                                                                                                                                                                                                                                                                                                                                                          |
+| `x-omniroute-connection` | Sorğu     | Tək modelli sorğunu bir provayder bağlantısına (hesabına) onun id — ilə [bərkidin](#account-pinning-per-request)                                                                                                                                                                                                                                                                                |
+| `X-OmniRoute-Cache`      | Cavab     | `HIT` və ya `MISS` (axın olmayan)                                                                                                                                                                                                                                                                                                                                                               |
+| `X-OmniRoute-Idempotent` | Cavab     | `true` təkrarlanırsa                                                                                                                                                                                                                                                                                                                                                                            |
+| `X-OmniRoute-Progress`   | Cavab     | `enabled` tərəqqi izləmə aktivdirsə                                                                                                                                                                                                                                                                                                                                                             |
+| `X-OmniRoute-Session-Id` | Cavab     | OmniRoute tərəfindən istifadə edilən effektiv ID sessiyası                                                                                                                                                                                                                                                                                                                                      |
+| `X-OmniRoute-Request-Id` | Cavab     | Sorğu korrelyasiya id (məlum olduqda)                                                                                                                                                                                                                                                                                                                                                           |
+| `X-OmniRoute-Version`    | Cavab     | OmniRoute qurma versiyası (həmişə mövcuddur)                                                                                                                                                                                                                                                                                                                                                    |
+| `X-OmniRoute-Cost-Saved` | Cavab     | USD the cache avoided on a HIT (cache hits only)                                                                                                                                                                                                                                                                                                                                                |
+| `X-OmniRoute-Decision`   | Cavab     | Marşrut izi: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` kombinasiya strategiyasıdır və ya qeyri-kombo sorğu üçün `single` ) — tamamlama cavablarında həmişə mövcuddur                                                                                                                                                                                                        |
 
-> Nginx qeydi: alt xəttli başlıqlardan (məsələn, `x_session_id`) istifadə edirsinizsə, `underscores_in_headers on;` parametrini aktiv edin.
+> Nginx qeydi: alt xətt başlıqlarına etibar edirsinizsə (məsələn `x_session_id`), `underscores_in_headers on;` funksiyasını aktivləşdirin.
 
-#### Sorğu üzrə hesabın sabitlənməsi
+#### İstəyə görə hesabın bərkidilməsi
 
-Provayderin bir neçə bağlantısı (hesabı və ya açarı) olduqda, OmniRoute adətən hesab seçimi strategiyası vasitəsilə onlardan birini seçir. Sorğu bunun əvəzinə `x-omniroute-connection` başlığı ilə konkret bir bağlantıya sabitlənə bilər:
+Provayderin bir neçə əlaqəsi (hesabları və ya açarları) olduqda, OmniRoute adətən hesab seçimi strategiyası vasitəsilə birini seçir. Sorğu əvəzinə `x-omniroute-connection` başlığı ilə xüsusi bir əlaqə bağlaya bilər:
 
 ```bash
 curl http://localhost:20128/v1/chat/completions \
@@ -101,26 +102,13 @@ curl http://localhost:20128/v1/chat/completions \
   -d '{"model": "codex/gpt-5.5", "messages": [{"role": "user", "content": "hi"}]}'
 ```
 
-- **ID-ni harada tapmaq olar.** İdarə panelində provayder səhifəsini açın
-  (**Dashboard → Providers → <provider>**) və bağlantı sətrindəki `xxxxxxxx…` ID nişanına klikləyin —
-  bu, tam bağlantı ID-sini kopyalayır.
-- **Hansı sorğular bunu nəzərə alır.** `/v1/chat/completions`, `/v1/messages` və
-  `/v1/responses` üzərindəki tək model sorğuları (`provider/model`). Kombinasiyalar başlığı
-  nəzərə almır: hər kombinasiya addımı üçün hesabı həmin addımın öz bağlantısı vasitəsilə
-  sabitləyin.
-- **Sabitləmə seçim deyil, sərtdir.** Sabitlənmiş bağlantı yalnız ondan istifadə edir. Sorğu
-  daxilində baş verən xəta hesabın soyuma müddətini qeydə alır, lakin eyni provayderin
-  qardaş hesabına keçid etmir.
-- **Soyuma müddəti və kvota sabitləməni ləğv edir.** Sabitlənmiş bağlantı soyuma müddətində
-  olduqda, kvotanı tükətdikdə və ya kvota siyasəti tərəfindən bloklandıqda, sonrakı sorğular
-  sabitlənməmiş trafikdə olduğu kimi provayderin digər bağlantılarına yönləndirilir.
-- **Naməlum və ya deaktiv edilmiş ID-lər uğursuz olur.** Provayderin aktiv hovuzunda olmayan
-  ID (silinmiş, deaktiv edilmiş və ya başqa provayderə aid olan ID) uyğun hesabı əlçatan
-  qoymur; buna görə sorğu səssizcə başqa yerə yönləndirilmək əvəzinə uğursuz olur.
+- **ID-ni haradan tapmaq olar.** İdarə panelində provayder səhifəsini açın (** Dashboard → Provayderlər → <provider>** ) və əlaqə cərgəsindəki `xxxxxxxx…` id çipinə klikləyin — o, tam əlaqə identifikatorunu kopyalayır.
+- **Hansı xahişlər buna hörmət edir.** `/v1/chat/completions`, `/v1/messages` və `/v1/responses` üzrə tək modelli sorğular (`provider/model`). Kombolar başlığa məhəl qoymur: əvəzinə addımın öz bağlantısı vasitəsilə hər bir addım üçün hesabı bağlayın.
+- **Pin ciddidir, üstünlük deyil.** Bağlanmış əlaqə yalnız istifadə olunur. Sorğu daxilindəki uğursuzluq hesabın soyumasını qeyd edir, lakin edir** yox** eyni provayderin bacı hesabına fırladın.
+- **Soyutma və kvota pin buraxır.** Sabitlənmiş bağlantı soyuduqda, kvota tükəndikdə və ya kvota siyasəti ilə bloklanarkən, sonrakı sorğular, bağlanmamış trafik kimi provayderin digər bağlantılarına qayıdır.
+- **Naməlum və ya qeyri-aktiv identifikatorlar uğursuz olur.** Provayderin aktiv hovuzunda olmayan (silinmiş, deaktiv edilmiş və ya başqa provayderə aid olan) id uyğun hesab buraxmır, ona görə də sorğu səssizcə başqa yerə yönləndirmək əvəzinə uğursuz olur.
 
-Claude Code xüsusi başlıqları `ANTHROPIC_CUSTOM_HEADERS` vasitəsilə göndərir. Onu
-`~/.claude/settings.json` faylının `env` blokuna və ya hər layihə üçün fərqli hesabı
-sabitləmək məqsədilə layihə səviyyəsindəki `.claude/settings.json` faylına əlavə edin:
+Claude Kodu `ANTHROPIC_CUSTOM_HEADERS` vasitəsilə xüsusi başlıqlar göndərir. Onu `~/.claude/settings.json`-nin `env` blokuna və ya hər layihə üçün fərqli hesab bağlamaq üçün layihə səviyyəli `.claude/settings.json` ə qoyun:
 
 ```jsonc
 {
@@ -132,13 +120,11 @@ sabitləmək məqsədilə layihə səviyyəsindəki `.claude/settings.json` fayl
 }
 ```
 
-Mənbə: `src/sse/handlers/chat.ts` (başlığın oxunması), `src/sse/services/auth.ts` və
-`src/sse/services/sessionAffinityPin.ts` (sabitləmənin ləğvi və hovuzda olmayan bağlantı
-yoxlaması).
+Mənbə: `src/sse/handlers/chat.ts` (başlıq oxunması), `src/sse/services/auth.ts` və `src/sse/services/sessionAffinityPin.ts` (pin buraxılışı və hovuzdan yoxlanış).
 
-> **Xərc telemetriyası başlıqları:** axınsız uğurlu cavablara həmçinin `X-OmniRoute-*` xərc telemetriyası dəsti — `X-OmniRoute-Response-Cost` (USD, sabit 10 onluq rəqəm; pulsuz/qiymətləndirilməmiş xidmət üçün `0.0000000000`), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit` və `X-OmniRoute-Fallback-Attempts` (yalnız `0`-dan böyük olduqda), həmçinin `X-OmniRoute-Request-Id` və `X-OmniRoute-Version` başlıqları əlavə olunur. Bunlar chat completions, `/v1/responses`, `/v1/messages` **və media endpoint-ləri** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations` və `/v1/moderations` — tərəfindən göndərilir (həmişə `0` xərc ilə). Media xərci qiymətləndirmə mövcud olduqda hər bir modallıq üzrə (şəkil başına, saniyə başına, simvol başına, axtarış vahidi başına) hesablanır, əks halda `0` olur (fail-open).
+> **Xərc telemetriya başlıqları:** yayımlanmayan müvəffəqiyyət cavabları həmçinin `X-OmniRoute-*` xərc-telemetriya dəstini daşıyır — `X-OmniRoute-Response-Cost` (USD, sabit 10 ondalık; free/unpriced üçün `0.0000000000` ), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit`, və `X-OmniRoute-Fallback-Attempts` (yalnız > `X-OmniRoute-Request-Id` `X-OmniRoute-Version`, Bunlar söhbət tamamlamaları ilə yayılır, `/v1/responses`, `/v1/messages`,** və medianın son nöqtələri** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations`, və `/v1/moderations` (həmişə xərc `0`). Qiymətləndirmə mövcud olduqda media dəyəri modallığa görə hesablanır (şəkil başına, saniyədə, hər simvolda, axtarış vahidinə görə), əks halda `0` (uğursuz-açıq).
 
-> **Keş vuruşunun xərc semantikası:** semantik-keş HIT olduqda (`X-OmniRoute-Cache-Hit: true`) yuxarı axına heç bir çağırış edilmir, buna görə `X-OmniRoute-Response-Cost` `0.0000000000` olur (vuruşun təqdim edilməsinin **artan** xərci). İlkin/baş verməsi gözlənilən xərc ayrıca `X-OmniRoute-Cost-Saved` başlığında bildirilir. Hesablaşma istehlakçıları `X-OmniRoute-Response-Cost` dəyərlərini toplamalıdır (vuruşların xərci yoxdur); keş analitikası `X-OmniRoute-Cost-Saved` dəyərlərini ümumiləşdirə bilər.
+> **Keşlə vurulan xərc semantikası:** semantik önbelleğe HIT (`X-OmniRoute-Cache-Hit: true`) üzərində heç bir yuxarı zəng edilmir, ona görə də `X-OmniRoute-Response-Cost` `0.0000000000` (** artımlı** hit xidmətinin dəyəri). original/would-have-been dəyəri `X-OmniRoute-Cost-Saved`-də ayrıca bildirilir. Faturalandırma istehlakçıları `X-OmniRoute-Response-Cost` cəm etməlidir (hitlərin heç bir dəyəri yoxdur); keş analitikası `X-OmniRoute-Cost-Saved` birləşdirə bilər.
 
 ## Eksklüziv idarə olunan sessiya icarələri
 
@@ -362,6 +348,8 @@ Mövcud provayderlərə OpenAI (GPT Şəkil 2), xAI (Grok Şəkil), Together AI 
 
 `n` `data[]`-də `n` şəkillərini qaytarır. Upstream API hər zəng üçün bir şəkil qaytaran provayderlər (Black Forest Labs, Stability AI, Leonardo, Ideogram, Haiper, Hyperbolic, Magnific/Freepik, NVIDIA NIM, Cloudflare Workers AI) uçuşda ən çox 4 `n` ayrı yuxarı axını əldə edir. Sabit `seed` zəng indeksi (`seed`, `seed + 1`, …) ilə əvəzlənir, buna görə də şəkillər fərqlidir, lakin təkrar istehsal olunur. `n` 10 ilə məhdudlaşır. Hər hansı bir zəng uğursuz olarsa, sorğu bütövlükdə uğursuz olur. Fan-out formatlarının siyahısı `open-sse/handlers/imageGeneration/fanOut.ts`-də `SINGLE_IMAGE_FANOUT_FORMATS` dir.
 
+Codex GPT Şəkil modelləri (`codex/gpt-image-*`) yalnız PNG qaytarır: yuxarı axın hətta `jpeg` və ya `webp` tələb edildikdə belə PNG baytları ilə `200` cavab verir. Hər hansı digər `output_format` (`webp`, `jpeg`, ...) ilə sorğu səssizcə rədd edilmək əvəzinə HTTP 400 ilə rədd edilir; onu buraxın və ya `png` göndərin. `output_compression` yönləndirilmir.
+
 ZenMux mövcud API açar bağlantısını təkrar istifadə edir və `zenmux/` və ya `zm/` prefikslərini qəbul edir:
 
 - `zenmux/openai/gpt-image-2` ZenMux-nin OpenAI Şəkillərindən API istifadə edir. Seçimlərə `size`, `quality`, `n`, `output_format`, `output_compression`, `background` və `response_format` daxildir .
@@ -379,7 +367,7 @@ GET /v1/images/generations
 
 ---
 
-## Sənəd OCR-i
+## Sənəd OCR
 
 ```bash
 POST /v1/ocr
@@ -395,17 +383,15 @@ Content-Type: application/json
 }
 ```
 
-`model`, `provider/model` prefiksi vasitəsilə OCR provayderini seçir; sadə model identifikatoru (məsələn,
-`mistral-ocr-latest`) qeydiyyatdan keçmiş provayderinə uyğunlaşdırılır, `model` göstərilmədikdə isə
-Mistral (`mistral-ocr-latest`) istifadə olunur. Qeydiyyatdan keçmiş provayderlər (`open-sse/config/ocrRegistry.ts`):
+`model` `provider/model` prefiksi vasitəsilə OCR provayderini seçir; çılpaq model identifikatoru (məsələn, `mistral-ocr-latest`) qeydiyyatdan keçmiş provayderinə həll edilir və buraxılmış `model` defolt olaraq Mistral (`mistral-ocr-latest`) olur. Qeydiyyatdan keçmiş provayderlər (`open-sse/config/ocrRegistry.ts`):
 
-| Provayder identifikatoru      | Model identifikatoru | `model` dəyəri                                                 | Qeydlər                                                                                                                   |
-| ----------------------------- | -------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `mistral`                     | `mistral-ocr-latest` | `mistral/mistral-ocr-latest` (və ya sadə `mistral-ocr-latest`) | Sinxron — cavab bir yuxarı axın çağırışından birbaşa qaytarılır.                                                          |
-| `azure-document-intelligence` | `prebuilt-read`      | `azure-document-intelligence/prebuilt-read`                    | Asinxron yuxarı axın (`analyze` + poll) — aşağıya baxın.                                                                  |
-| `vertex-deepseek-ocr`         | `deepseek-ocr-maas`  | `vertex-deepseek-ocr/deepseek-ocr-maas`                        | Vertex AI-nin `openapi/chat/completions` tərəfdaş endpoint-i vasitəsilə sinxron — autentifikasiya/URL üçün aşağıya baxın. |
+| Provayder id                  | Model id                                     | `model` dəyəri                                                   | Qeydlər                                                                                                                                                                                                                  |
+| ----------------------------- | -------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `mistral`                     | `mistral-ocr-latest`                         | `mistral/mistral-ocr-latest` (və ya çılpaq `mistral-ocr-latest`) | Sinxron — cavab birbaşa tək yuxarı zəngdən qaytarılır.                                                                                                                                                                   |
+| `azure-document-intelligence` | `prebuilt-read`                              | `azure-document-intelligence/prebuilt-read`                      | Asynchronous upstream (`analyze` + poll) — aşağıya baxın.                                                                                                                                                                |
+| `vertex-deepseek-ocr`         | öz-özünə yerləşdirilən (daxili model yoxdur) | `vertex-deepseek-ocr/<your-deployed-model-id>`                   | Sinxron, öz Vertex AI Model Garden DeepSeek-OCR son nöqtəsi (`openapi/chat/completions` forması) vasitəsilə; Google idarə olunan `deepseek-ocr-maas` 21-10-2026 (#20423) tarixində təqaüdə çıxardı ki, id 400 qaytarsın. |
 
-Hər üç provayder eyni Mistral strukturlu gövdə ilə cavab verir:
+Hər üç provayder eyni Mistral formalı bədəndə cavab verir:
 
 ```json
 {
@@ -415,27 +401,13 @@ Hər üç provayder eyni Mistral strukturlu gövdə ilə cavab verir:
 }
 ```
 
-### Azure Document Intelligence sorğu prosesi
+### Azure Document Intelligence sorğu axını
 
-Azure Document Intelligence-in `analyze` API-si asinxrondur: ilkin sorğu gövdə əvəzinə
-`Operation-Location` başlığı qaytarır və nəticə sorğu ilə yoxlanılmalıdır. Handler
-(`open-sse/handlers/ocr.ts`) hər saniyədən bir, maksimum 30 cəhd ərzində həmin URL-ə sorğu göndərir, `ok` olmayan
-sorğu cavabında və ya `"failed"` statusunda prosesi dərhal dayandırır (sorğuları davam etdirmir) və cəhd limiti
-bitdikdən sonra əməliyyat hələ də icra olunursa, `504` qaytarır. Son Azure cavabı çağırış edənə qaytarılmazdan əvvəl
-Mistral tərəfindən istifadə edilən eyni `pages`/`markdown` strukturuna normallaşdırılır; beləliklə, müştəri kodunda
-provayder üçün ayrıca məntiq yazmağa ehtiyac qalmır.
+Azure Document Intelligence-in `analyze` API asinxrondur: ilkin sorğu gövdə əvəzinə `Operation-Location` başlığını qaytarır və nəticə üçün sorğu aparılmalıdır. İşləyici (`open-sse/handlers/ocr.ts`) 30 cəhdə qədər hər saniyədə URL sorğu keçirir, qeyri-`ok` sorğu cavabı və ya `"failed"` statusunda sürətli uğursuzluqla (sorğu davam etdirmir) və cəhd büdcəsi bitdikdən sonra əməliyyat hələ də davam edirsə, `504` qaytarır. Son Azure cavabı zəng edənə qaytarılmadan əvvəl Mistral tərəfindən istifadə edilən eyni `pages`/`markdown` formasında normallaşdırılır, ona görə də müştəri kodunun provayderi xüsusi qeyd etməsinə ehtiyac yoxdur.
 
-### Vertex AI DeepSeek OCR autentifikasiyası və endpoint-in müəyyənləşdirilməsi
+### Vertex AI DeepSeek OCR auth və son nöqtə həlli
 
-`vertex-deepseek-ocr`, OmniRoute-un söhbət/şəkil trafiki üçün artıq dəstəklədiyi eyni Vertex AI autentifikasiyasından
-(`open-sse/executors/vertex.ts`) istifadə edir: bağlantının API açarı ya Service Account JSON etimadnaməsidir
-(JWT-bearer prosesi vasitəsilə qısamüddətli OAuth giriş tokeninə dəyişdirilir), ya da olduğu kimi istifadə olunan
-əvvəlcədən yaradılmış OAuth giriş tokenidir. Yuxarı axın endpoint URL-si bağlantının layihəsi və regionu əsasında
-qurulan Vertex-in ümumi `openapi/chat/completions` tərəfdaş endpoint-idir — açıq şəkildə göstərilən
-`providerSpecificData.project`/`providerSpecificData.region` həmişə üstün sayılır; əks halda layihə Service Account
-JSON-dakı `project_id` dəyərindən götürülür və region `us-central1` olaraq təyin edilir. Hər iki müəyyənləşdirmə
-`open-sse/handlers/ocr.ts` daxilində (`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`) həyata keçirilir
-və `handleOcr` funksiyasına göndərilməzdən əvvəl `src/app/api/v1/ocr/route.ts` tərəfindən istifadə olunur.
+`vertex-deepseek-ocr` eyni Vertex AI autentifikasiyasından yenidən istifadə edir OmniRoute artıq chat/image trafiki (`open-sse/executors/vertex.ts`) üçün dəstəkləyir: əlaqənin API açarı ya Xidmət Hesabı JSON etimadnaməsidir (JWT daşıyıcı axını vasitəsilə qısamüddətli OAuth giriş nişanı ilə dəyişdirilir) və ya OAuth istifadə edilmiş giriş tokenz kimi istifadə olunur. Yuxarı axın nöqtəsi URL Vertex-in ümumi `openapi/chat/completions` partnyorunun son nöqtəsidir, əlaqənin layihəsindən və — regionundan qurulmuş açıq `providerSpecificData.project`/`providerSpecificData.region` həmişə qalib gəlir; əks halda layihə Xidmət Hesabı JSON-nun `project_id` dən əldə edilir və region defolt olaraq `us-central1` olur. Hər iki qətnamə `handleOcr` ə göndərilməzdən əvvəl `src/app/api/v1/ocr/route.ts` tərəfindən istehlak edilən `open-sse/handlers/ocr.ts` (`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`) ilə baş verir.
 
 ---
 

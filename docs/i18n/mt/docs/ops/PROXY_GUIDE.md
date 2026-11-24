@@ -271,114 +271,114 @@ Dan iseħħ darba biss mal-ewwel tnedija wara l-aġġornament. Uża `migrateLega
 
 ---
 
-## Suq ta' Proxies Bla Ħlas ta' 1proxy
+## 1Prokura Prokura Ħieles Suq
 
-> 🆕 **Kontribut minn [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Kwistjoni [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Kontribut minn [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (Ħruġ [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute jintegra mal-pjattaforma tal-komunità **[1proxy](https://1proxy-api.aitradepulse.com)** biex jipprovdi aċċess għal **mijiet ta' proxies bla ħlas u vvalidati** minn madwar id-dinja. Dan huwa ideali għal utenti li m'għandhomx l-infrastruttura tal-proxy tagħhom stess.
+OmniRoute tintegra mal-** [1prokura](https://1proxy-api.aitradepulse.com)** pjattaforma komunitarja biex tipprovdi aċċess għal** mijiet ta’ prokuraturi b’xejn u validati** minn madwar id-dinja. Dan huwa perfett għall-utenti li m'għandhomx l-infrastruttura tal-prokura tagħhom stess.
 
-### Kif Jaħdem
+### Kif Taħdem
 
 ```
-┌─────────────┐  Sinkronizza  ┌─────────────────┐    Alterna    ┌───────────┐
-│  API 1proxy │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Fornitur  │
-│  (estern)   │  sa 500       │  source=oneproxy │  skont il-    │    API     │
-└─────────────┘  proxy        └─────────────────┘  kwalità      └───────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Sinkronizza** — OmniRoute jġib proxies ivvalidati mill-API ta' 1proxy
-2. **Aħżen** — Il-proxies jiġu ssejvjati fl-istess tabella `proxy_registry` b'`source = 'oneproxy'`
-3. **Iffiltra** — Iffiltra skont il-protokoll, il-pajjiż u l-punteġġ tal-kwalità
-4. **Alterna** — Agħżel l-aħjar proxy permezz ta' strateġiji bbażati fuq il-kwalità, każwali jew sekwenzjali
-5. **Degradazzjoni awtomatika** — Il-punteġġ tal-kwalità tal-proxies li jfallu jitnaqqas; taħt il-limitu → jiġu mmarkati bħala inattivi
+1. **Sinkronizzazzjoni** — OmniRoute iġib prokuri validati mill-1proxy API
+2. **Aħżen** — Proxies huma ssejvjati fl-istess tabella `proxy_registry` ma `source = 'oneproxy'`
+3. **Iffiltra** — Iffiltra skond il-protokoll, il-pajjiż, il-punteġġ tal-kwalità
+4. **Dawwar** — Agħżel l-aħjar prokura billi tuża strateġiji ta' kwalità, każwali jew sekwenzjali
+5. **Auto-degrada** — Prokuraturi falluti jnaqqsu l-punteġġ tal-kwalità tagħhom; taħt il-limitu → immarkat inattiv
 
-### Sinkronizzazzjoni tal-Proxies
+### Is-sinkronizzazzjoni tal-Prokuri
 
 **Permezz tad-Dashboard:**
 
-1. Mur fit-tab **Settings → 1proxy**
-2. Ikklikkja **"Sync Now"**
-3. Ara l-istatistika: proxies totali, għadd attiv, kwalità medja u tqassim skont il-pajjiż
+1. Mur fuq** Settings → 1proxy** tab
+2. Ikklikkja** "Ssinkronizza Issa"**
+3. Ara l-istatistiċi: prokuri totali, għadd attiv, kwalità medja, tqassim skont il-pajjiż
 
-**Permezz tal-API:**
+**Via API:**
 
 ```bash
-# Ibda s-sinkronizzazzjoni
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Risposta:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### Iffiltrar tal-Proxies
+### Iffiltrar ta' Prokuri
 
 ```bash
-# Iffiltra skont il-protokoll
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Iffiltra skont il-pajjiż
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Iffiltra skont il-punteġġ minimu tal-kwalità
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Għaqqad il-filtri
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Punteġġi tal-Kwalità tal-Proxies
+### Punteġġi ta' Kwalità Prokura
 
-Kull proxy ta' 1proxy jiġi b'metadata:
+Kull proxy 1 proxy jiġi b'metadejta:
 
-| Qasam           | Deskrizzjoni                                                |
-| --------------- | ----------------------------------------------------------- |
-| `qualityScore`  | Klassifikazzjoni minn 0 sa 100 mill-validazzjoni ta' 1proxy |
-| `latencyMs`     | Latenza mkejla tan-network                                  |
-| `anonymity`     | `transparent`, `anonymous`, jew `elite`                     |
-| `googleAccess`  | Jekk il-proxy jistax jaċċessa s-servizzi ta' Google         |
-| `countryCode`   | Kodiċi ISO tal-pajjiż b'żewġ ittri                          |
-| `lastValidated` | Timestamp tal-aħħar validazzjoni                            |
+| Qasam           | Deskrizzjoni                                    |
+| --------------- | ----------------------------------------------- |
+| `qualityScore`  | 0-100 klassifikazzjoni mill-validazzjoni 1proxy |
+| `latencyMs`     | Latenza tan-netwerk imkejla                     |
+| `anonymity`     | `transparent`, `anonymous`, jew `elite`         |
+| `googleAccess`  | Jekk il-prokura jistax jaċċessa servizzi Google |
+| `countryCode`   | Kodiċi tal-pajjiż ISO b'żewġ ittri              |
+| `lastValidated` | Timestamp tal-aħħar validazzjoni                |
 
-Il-punteġġi tal-kwalità jiġu aġġustati b'mod dinamiku:
+Il-punteġġi tal-kwalità huma aġġustati dinamikament:
 
-- **Talbiet li jfallu** inaqqsu l-punteġġ b'10 punti
-- **Il-punteġġ jinżel għal ≤10** → il-proxy jiġi mmarkat bħala `inactive`
-- Il-proxies inattivi jiġu esklużi mill-alternanza
+- **Talbiet falluti** tnaqqas il-punteġġ b'10 punti
+- **Score jinżel għal ≤ 10** → proxy huwa mmarkat `inactive`
+- Prokuri inattivi huma esklużi mir-rotazzjoni
 
-### Strateġiji tal-Alternanza
+### Strateġiji ta' Rotazzjoni
 
 ```bash
-# Alterna skont il-kwalità (l-aħjar proxy l-ewwel) — predefinit
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Alternanza każwali
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Sekwenzjali (dak ivvalidat l-inqas reċentement l-ewwel)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### Circuit Breaker
 
-Is-sinkronizzazzjoni ta' 1proxy għandha circuit breaker integrat:
+Is-sinkronizzazzjoni 1proxy għandha circuit breaker inkorporat:
 
-- Wara **5 fallimenti konsekuttivi tas-sinkronizzazzjoni**, jiġu mblukkati aktar tentattivi ta' sinkronizzazzjoni
-- Irrisettjah permezz ta': `resetOneproxyCircuitBreaker()` jew erġa' ibda s-server
-- L-istatus tas-sinkronizzazzjoni huwa disponibbli f'`GET /api/settings/oneproxy?action=status`
+- Wara** 5 fallimenti konsekuttivi tas-sinkronizzazzjoni** , aktar tentattivi ta' sinkronizzazzjoni huma mblukkati
+- Irrisettja bi: `resetOneproxyCircuitBreaker()` jew ibda mill-ġdid is-server
+- L-istatus tas-sinkronizzazzjoni huwa disponibbli fuq `GET /api/settings/oneproxy?action=status`
 
-### Tneħħija tal-Proxies ta' 1proxy
+### Ikklerjar ta' Prokuraturi 1
 
 ```bash
-# Ħassar proxy wieħed ta' 1proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Ħassar il-proxies KOLLHA ta' 1proxy (il-proxies manwali ma jiġux affettwati)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

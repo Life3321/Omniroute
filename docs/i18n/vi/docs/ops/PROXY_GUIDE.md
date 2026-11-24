@@ -270,114 +270,114 @@ Quá trình này diễn ra một lần trong lần khởi động đầu tiên s
 
 ---
 
-## Chợ Proxy Miễn phí 1proxy
+## Thị trường proxy miễn phí 1proxy
 
-> 🆕 **Được đóng góp bởi [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Vấn đề [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Được đóng góp bởi [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (Vấn đề [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute tích hợp với nền tảng cộng đồng **[1proxy](https://1proxy-api.aitradepulse.com)** để cung cấp quyền truy cập vào **hàng trăm proxy miễn phí đã được xác thực** từ khắp nơi trên thế giới. Đây là lựa chọn hoàn hảo cho những người dùng không có hạ tầng proxy riêng.
+OmniRoute tích hợp với** [1 người đại diện](https://1proxy-api.aitradepulse.com)** nền tảng cộng đồng để cung cấp quyền truy cập vào** hàng trăm proxy miễn phí, được xác thực** từ khắp nơi trên thế giới. Điều này hoàn hảo cho những người dùng không có cơ sở hạ tầng proxy của riêng họ.
 
-### Cách Hoạt động
+### Nó hoạt động như thế nào
 
 ```
-┌─────────────┐   Đồng bộ    ┌─────────────────┐   Luân phiên   ┌──────────────┐
-│  API 1proxy │ ────────────▶ │  proxy_registry  │ ────────────▶ │ API nhà cung │
-│  (bên ngoài)│  tối đa 500  │  source=oneproxy │  theo chất     │     cấp      │
-└─────────────┘     proxy     └─────────────────┘     lượng       └──────────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Đồng bộ** — OmniRoute lấy các proxy đã được xác thực từ API 1proxy
-2. **Lưu trữ** — Proxy được lưu vào cùng bảng `proxy_registry` với `source = 'oneproxy'`
-3. **Lọc** — Lọc theo giao thức, quốc gia và điểm chất lượng
-4. **Luân phiên** — Chọn proxy tốt nhất bằng chiến lược dựa trên chất lượng, ngẫu nhiên hoặc tuần tự
-5. **Tự động hạ cấp** — Proxy bị lỗi sẽ bị giảm điểm chất lượng; nếu thấp hơn ngưỡng → được đánh dấu là không hoạt động
+1. **Đồng bộ hóa** — OmniRoute tìm nạp các proxy đã được xác thực từ 1proxy API
+2. **Cửa hàng** Proxy — được lưu trong cùng bảng `proxy_registry` với `source = 'oneproxy'`
+3. **Lọc** — Lọc theo giao thức, quốc gia, điểm chất lượng
+4. **Quay** — Chọn proxy tốt nhất bằng cách sử dụng các chiến lược chất lượng, ngẫu nhiên hoặc tuần tự
+5. **Tự động xuống cấp** — Proxy không thành công sẽ bị giảm điểm chất lượng; dưới ngưỡng → được đánh dấu là không hoạt động
 
-### Đồng bộ Proxy
+### Đồng bộ hóa proxy
 
-**Qua Bảng điều khiển:**
+**Thông qua Bảng điều khiển:**
 
-1. Đi tới tab **Cài đặt → 1proxy**
-2. Nhấp vào **"Đồng bộ ngay"**
-3. Xem số liệu thống kê: tổng số proxy, số lượng đang hoạt động, chất lượng trung bình và phân bố theo quốc gia
+1. Đi tới** Cài đặt → 1proxy** tab
+2. nhấp chuột** "Đồng bộ hóa ngay bây giờ"**
+3. Xem số liệu thống kê: tổng số proxy, số lượng hoạt động, chất lượng trung bình, phân tích theo quốc gia
 
-**Qua API:**
+**Thông qua API:**
 
 ```bash
-# Kích hoạt đồng bộ
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Phản hồi:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### Lọc Proxy
+### Lọc proxy
 
 ```bash
-# Lọc theo giao thức
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Lọc theo quốc gia
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Lọc theo điểm chất lượng tối thiểu
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Kết hợp các bộ lọc
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Điểm Chất lượng Proxy
+### Điểm chất lượng proxy
 
 Mỗi proxy 1proxy đi kèm với siêu dữ liệu:
 
-| Trường          | Mô tả                                                  |
-| --------------- | ------------------------------------------------------ |
-| `qualityScore`  | Điểm đánh giá 0-100 từ quá trình xác thực của 1proxy   |
-| `latencyMs`     | Độ trễ mạng đo được                                    |
-| `anonymity`     | `transparent`, `anonymous` hoặc `elite`                |
-| `googleAccess`  | Proxy có thể truy cập các dịch vụ của Google hay không |
-| `countryCode`   | Mã quốc gia ISO gồm hai chữ cái                        |
-| `lastValidated` | Dấu thời gian của lần xác thực gần nhất                |
+| Cánh đồng       | Sự miêu tả                                          |
+| --------------- | --------------------------------------------------- |
+| `qualityScore`  | Xếp hạng 0-100 từ xác thực 1proxy                   |
+| `latencyMs`     | Độ trễ mạng được đo                                 |
+| `anonymity`     | `transparent`, `anonymous` hoặc `elite`             |
+| `googleAccess`  | Liệu proxy có thể truy cập dịch vụ Google hay không |
+| `countryCode`   | Mã quốc gia ISO hai chữ cái                         |
+| `lastValidated` | Dấu thời gian xác thực lần cuối                     |
 
 Điểm chất lượng được điều chỉnh linh hoạt:
 
-- **Yêu cầu thất bại** làm giảm điểm 10 điểm
-- **Điểm giảm xuống ≤10** → proxy được đánh dấu là `inactive`
-- Các proxy không hoạt động sẽ bị loại khỏi quá trình luân phiên
+- **Yêu cầu không thành công** giảm điểm 10
+- **Điểm giảm xuống ≤ 10** proxy → được đánh dấu `inactive`
+- Proxy không hoạt động được loại trừ khỏi vòng quay
 
-### Chiến lược Luân phiên
+### Chiến lược luân chuyển
 
 ```bash
-# Luân phiên theo chất lượng (proxy tốt nhất trước) — mặc định
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Luân phiên ngẫu nhiên
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Tuần tự (proxy được xác thực cách đây lâu nhất trước)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### Bộ ngắt Mạch
+### Bộ ngắt mạch
 
-Tính năng đồng bộ 1proxy có bộ ngắt mạch tích hợp sẵn:
+Đồng bộ hóa 1proxy có bộ ngắt mạch tích hợp:
 
-- Sau **5 lần đồng bộ thất bại liên tiếp**, các lần đồng bộ tiếp theo sẽ bị chặn
+- Sau đó** 5 lỗi đồng bộ liên tiếp** , các nỗ lực đồng bộ hóa tiếp theo sẽ bị chặn
 - Đặt lại bằng: `resetOneproxyCircuitBreaker()` hoặc khởi động lại máy chủ
-- Trạng thái đồng bộ có tại `GET /api/settings/oneproxy?action=status`
+- Trạng thái đồng bộ hóa có sẵn tại `GET /api/settings/oneproxy?action=status`
 
-### Xóa Proxy 1proxy
+### Xóa 1 proxy proxy
 
 ```bash
-# Xóa một proxy 1proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Xóa TẤT CẢ proxy 1proxy (các proxy thủ công không bị ảnh hưởng)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

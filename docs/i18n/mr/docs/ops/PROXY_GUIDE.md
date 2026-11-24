@@ -269,114 +269,114 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ---
 
-## 1proxy मोफत प्रॉक्सी मार्केटप्लेस
+## 1प्रॉक्सी फ्री प्रॉक्सी मार्केटप्लेस
 
-> 🆕 **योगदानकर्ता [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (समस्या [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** [@oyi77](https://github.com/oyi77) द्वारे योगदान दिले** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (अंक [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-ज्या वापरकर्त्यांकडे स्वतःची प्रॉक्सी पायाभूत सुविधा नाही, त्यांना जगभरातील **शेकडो मोफत, सत्यापित प्रॉक्सींचा** वापर करता यावा यासाठी OmniRoute हे **[1proxy](https://1proxy-api.aitradepulse.com)** समुदाय प्लॅटफॉर्मसोबत एकत्रित केले आहे.
+OmniRoute सह समाकलित होते** [1 प्रॉक्सी](https://1proxy-api.aitradepulse.com)** प्रवेश प्रदान करण्यासाठी समुदाय मंच** शेकडो विनामूल्य, प्रमाणित प्रॉक्सी** जगभरातून. ज्या वापरकर्त्यांची स्वतःची प्रॉक्सी इन्फ्रास्ट्रक्चर नाही त्यांच्यासाठी हे योग्य आहे.
 
 ### हे कसे कार्य करते
 
 ```
-┌─────────────┐     समक्रमण      ┌─────────────────┐    रोटेशन     ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ प्रदाता  │
-│   (बाह्य)   │   500 पर्यंत   │  source=oneproxy │ गुणवत्तेनुसार │   API    │
-└─────────────┘    प्रॉक्सी     └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **समक्रमण** — OmniRoute, 1proxy API वरून सत्यापित प्रॉक्सी प्राप्त करते
-2. **साठवण** — प्रॉक्सी त्याच `proxy_registry` तक्त्यात `source = 'oneproxy'` सह जतन केल्या जातात
-3. **फिल्टर** — प्रोटोकॉल, देश आणि गुणवत्ता गुणांनुसार फिल्टर करा
-4. **रोटेशन** — गुणवत्ता, यादृच्छिक किंवा अनुक्रमिक धोरणांचा वापर करून सर्वोत्तम प्रॉक्सी निवडा
-5. **स्वयंचलित अवनती** — अयशस्वी प्रॉक्सींचे गुणवत्ता गुण कमी केले जातात; मर्यादेपेक्षा कमी झाल्यास → निष्क्रिय म्हणून चिन्हांकित केले जाते
+1. **सिंक** — OmniRoute 1proxy API वरून प्रमाणित प्रॉक्सी आणते
+2. **स्टोअर** — प्रॉक्सी `source = 'oneproxy'` सह त्याच `proxy_registry` टेबलमध्ये सेव्ह केल्या जातात
+3. **फिल्टर करा** — प्रोटोकॉल, देश, गुणवत्ता स्कोअरनुसार फिल्टर करा
+4. **फिरवा** — गुणवत्ता, यादृच्छिक किंवा अनुक्रमिक धोरणे वापरून सर्वोत्तम प्रॉक्सी निवडा
+5. **ऑटो-डिग्रेड** — अयशस्वी प्रॉक्सी त्यांच्या गुणवत्तेचा स्कोअर कमी करतात; खाली थ्रेशोल्ड → निष्क्रिय म्हणून चिन्हांकित केले आहे
 
-### प्रॉक्सी समक्रमित करणे
+### प्रॉक्सी सिंक करत आहे
 
-**डॅशबोर्डद्वारे:**
+**डॅशबोर्ड द्वारे:**
 
-1. **Settings → 1proxy** टॅबवर जा
-2. **"Sync Now"** वर क्लिक करा
-3. आकडेवारी पाहा: एकूण प्रॉक्सी, सक्रिय संख्या, सरासरी गुणवत्ता आणि देशनिहाय तपशील
+1. वर जा** सेटिंग्ज → 1proxy** टॅब
+2. क्लिक करा** "आता समक्रमित करा"**
+3. आकडेवारी पहा: एकूण प्रॉक्सी, सक्रिय संख्या, सरासरी गुणवत्ता, देशानुसार ब्रेकडाउन
 
 **API द्वारे:**
 
 ```bash
-# समक्रमण सुरू करा
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# प्रतिसाद:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### प्रॉक्सी फिल्टर करणे
+### फिल्टरिंग प्रॉक्सी
 
 ```bash
-# प्रोटोकॉलनुसार फिल्टर करा
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# देशानुसार फिल्टर करा
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# किमान गुणवत्ता गुणांनुसार फिल्टर करा
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# फिल्टर एकत्रित करा
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### प्रॉक्सी गुणवत्ता गुण
+### प्रॉक्सी गुणवत्ता स्कोअर
 
-प्रत्येक 1proxy प्रॉक्सीसोबत मेटाडेटा उपलब्ध असतो:
+प्रत्येक 1 प्रॉक्सी प्रॉक्सी मेटाडेटासह येते:
 
 | फील्ड           | वर्णन                                         |
 | --------------- | --------------------------------------------- |
-| `qualityScore`  | 1proxy सत्यापनाकडून मिळालेले 0-100 गुणांकन    |
-| `latencyMs`     | मोजलेली नेटवर्क विलंबता                       |
-| `anonymity`     | `transparent`, `anonymous` किंवा `elite`      |
+| `qualityScore`  | 1प्रॉक्सी प्रमाणीकरण पासून 0-100 रेटिंग       |
+| `latencyMs`     | नेटवर्क लेटन्सी मोजली                         |
+| `anonymity`     | `transparent`, `anonymous`, किंवा `elite`     |
 | `googleAccess`  | प्रॉक्सी Google सेवांमध्ये प्रवेश करू शकते का |
 | `countryCode`   | दोन-अक्षरी ISO देश कोड                        |
-| `lastValidated` | शेवटच्या सत्यापनाचा टाइमस्टॅम्प               |
+| `lastValidated` | अंतिम प्रमाणीकरणाचा टाइमस्टॅम्प               |
 
-गुणवत्ता गुण गतिशीलपणे समायोजित केले जातात:
+गुणवत्ता स्कोअर डायनॅमिकरित्या समायोजित केले जातात:
 
-- **अयशस्वी विनंत्यांमुळे** गुण 10 अंकांनी कमी होतात
-- **गुण ≤10 पर्यंत घसरल्यास** → प्रॉक्सी `inactive` म्हणून चिन्हांकित केली जाते
+- **अयशस्वी विनंत्या** 10 गुणांनी गुण कमी करा
+- **स्कोअर ≤ 10 वर घसरला** → प्रॉक्सी `inactive` चिन्हांकित आहे
 - निष्क्रिय प्रॉक्सी रोटेशनमधून वगळल्या जातात
 
-### रोटेशन धोरणे
+### रोटेशन स्ट्रॅटेजीज
 
 ```bash
-# गुणवत्तेनुसार रोटेशन (सर्वोत्तम प्रॉक्सी प्रथम) — डीफॉल्ट
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# यादृच्छिक रोटेशन
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# अनुक्रमिक (सर्वात अलीकडे सत्यापित न केलेली प्रथम)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### सर्किट ब्रेकर
 
-1proxy समक्रमणामध्ये अंगभूत सर्किट ब्रेकर आहे:
+1प्रॉक्सी सिंकमध्ये अंगभूत सर्किट ब्रेकर आहे:
 
-- **सलग 5 समक्रमण अपयशांनंतर**, पुढील समक्रमण प्रयत्न अवरोधित केले जातात
-- याचा वापर करून रीसेट करा: `resetOneproxyCircuitBreaker()` किंवा सर्व्हर रीस्टार्ट करा
-- समक्रमण स्थिती `GET /api/settings/oneproxy?action=status` येथे उपलब्ध आहे
+- नंतर** 5 सलग सिंक अयशस्वी** , पुढील समक्रमण प्रयत्न अवरोधित केले आहेत
+- यासह रीसेट करा: `resetOneproxyCircuitBreaker()` किंवा सर्व्हर रीस्टार्ट करा
+- `GET /api/settings/oneproxy?action=status` वर सिंक स्थिती उपलब्ध आहे
 
-### 1proxy प्रॉक्सी साफ करणे
+### 1 प्रॉक्सी प्रॉक्सी साफ करत आहे
 
 ```bash
-# एकच 1proxy प्रॉक्सी हटवा
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# सर्व 1proxy प्रॉक्सी साफ करा (मॅन्युअल प्रॉक्सी बदलल्या जात नाहीत)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

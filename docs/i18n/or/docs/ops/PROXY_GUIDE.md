@@ -269,114 +269,114 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ---
 
-## 1proxy ମାଗଣା ପ୍ରକ୍ସି ମାର୍କେଟପ୍ଲେସ୍
+## 1 ପ୍ରୋକ୍ସି ମାଗଣା ପ୍ରକ୍ସି ମାର୍କେଟପ୍ଲେସ୍।
 
-> 🆕 **[@oyi77](https://github.com/oyi77)ଙ୍କ ଦ୍ୱାରା ଅବଦାନ** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (ଇସ୍ୟୁ [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** [@ Oyi77](https://github.com/oyi77) ଦ୍ୱାରା ଯୋଗଦାନ।** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (ଇସୁ [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute ସାରା ବିଶ୍ୱରୁ **ଶହ ଶହ ମାଗଣା, ବୈଧୀକୃତ ପ୍ରକ୍ସି**ର ଆକ୍ସେସ୍ ପ୍ରଦାନ କରିବା ପାଇଁ **[1proxy](https://1proxy-api.aitradepulse.com)** କମ୍ୟୁନିଟି ପ୍ଲାଟଫର୍ମ ସହିତ ଏକୀକୃତ ହୁଏ। ଯେଉଁ ଉପଭୋକ୍ତାଙ୍କର ନିଜସ୍ୱ ପ୍ରକ୍ସି ଭିତ୍ତିଭୂମି ନାହିଁ, ସେମାନଙ୍କ ପାଇଁ ଏହା ଉପଯୁକ୍ତ।
+OmniRoute ସହିତ ଏକୀଭୂତ ହୁଏ।** [1 ପ୍ରୋକ୍ସି](https://1proxy-api.aitradepulse.com)** ପ୍ରବେଶ କରିବାକୁ ସମ୍ପ୍ରଦାୟ ପ୍ଲାଟଫର୍ମ।** ଶହ ଶହ ମାଗଣା, ବ valid ଧ ପ୍ରକ୍ସି।** ବିଶ୍ around ର ବିଭିନ୍ନ ସ୍ଥାନରୁ। ଯେଉଁ ଉପଭୋକ୍ତାମାନଙ୍କର ନିଜସ୍ୱ ପ୍ରକ୍ସି ଭିତ୍ତିଭୂମି ନାହିଁ ସେମାନଙ୍କ ପାଇଁ ଏହା ଉପଯୁକ୍ତ।
 
-### ଏହା କିପରି କାମ କରେ
+### ଏହା କିପରି କାମ କରେ।
 
 ```
-┌─────────────┐     ସିଙ୍କ୍      ┌─────────────────┐    ରୋଟେଟ୍     ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ ପ୍ରଦାନକାରୀ │
-│  (ବାହ୍ୟ)    │   500 ପର୍ଯ୍ୟନ୍ତ │  source=oneproxy │  ଗୁଣବତ୍ତା ଅନୁଯାୟୀ │   API    │
-└─────────────┘    ପ୍ରକ୍ସି     └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **ସିଙ୍କ୍** — OmniRoute, 1proxy APIରୁ ବୈଧୀକୃତ ପ୍ରକ୍ସିଗୁଡ଼ିକୁ ଆଣେ
-2. **ସଂରକ୍ଷଣ** — ପ୍ରକ୍ସିଗୁଡ଼ିକୁ ସେହି `proxy_registry` ଟେବୁଲ୍ରେ `source = 'oneproxy'` ସହିତ ସଂରକ୍ଷଣ କରାଯାଏ
-3. **ଫିଲ୍ଟର୍** — ପ୍ରୋଟୋକଲ୍, ଦେଶ ଓ ଗୁଣବତ୍ତା ସ୍କୋର୍ ଅନୁଯାୟୀ ଫିଲ୍ଟର୍ କରନ୍ତୁ
-4. **ରୋଟେଟ୍** — ଗୁଣବତ୍ତା, ରାଣ୍ଡମ୍ କିମ୍ବା କ୍ରମିକ କୌଶଳ ବ୍ୟବହାର କରି ସର୍ବୋତ୍ତମ ପ୍ରକ୍ସି ବାଛନ୍ତୁ
-5. **ସ୍ୱୟଂଚାଳିତ ଅବନତି** — ବିଫଳ ପ୍ରକ୍ସିଗୁଡ଼ିକର ଗୁଣବତ୍ତା ସ୍କୋର୍ ହ୍ରାସ ପାଏ; ସୀମାଠାରୁ କମ୍ ହେଲେ → ନିଷ୍କ୍ରିୟ ଭାବେ ଚିହ୍ନିତ ହୁଏ
+1. **ସିଙ୍କ୍ କରନ୍ତୁ।** — OmniRoute 1proxy API ରୁ ବ valid ଧ ପ୍ରକ୍ସି ଆଣିଥାଏ।
+2. **ଗଚ୍ଛିତ କରନ୍ତୁ।** — ପ୍ରକ୍ସିଗୁଡ଼ିକ `source = 'oneproxy'` ସହିତ ସମାନ `proxy_registry` ସାରଣୀରେ ସେଭ୍ ହୋଇଛି।
+3. **ଫିଲ୍ଟର୍।** — ପ୍ରୋଟୋକଲ୍, ଦେଶ, ଗୁଣାତ୍ମକ ସ୍କୋର ଦ୍ୱାରା ଫିଲ୍ଟର୍।
+4. **ଘୂର୍ଣ୍ଣନ କରନ୍ତୁ।** — ଗୁଣବତ୍ତା, ଅନିୟମିତତା, କିମ୍ବା କ୍ରମାଗତ କ ies ଶଳ ବ୍ୟବହାର କରି ସର୍ବୋତ୍ତମ ପ୍ରକ୍ସି ବାଛନ୍ତୁ।
+5. **ଅଟୋ-ଡିଗ୍ରେଡ୍।** — ବିଫଳ ପ୍ରକ୍ସିମାନେ ସେମାନଙ୍କର ଗୁଣାତ୍ମକ ସ୍କୋର ହ୍ରାସ କରନ୍ତି; ଥ୍ରେସହୋଲ୍ଡ → ତଳେ ନିଷ୍କ୍ରିୟ ଚିହ୍ନିତ।
 
-### ପ୍ରକ୍ସିଗୁଡ଼ିକୁ ସିଙ୍କ୍ କରିବା
+### ପ୍ରକ୍ସିଗୁଡିକ ସିଙ୍କ୍ କରୁଛି।
 
-**ଡ୍ୟାସ୍ବୋର୍ଡ ମାଧ୍ୟମରେ:**
+**ଡ୍ୟାସବୋର୍ଡ ମାଧ୍ୟମରେ:**
 
-1. **Settings → 1proxy** ଟ୍ୟାବ୍କୁ ଯାଆନ୍ତୁ
-2. **"Sync Now"**ରେ କ୍ଲିକ୍ କରନ୍ତୁ
-3. ପରିସଂଖ୍ୟାନ ଦେଖନ୍ତୁ: ମୋଟ ପ୍ରକ୍ସି, ସକ୍ରିୟ ସଂଖ୍ୟା, ହାରାହାରି ଗୁଣବତ୍ତା ଏବଂ ଦେଶ-ଅନୁଯାୟୀ ବିବରଣୀ
+1. ଯାଆନ୍ତୁ।** → 1proxy ସେଟିଂସମୂହ।** ଟ୍ୟାବ୍।
+2. କ୍ଲିକ୍ କରନ୍ତୁ।** "ବର୍ତ୍ତମାନ ସିଙ୍କ୍ କରନ୍ତୁ"**
+3. ପରିସଂଖ୍ୟାନ ଦର୍ଶନ କରନ୍ତୁ: ମୋଟ ପ୍ରକ୍ସି, ସକ୍ରିୟ ଗଣନା, ହାରାହାରି ଗୁଣବତ୍ତା, ଦେଶ-ଦେଶ ଭାଙ୍ଗିବା।
 
 **API ମାଧ୍ୟମରେ:**
 
 ```bash
-# ସିଙ୍କ୍ ଆରମ୍ଭ କରନ୍ତୁ
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# ପ୍ରତିକ୍ରିୟା:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### ପ୍ରକ୍ସିଗୁଡ଼ିକୁ ଫିଲ୍ଟର୍ କରିବା
+### ପ୍ରକ୍ସି ଫିଲ୍ଟର କରିବା।
 
 ```bash
-# ପ୍ରୋଟୋକଲ୍ ଅନୁଯାୟୀ ଫିଲ୍ଟର୍ କରନ୍ତୁ
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# ଦେଶ ଅନୁଯାୟୀ ଫିଲ୍ଟର୍ କରନ୍ତୁ
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# ସର୍ବନିମ୍ନ ଗୁଣବତ୍ତା ସ୍କୋର୍ ଅନୁଯାୟୀ ଫିଲ୍ଟର୍ କରନ୍ତୁ
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# ଫିଲ୍ଟର୍ଗୁଡ଼ିକୁ ଏକତ୍ର କରନ୍ତୁ
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### ପ୍ରକ୍ସି ଗୁଣବତ୍ତା ସ୍କୋର୍
+### ପ୍ରକ୍ସି ଗୁଣବତ୍ତା ସ୍କୋର।
 
-ପ୍ରତ୍ୟେକ 1proxy ପ୍ରକ୍ସି ସହିତ ମେଟାଡାଟା ଆସେ:
+ପ୍ରତ୍ୟେକ 1 ପ୍ରୋକ୍ସି ପ୍ରକ୍ସି ମେଟାଡାଟା ସହିତ ଆସେ:
 
-| ଫିଲ୍ଡ           | ବର୍ଣ୍ଣନା                                              |
-| --------------- | ----------------------------------------------------- |
-| `qualityScore`  | 1proxy ବୈଧୀକରଣରୁ 0-100 ରେଟିଂ                          |
-| `latencyMs`     | ମାପାଯାଇଥିବା ନେଟ୍ୱର୍କ ବିଳମ୍ବ                           |
-| `anonymity`     | `transparent`, `anonymous`, କିମ୍ବା `elite`            |
-| `googleAccess`  | ପ୍ରକ୍ସିଟି Google ସେବାଗୁଡ଼ିକୁ ଆକ୍ସେସ୍ କରିପାରେ କି ନାହିଁ |
-| `countryCode`   | ଦୁଇ-ଅକ୍ଷର ବିଶିଷ୍ଟ ISO ଦେଶ କୋଡ୍                        |
-| `lastValidated` | ଶେଷ ବୈଧୀକରଣର ଟାଇମ୍ଷ୍ଟାମ୍ପ                             |
+| କ୍ଷେତ୍ର         | ବର୍ଣ୍ଣନା                                        |
+| --------------- | ----------------------------------------------- |
+| `qualityScore`  | 1 ପ୍ରୋକ୍ସି ବ valid ଧତା ଠାରୁ 0-100 ମୂଲ୍ୟାୟନ।     |
+| `latencyMs`     | ମାପ ହୋଇଥିବା ନେଟୱାର୍କ ବିଳମ୍ବତା।                  |
+| `anonymity`     | `transparent`, `anonymous`, କିମ୍ବା `elite`      |
+| `googleAccess`  | ପ୍ରକ୍ସି Google ସେବାକୁ ପ୍ରବେଶ କରିପାରିବ କି ନାହିଁ। |
+| `countryCode`   | ଦୁଇ ଅକ୍ଷର ISO ଦେଶ କୋଡ୍।                         |
+| `lastValidated` | ଶେଷ ବ valid ଧତାର ସମୟ ସୀମା।                      |
 
-ଗୁଣବତ୍ତା ସ୍କୋର୍ଗୁଡ଼ିକୁ ଗତିଶୀଳ ଭାବେ ସମନ୍ୱୟ କରାଯାଏ:
+ଗୁଣାତ୍ମକ ସ୍କୋର ଗତିଶୀଳ ଭାବରେ ଆଡଜଷ୍ଟ ହୋଇଛି:
 
-- **ବିଫଳ ଅନୁରୋଧଗୁଡ଼ିକ** ସ୍କୋର୍କୁ 10 ପଏଣ୍ଟ ହ୍ରାସ କରେ
-- **ସ୍କୋର୍ ≤10କୁ ହ୍ରାସ ପାଇଲେ** → ପ୍ରକ୍ସିକୁ `inactive` ଭାବେ ଚିହ୍ନିତ କରାଯାଏ
-- ନିଷ୍କ୍ରିୟ ପ୍ରକ୍ସିଗୁଡ଼ିକୁ ରୋଟେସନ୍ରୁ ବାଦ ଦିଆଯାଏ
+- **ବିଫଳ ଅନୁରୋଧ।** ସ୍କୋରକୁ 10 ପଏଣ୍ଟ ହ୍ରାସ କରନ୍ତୁ।
+- **≤ 10 କୁ ସ୍କୋର ହ୍ରାସ।** → ପ୍ରକ୍ସି `inactive` ଚିହ୍ନିତ।
+- ନିଷ୍କ୍ରିୟ ପ୍ରକ୍ସିଗୁଡିକ ଘୂର୍ଣ୍ଣନରୁ ବାଦ ଦିଆଯାଇଛି।
 
-### ରୋଟେସନ୍ କୌଶଳ
+### ଘୂର୍ଣ୍ଣନ କ ateg ଶଳ।
 
 ```bash
-# ଗୁଣବତ୍ତା ଅନୁଯାୟୀ ରୋଟେଟ୍ କରନ୍ତୁ (ପ୍ରଥମେ ସର୍ବୋତ୍ତମ ପ୍ରକ୍ସି) — ଡିଫଲ୍ଟ
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# ରାଣ୍ଡମ୍ ରୋଟେସନ୍
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# କ୍ରମିକ (ସର୍ବନିକଟ ଅତୀତରେ ସବୁଠାରୁ କମ୍ ବୈଧୀକୃତ ପ୍ରକ୍ସି ପ୍ରଥମେ)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### ସର୍କିଟ୍ ବ୍ରେକର୍
+### ସର୍କିଟ ବ୍ରେକର୍।
 
-1proxy ସିଙ୍କ୍ରେ ଏକ ବିଲ୍ଟ-ଇନ୍ ସର୍କିଟ୍ ବ୍ରେକର୍ ଅଛି:
+1 ପ୍ରୋକ୍ସି ସିଙ୍କରେ ଏକ ବିଲ୍ଟ-ଇନ୍ ସର୍କିଟ ବ୍ରେକର୍ ଅଛି:
 
-- **କ୍ରମାଗତ 5ଟି ସିଙ୍କ୍ ବିଫଳତା** ପରେ, ପରବର୍ତ୍ତୀ ସିଙ୍କ୍ ପ୍ରୟାସଗୁଡ଼ିକୁ ଅବରୋଧ କରାଯାଏ
-- ଏହା ସହିତ ରିସେଟ୍ କରନ୍ତୁ: `resetOneproxyCircuitBreaker()` କିମ୍ବା ସର୍ଭର୍କୁ ପୁନଃଚାଳୁ କରନ୍ତୁ
-- ସିଙ୍କ୍ ସ୍ଥିତି `GET /api/settings/oneproxy?action=status`ରେ ଉପଲବ୍ଧ
+- ପରେ** କ୍ରମାଗତ 5 ସିଙ୍କ ବିଫଳତା।** , ପରବର୍ତ୍ତୀ ସିଙ୍କ ପ୍ରୟାସଗୁଡିକ ଅବରୋଧିତ ହୋଇଛି।
+- ସହିତ ପୁନ et ସେଟ୍ କରନ୍ତୁ: `resetOneproxyCircuitBreaker()` କିମ୍ବା ସର୍ଭରକୁ ପୁନ rest ଆରମ୍ଭ କରନ୍ତୁ।
+- `GET /api/settings/oneproxy?action=status` ରେ ସିଙ୍କ ସ୍ଥିତି ଉପଲବ୍ଧ।
 
-### 1proxy ପ୍ରକ୍ସିଗୁଡ଼ିକୁ ସଫା କରିବା
+### 1 ପ୍ରୋକ୍ସି ପ୍ରକ୍ସି ସଫା କରିବା।
 
 ```bash
-# ଗୋଟିଏ 1proxy ପ୍ରକ୍ସିକୁ ଡିଲିଟ୍ କରନ୍ତୁ
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# ସମସ୍ତ 1proxy ପ୍ରକ୍ସି ସଫା କରନ୍ତୁ (ମାନୁଆଲ୍ ପ୍ରକ୍ସିଗୁଡ଼ିକ ଅପରିବର୍ତ୍ତିତ ରହିବ)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

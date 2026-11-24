@@ -270,114 +270,114 @@ Wannan yana faruwa sau ɗaya a fara kunnawa bayan sabuntawa. Yi amfani da `migra
 
 ---
 
-## Kasuwar Proxy Kyauta ta 1proxy
+## 1 Wakili Kyautar Kasuwa
 
-> 🆕 **Gudummawa daga [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Matsala [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** [@oyi77](https://github.com/oyi77) ne ya bayar da gudunmawa** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (Batun [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute yana haɗuwa da dandalin al’umma na **[1proxy](https://1proxy-api.aitradepulse.com)** don samar da damar amfani da **ɗaruruwan proxy kyauta da aka tabbatar** daga ko’ina cikin duniya. Wannan ya dace sosai da masu amfani waɗanda ba su da nasu ababen more rayuwa na proxy.
+OmniRoute hadewa da** [1 wakili](https://1proxy-api.aitradepulse.com)** dandalin al'umma don samar da dama ga** ɗaruruwan kyauta, ingantattun wakilai** daga ko'ina cikin duniya. Wannan cikakke ne ga masu amfani waɗanda ba su da nasu kayan aikin wakili.
 
-### Yadda Yake Aiki
+### Yadda Ake Aiki
 
 ```
-┌─────────────┐   Daidaitawa   ┌─────────────────┐    Juyawa    ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Mai Bayarwa │
-│  (na waje)  │  har zuwa 500 │  source=oneproxy │ bisa inganci  │   API    │
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
 └─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Daidaitawa** — OmniRoute yana ɗauko proxies da aka tabbatar daga 1proxy API
-2. **Adanawa** — Ana adana proxies a cikin teburin `proxy_registry` ɗaya tare da `source = 'oneproxy'`
-3. **Tacewa** — Tace bisa ga protocol, ƙasa, da makin inganci
-4. **Juyawa** — Zaɓi proxy mafi kyau ta amfani da dabarun inganci, bazuwar zaɓi, ko jere
-5. **Rage-inganci ta atomatik** — Ana rage makin ingancin proxies da suka gaza; idan ya yi ƙasa da iyaka → a sanya su marasa aiki
+1. **Aiki tare** — OmniRoute yana ɗaukar ingantattun wakilai daga 1proxy API
+2. **Store** — ana ajiye wakilai a cikin tebur `proxy_registry` ɗaya tare da `source = 'oneproxy'`
+3. **Tace** — Tace ta hanyar yarjejeniya, ƙasa, ƙimar inganci
+4. **Juyawa** — Zaɓi mafi kyawun wakili ta amfani da inganci, bazuwar, ko dabarun jeri
+5. **Ƙaddamarwa ta atomatik** — Waɗanda suka gaza sun sami raguwar ƙimar ƙimar su; kasa bakin kofa → alamar mara aiki
 
-### Daidaita Proxies
+### Ana daidaita Proxies
 
-**Ta Dashboard:**
+**Ta hanyar Dashboard:**
 
-1. Je zuwa shafin **Settings → 1proxy**
-2. Danna **"Sync Now"**
-3. Duba ƙididdiga: jimillar proxies, adadin masu aiki, matsakaicin inganci, da rabon ƙasashe
+1. Je zuwa** Saituna → 1proxy** tab
+2. Danna** "Sync Now"**
+3. Duba ƙididdiga: jimlar wakilai, ƙidayar aiki, matsakaicin inganci, rugujewar ƙasa
 
 **Ta API:**
 
 ```bash
-# Fara daidaitawa
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Amsa:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### Tace Proxies
 
 ```bash
-# Tace bisa ga protocol
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Tace bisa ga ƙasa
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Tace bisa ga mafi ƙarancin makin inganci
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Haɗa matatun
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Makin Ingancin Proxy
+### Makin Nagartattun Wakilai
 
-Kowane proxy na 1proxy yana zuwa da metadata:
+Kowane wakili na 1 yana zuwa da metadata:
 
-| Fili            | Bayani                                 |
-| --------------- | -------------------------------------- |
-| `qualityScore`  | Ƙimar 0-100 daga tantancewar 1proxy    |
-| `latencyMs`     | Jinkirin cibiyar sadarwa da aka auna   |
-| `anonymity`     | `transparent`, `anonymous`, ko `elite` |
-| `googleAccess`  | Ko proxy zai iya shiga ayyukan Google  |
-| `countryCode`   | Lambar ƙasa ta ISO mai haruffa biyu    |
-| `lastValidated` | Hatimin lokacin tantancewa na ƙarshe   |
+| Filin           | Bayani                                       |
+| --------------- | -------------------------------------------- |
+| `qualityScore`  | 0-100 rating daga 1 wakili ingantacce        |
+| `latencyMs`     | An auna jinkirin hanyar sadarwa              |
+| `anonymity`     | `transparent`, `anonymous`, ko `elite`       |
+| `googleAccess`  | Ko wakili zai iya samun damar ayyukan Google |
+| `countryCode`   | Harafi biyu ISO lambar ƙasa                  |
+| `lastValidated` | Tambarin tabbatarwa na ƙarshe                |
 
-Ana daidaita makin inganci kai tsaye:
+Ana daidaita makin masu inganci sosai:
 
-- **Buƙatun da suka gaza** suna rage makin da maki 10
-- **Maki ya sauka zuwa ≤10** → ana sanya proxy a matsayin `inactive`
-- Ba a haɗa proxies marasa aiki cikin juyawa
+- **Buƙatun da ba a yi nasara ba** rage maki da maki 10
+- **Maki ya ragu zuwa ≤ 10** → wakili ana yiwa alama `inactive`
+- An keɓe wakilai marasa aiki daga juyawa
 
 ### Dabarun Juyawa
 
 ```bash
-# Juyawa bisa inganci (proxy mafi kyau da farko) — na asali
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Juyawa ta bazuwar zaɓi
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Bisa jere (wanda aka fi daɗewa ba a tantance shi ba da farko)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### Circuit Breaker
+### Mai Satar Zama
 
-Daidaitawar 1proxy tana da ginannen circuit breaker:
+Aiki tare na wakili na 1 yana da ginanniyar keɓaɓɓiyar kewayawa:
 
-- Bayan **gazawar daidaitawa sau 5 a jere**, ana toshe ƙarin yunƙurin daidaitawa
-- Sake saita shi da: `resetOneproxyCircuitBreaker()` ko sake kunna uwar garken
-- Ana samun matsayin daidaitawa a `GET /api/settings/oneproxy?action=status`
+- Bayan** gazawar daidaitawa guda 5 a jere** , Ana toshe ƙarin ƙoƙarin daidaitawa
+- Sake saitin tare da: `resetOneproxyCircuitBreaker()` ko sake kunna uwar garken
+- Ana samun halin daidaitawa a `GET /api/settings/oneproxy?action=status`
 
-### Share Proxies na 1proxy
+### Share Proxy Proxies 1
 
 ```bash
-# Goge proxy guda ɗaya na 1proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Share DUK proxies na 1proxy (ba za a taɓa proxies da aka ƙara da hannu ba)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

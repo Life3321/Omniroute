@@ -269,150 +269,150 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ---
 
-## 1proxy 無料プロキシマーケットプレイス
+## 1proxy 無料プロキシ マーケットプレイス
 
-> 🆕 **[@oyi77](https://github.com/oyi77) によるコントリビューション** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847)（Issue [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788)）
+> 🆕** [@oyi77](https://github.com/oyi77)による投稿**— PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) ( [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788)発行)
 
-OmniRoute は **[1proxy](https://1proxy-api.aitradepulse.com)** コミュニティプラットフォームと統合されており、世界中の**検証済み無料プロキシ数百件**を利用できます。独自のプロキシインフラストラクチャを持たないユーザーに最適です。
+OmniRouteは**[1プロキシ](https://1proxy-api.aitradepulse.com)**へのアクセスを提供するコミュニティ プラットフォーム**何百もの無料の検証済みプロキシ**世界中から。これは、独自のプロキシ インフラストラクチャを持たないユーザーに最適です。
 
 ### 仕組み
 
 ```
-┌─────────────┐   同期      ┌─────────────────┐  ローテーション  ┌────────────┐
-│  1proxy API │ ──────────▶ │  proxy_registry  │ ──────────────▶ │ プロバイダー │
-│   （外部）   │ 最大500件   │  source=oneproxy │    品質順        │    API     │
-└─────────────┘ プロキシ     └─────────────────┘                  └────────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **同期** — OmniRoute が 1proxy API から検証済みプロキシを取得します
-2. **保存** — プロキシは `source = 'oneproxy'` として同じ `proxy_registry` テーブルに保存されます
-3. **フィルタリング** — プロトコル、国、品質スコアでフィルタリングします
-4. **ローテーション** — 品質、ランダム、または順次戦略を使用して最適なプロキシを選択します
-5. **自動劣化** — 失敗したプロキシの品質スコアを下げ、しきい値を下回ると非アクティブとしてマークします
+1. **同期**— OmniRouteは 1proxy APIから検証済みのプロキシを取得します
+2. **店**—プロキシは、 `source = 'oneproxy'`と同じ`proxy_registry`テーブルに保存されます
+3. **フィルター**—プロトコル、国、品質スコアによるフィルター
+4. **回転**—品質、ランダム、または順次戦略を使用して最適なプロキシを選択します
+5. **自動劣化**—失敗したプロキシの品質スコアは減ります。しきい値を下回る→が非アクティブとマークされています
 
 ### プロキシの同期
 
-**ダッシュボードから：**
+**ダッシュボード経由:**
 
-1. **Settings → 1proxy** タブに移動します
-2. **「Sync Now」**をクリックします
-3. 統計情報（プロキシ総数、アクティブ数、平均品質、国別内訳）を確認します
+1. に行く**設定→ 1proxy**タブ
+2. クリック**「今すぐ同期」**
+3. 統計の表示: 総プロキシ数、アクティブ数、平均品質、国別の内訳
 
-**API から：**
+**API経由:**
 
 ```bash
-# 同期を開始
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# レスポンス：
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### プロキシのフィルタリング
 
 ```bash
-# プロトコルでフィルタリング
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# 国でフィルタリング
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# 最小品質スコアでフィルタリング
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# フィルターを組み合わせる
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
 ### プロキシ品質スコア
 
-各 1proxy プロキシには、次のメタデータが含まれます：
+各 1proxy プロキシにはメタデータが付属します。
 
-| フィールド      | 説明                                             |
+| 分野            | 説明                                             |
 | --------------- | ------------------------------------------------ |
-| `qualityScore`  | 1proxy の検証による0～100の評価                  |
+| `qualityScore`  | 1 プロキシ検証による 0 ～ 100 の評価             |
 | `latencyMs`     | 測定されたネットワーク遅延                       |
-| `anonymity`     | `transparent`、`anonymous`、または `elite`       |
-| `googleAccess`  | プロキシが Google サービスにアクセス可能かどうか |
-| `countryCode`   | 2文字の ISO 国コード                             |
-| `lastValidated` | 最終検証時のタイムスタンプ                       |
+| `anonymity`     | `transparent`、 `anonymous`、または`elite`       |
+| `googleAccess`  | プロキシがGoogleサービスにアクセスできるかどうか |
+| `countryCode`   | 2 文字のISO国コード                              |
+| `lastValidated` | 前回の検証のタイムスタンプ                       |
 
-品質スコアは動的に調整されます：
+品質スコアは動的に調整されます。
 
-- **失敗したリクエスト**ごとにスコアが10ポイント下がります
-- **スコアが10以下に低下** → プロキシが `inactive` としてマークされます
+- **失敗したリクエスト**スコアを10点減らす
+- **スコアが≤ 10に低下**→プロキシは`inactive`とマークされています
 - 非アクティブなプロキシはローテーションから除外されます
 
 ### ローテーション戦略
 
 ```bash
-# 品質順にローテーション（最適なプロキシを優先）— デフォルト
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# ランダムローテーション
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# 順次ローテーション（最終検証日時が古いものを優先）
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### サーキットブレーカー
 
-1proxy の同期にはサーキットブレーカーが組み込まれています：
+1proxy sync にはサーキット ブレーカーが組み込まれています。
 
-- **5回連続で同期に失敗**すると、それ以降の同期試行はブロックされます
-- `resetOneproxyCircuitBreaker()` を使用するか、サーバーを再起動してリセットします
-- 同期ステータスは `GET /api/settings/oneproxy?action=status` で確認できます
+- 後**5 回連続で同期が失敗する**、それ以降の同期の試みはブロックされます
+- `resetOneproxyCircuitBreaker()`でリセットするか、サーバーを再起動します
+- 同期ステータスは`GET /api/settings/oneproxy?action=status`で確認できます
 
-### 1proxy プロキシの削除
+### 1proxy プロキシのクリア
 
 ```bash
-# 1件の 1proxy プロキシを削除
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# すべての 1proxy プロキシを削除（手動プロキシには影響しません）
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## 検出回避とステルス
+## 検出防止とステルス
 
-OmniRoute は単にプロキシ経由でトラフィックをルーティングするだけではなく、トラフィックを正規のものに見せます。
+OmniRoute 、プロキシ—を介してトラフィックをルーティングするだけでなく、トラフィックを正当なものに見せます。
 
-### TLS フィンガープリントの偽装
+### TLS指紋スプーフィング
 
-`wreq-js` を使用してブラウザーのような TLS フィンガープリントを生成し、ブラウザー以外の TLS ハンドシェイクを検出するボット検出システムを回避します。
+`wreq-js`を使用してブラウザーのようなTLSフィンガープリントを生成し、ブラウザー以外のTLSハンドシェイクにフラグを立てるボット検出システムをバイパスします。
 
-### CLI フィンガープリントの一致
+### CLI指紋照合
 
-**CLI フィンガープリント切り替え**（`設定 → セキュリティ`）は、HTTP ヘッダーと JSON ボディフィールドを並べ替え、ネイティブ CLI バイナリ（Claude Code、Codex など）のシグネチャと正確に一致させます。これはプロキシに**追加して**機能します。
+の**CLI指紋認証の切り替え**(`Settings → Security`) は、ネイティブCLIバイナリ (Claudeコード、 Codexなど) の正確な署名と一致するように、 HTTPヘッダーとJSON本体フィールドの順序を変更します。これは機能します**上に**プロキシ:
 
 ```
-あなたの IP（ブロック対象）→ プロキシ IP（米国）→ プロバイダー API
-                              + TLS 偽装
-                              + CLI フィンガープリント
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-**IP マスキング**と**リクエストの真正性**を同時に実現できます。
+両方を手に入れましょう**IPマスキング**そして**信頼性を要求する**同時に。
 
-### プロキシ IP の維持
+### プロキシIP保存
 
-ダッシュボードの色分けされたバッジに、どのプロキシレベルが有効かが表示されます。
+ダッシュボード内の色分けされたバッジは、どのプロキシ レベルがアクティブであるかを示します。
 
 | バッジ | レベル       | 意味                                                 |
 | ------ | ------------ | ---------------------------------------------------- |
-| 🟢     | グローバル   | すべてのトラフィックがこのプロキシを経由します       |
+| 🟢     | グローバル   | すべてのトラフィックはこのプロキシを通過します       |
 | 🟡     | プロバイダー | このプロバイダーのトラフィックのみがプロキシされます |
-| 🔵     | 接続         | この特定のキー／アカウントがこのプロキシを使用します |
+| 🔵     | 繋がり       | この特定のkey/accountこのプロキシを使用します        |
 
-バッジには、確認用に名前解決されたプロキシ IP も表示されます。
+バッジには、検証用に解決されたプロキシIPも表示されます。
 
 ---
 

@@ -49,7 +49,7 @@ OmniRoute API සඳහා වන මූලික යොමු මාර්ග�
 
 ---
 
-## චැට් සම්පූර්ණ කිරීම්
+## කතාබස් සම්පූර්ණ කිරීම්
 
 ```bash
 POST /v1/chat/completions
@@ -65,33 +65,34 @@ Content-Type: application/json
 }
 ```
 
-### අභිරුචි Headers
+### අභිරුචි ශීර්ෂ
 
-| ශීර්ෂය                   | දිශාව     | විස්තර                                                                                                                                                                                                        |
-| ------------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `X-OmniRoute-No-Cache`   | ඉල්ලීම    | හැඹිලිය මඟහැරීමට `true` ලෙස සකසන්න                                                                                                                                                                            |
-| `x-omniroute-no-memory`  | ඉල්ලීම    | මෙම ඉල්ලීම සඳහා memory + skills injection මඟහැරීමට `true` ලෙස සකසන්න (no-cache හි හැසිරීම අනුකරණය කරයි; එක් ඇමතුමකට අදාළ token/cost අමතර බර වළක්වයි)                                                          |
-| `X-OmniRoute-Progress`   | ඉල්ලීම    | ප්රගති සිදුවීම් සඳහා `true` ලෙස සකසන්න                                                                                                                                                                        |
-| `X-Session-Id`           | ඉල්ලීම    | බාහිර සැසි affinity සඳහා ස්ථාවර සැසි යතුර                                                                                                                                                                     |
-| `x_session_id`           | ඉල්ලීම    | underscore ප්රභේදයද පිළිගනී (සෘජු HTTP)                                                                                                                                                                       |
-| `X-OmniRoute-Session-Id` | ඉල්ලීම    | ඇමතුම්කරු සපයන සැසි/සංවාද ටැගය (memory වෙතද යොමු කරයි). මෙය පවතින විට, per-session cost attribution සඳහා `call_logs.session_tag` වෙත එය අකුරටම සුරකියි (#8249) — නොමැති විට කිසිවිටෙක ස්වයංක්රීයව සාදන්නේ නැත |
-| `Idempotency-Key`        | ඉල්ලීම    | අනුපිටපත් හඳුනාගැනීමේ යතුර (තත්පර 5ක කවුළුව)                                                                                                                                                                  |
-| `X-Request-Id`           | ඉල්ලීම    | විකල්ප අනුපිටපත් හඳුනාගැනීමේ යතුර                                                                                                                                                                             |
-| `x-omniroute-connection` | ඉල්ලීම    | තනි-මාදිලි ඉල්ලීමක් එහි id මඟින් එක් provider connection (ගිණුමක්) වෙත සීමා කරන්න — [ඉල්ලීමකට ගිණුම් සීමා කිරීම](#account-pinning-per-request) බලන්න                                                          |
-| `X-OmniRoute-Cache`      | ප්රතිචාරය | `HIT` හෝ `MISS` (streaming නොවන)                                                                                                                                                                              |
-| `X-OmniRoute-Idempotent` | ප්රතිචාරය | අනුපිටපත් ඉවත් කර ඇත්නම් `true`                                                                                                                                                                               |
-| `X-OmniRoute-Progress`   | ප්රතිචාරය | ප්රගති ලුහුබැඳීම සක්රීය නම් `enabled`                                                                                                                                                                         |
-| `X-OmniRoute-Session-Id` | ප්රතිචාරය | OmniRoute විසින් භාවිත කළ සත්ය සැසි ID                                                                                                                                                                        |
-| `X-OmniRoute-Request-Id` | ප්රතිචාරය | ඉල්ලීම් සම්බන්ධතා id (දන්නා විට)                                                                                                                                                                              |
-| `X-OmniRoute-Version`    | ප්රතිචාරය | OmniRoute build අනුවාදය (සෑම විටම පවතී)                                                                                                                                                                       |
-| `X-OmniRoute-Cost-Saved` | ප්රතිචාරය | HIT එකකදී හැඹිලිය මඟින් ඉතිරි කළ USD (හැඹිලි hits සඳහා පමණි)                                                                                                                                                  |
-| `X-OmniRoute-Decision`   | ප්රතිචාරය | Routing trace: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` යනු combo strategy එක හෝ combo නොවන ඉල්ලීමක් සඳහා `single` වේ) — completion responses මත සෑම විටම පවතී                           |
+| ශීර්ෂකය                  | දිශාව     | විස්තරය                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------ | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `X-OmniRoute-No-Cache`   | ඉල්ලීම    | හැඹිලිය මඟ හැරීමට `true` වෙත සකසන්න                                                                                                                                                                                                                                                                                                                                                |
+| `x-omniroute-no-memory`  | ඉල්ලීම    | මෙම ඉල්ලීම සඳහා මතක + නිපුණතා එන්නත් කිරීම මග හැරීමට `true` වෙත සකසන්න (කැඩපත් නෝ-හැඹිලි; එක් ඇමතුමකට token/cost උඩින් මඟ හරියි)                                                                                                                                                                                                                                                   |
+| `x-omniroute-no-log`     | ඉල්ලීම    | මෙම අනුමාන ඉල්ලීම සඳහා ඇමතුම් ලඝු-සටහන් වලින් request/response ගෙවීම් මඟ හැරීමට `true` වෙත සකසන්න (සියලු කතාබස්-පවුලේ මාර්ග: කතාබස් සම්පූර්ණ කිරීම්, ප්‍රතිචාර, පණිවිඩ, සම්පූර්ණ කිරීම්, Gemini). වේලා මුද්දර, ආකෘතිය, තත්ත්‍වය, කාලසීමාව සහ ටෝකන් ගණන් තවමත් සටහන් කර ඇත. සම්පූර්ණ අන්තර්ගතයෙන් ඉවත් වීම සඳහා `x-omniroute-no-memory` සහ `x-omniroute-no-cache` සමඟ ඒකාබද්ධ කරන්න |
+| `X-OmniRoute-Progress`   | ඉල්ලීම    | ප්‍රගති සිදුවීම් සඳහා `true` ලෙස සකසන්න                                                                                                                                                                                                                                                                                                                                            |
+| `X-Session-Id`           | ඉල්ලීම    | බාහිර සැසි සම්බන්ධතාවය සඳහා ඇලෙන සුළු සැසි යතුර                                                                                                                                                                                                                                                                                                                                    |
+| `x_session_id`           | ඉල්ලීම    | යටි ඉරි ප්‍රභේදය ද පිළිගනු ලැබේ (සෘජු HTTP)                                                                                                                                                                                                                                                                                                                                        |
+| `X-OmniRoute-Session-Id` | ඉල්ලීම    | Caller-supplied session/conversation tag (also feeds memory). When present, persisted verbatim to `call_logs.session_tag` for per-session cost attribution (#8249) — never synthesized when absent                                                                                                                                                                                 |
+| `Idempotency-Key`        | ඉල්ලීම    | Dedup යතුර (5s කවුළුව)                                                                                                                                                                                                                                                                                                                                                             |
+| `X-Request-Id`           | ඉල්ලීම    | විකල්ප ඩීඩප් යතුර                                                                                                                                                                                                                                                                                                                                                                  |
+| `x-omniroute-connection` | ඉල්ලීම    | තනි මාදිලියේ ඉල්ලීමක් එහි id — මඟින් එක් සැපයුම්කරුවෙකුගේ සම්බන්ධතාවකට (ගිණුමකට) අමුණන්න [, ඉල්ලීමකට ගිණුම් ඇමිණීම](#account-pinning-per-request) බලන්න                                                                                                                                                                                                                            |
+| `X-OmniRoute-Cache`      | ප්රතිචාරය | `HIT` හෝ `MISS` (ප්‍රවාහ නොවන)                                                                                                                                                                                                                                                                                                                                                     |
+| `X-OmniRoute-Idempotent` | ප්රතිචාරය | අනුපිටපත් කළහොත්`true`                                                                                                                                                                                                                                                                                                                                                             |
+| `X-OmniRoute-Progress`   | ප්රතිචාරය | ප්‍රගතිය ලුහුබැඳීම ක්‍රියාත්මක නම්`enabled`                                                                                                                                                                                                                                                                                                                                        |
+| `X-OmniRoute-Session-Id` | ප්රතිචාරය | OmniRoute විසින් භාවිතා කරන ඵලදායී සැසිය ID                                                                                                                                                                                                                                                                                                                                        |
+| `X-OmniRoute-Request-Id` | ප්රතිචාරය | සහසම්බන්ධතා හැඳුනුම්පත ඉල්ලන්න (දන්නා විට)                                                                                                                                                                                                                                                                                                                                         |
+| `X-OmniRoute-Version`    | ප්රතිචාරය | OmniRoute ගොඩනැගීමේ අනුවාදය (සෑම විටම පවතී)                                                                                                                                                                                                                                                                                                                                        |
+| `X-OmniRoute-Cost-Saved` | ප්රතිචාරය | USD හැඹිලිය HIT මත වැළකුණා (හැඹිලි පහර පමණක්)                                                                                                                                                                                                                                                                                                                                      |
+| `X-OmniRoute-Decision`   | ප්රතිචාරය | රවුටින් ට්‍රේස්: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` යනු සංයෝජන උපාය මාර්ගයයි, නැතහොත් සංයුක්ත නොවන ඉල්ලීමක් සඳහා `single` ) — සෑම විටම සම්පූර්ණ ප්‍රතිචාර මත පවතී                                                                                                                                                                                       |
 
-> Nginx සටහන: ඔබ underscore headers මත රඳා පවතින්නේ නම් (උදාහරණයක් ලෙස `x_session_id`), `underscores_in_headers on;` සක්රීය කරන්න.
+> Nginx සටහන: ඔබ යටි ලකුණු ශීර්ෂ මත රඳා පවතී නම් (උදාහරණයක් ලෙස `x_session_id`), `underscores_in_headers on;` සබල කරන්න.
 
-#### ඉල්ලීමකට ගිණුම් සීමා කිරීම
+#### ඉල්ලීමකට අනුව ගිණුම් ඇමිණීම
 
-Provider එකකට connections කිහිපයක් (ගිණුම් හෝ keys) ඇති විට, OmniRoute සාමාන්යයෙන් එහි account-selection strategy හරහා එකක් තෝරයි. ඒ වෙනුවට, ඉල්ලීමකට `x-omniroute-connection` header එක සමඟ එක් නිශ්චිත connection එකක් සීමා කළ හැක:
+සැපයුම්කරුවෙකුට සම්බන්ධතා කිහිපයක් ඇති විට (ගිණුම් හෝ යතුරු), OmniRoute සාමාන්‍යයෙන් එකක් තෝරා ගන්නේ එහි ගිණුම්-තේරීමේ උපාය මාර්ගයෙනි. ඉල්ලීමක් වෙනුවට `x-omniroute-connection` ශීර්ෂය සමඟ එක් නිශ්චිත සම්බන්ධතාවයක් ඇමිණිය හැක:
 
 ```bash
 curl http://localhost:20128/v1/chat/completions \
@@ -101,14 +102,13 @@ curl http://localhost:20128/v1/chat/completions \
   -d '{"model": "codex/gpt-5.5", "messages": [{"role": "user", "content": "hi"}]}'
 ```
 
-- **id එක සොයාගත හැකි ස්ථානය.** ඩෑෂ්බෝඩයේ provider පිටුව විවෘත කර
-  (**Dashboard → Providers → <provider>**) සම්බන්ධතා පේළියක ඇති `xxxxxxxx…` id chip එක ක්ලික් කරන්න — එවිට සම්පූර්ණ connection id එක පිටපත් වේ.
-- **එය අනුගමනය කරන requests.** `/v1/chat/completions`, `/v1/messages` සහ `/v1/responses` මත ඇති තනි-model requests (`provider/model`) මෙය අනුගමනය කරයි. Combos header එක නොසලකා හරියි: ඒ වෙනුවට combo පියවරකට account එකක් pin කිරීමට එම පියවරේම connection එක භාවිත කරන්න.
-- **මෙම pin එක දැඩි නියමයකි, මනාපයක් නොවේ.** Pin කළ connection එක පමණක් භාවිත වේ. Request එක ඇතුළත failure එකක් සිදුවුවහොත් account එකේ cooldown එක වාර්තා වේ, නමුත් එම provider එකේ sibling account එකකට මාරු නොවේ.
-- **Cooldown සහ quota මඟින් pin එක නිදහස් කරයි.** Pin කළ connection එක cooldown තත්ත්වයේ පවතින විට, quota අවසන් වී ඇති විට හෝ quota policy එකක් මඟින් අවහිර වී ඇති විට, පසුව එන requests provider එකේ අනෙකුත් connections වෙත fallback වේ — pin නොකළ traffic මෙන්ම.
-- **නොදන්නා හෝ අක්රිය ids අසාර්ථක වේ.** Provider එකේ සක්රිය pool එකේ නොමැති id එකක් (මකා දැමූ, deactivated කළ, හෝ වෙනත් provider එකකට අයත් එකක්) සුදුසු account එකක් ඉතිරි නොකරයි. එබැවින් request එක නිහඬව වෙනත් ස්ථානයකට route කිරීම වෙනුවට අසාර්ථක වේ.
+- **හැඳුනුම්පත සොයා ගැනීමට කොහෙද.** උපකරණ පුවරුවේ සපයන්නාගේ පිටුව විවෘත කරන්න (** උපකරණ පුවරුව → සපයන්නන් → <provider>** ) සහ සම්බන්ධතා පේළියක `xxxxxxxx…` id චිපය ක්ලික් කරන්න — එය සම්පූර්ණ සම්බන්ධතා හැඳුනුම්පත පිටපත් කරයි.
+- **කුමන ඉල්ලීම් එයට ගරු කරයි.** `/v1/chat/completions`, `/v1/messages` සහ `/v1/responses` මත තනි මාදිලි ඉල්ලීම් (`provider/model`). Combos ශීර්ෂකය නොසලකා හරින්න: ඒ වෙනුවට පියවරේ ම සම්බන්ධතාවය හරහා Combo පියවරකට ගිණුමක් අමුණන්න.
+- **පින දැඩි ය, මනාප නොවේ.** ඇමුණුම් සම්බන්ධතාවය තනිකරම භාවිතා වේ. ඉල්ලීම ඇතුළත අසාර්ථක වීමක් ගිණුමේ සිසිල් වීම වාර්තා කරන නමුත් එය සිදු කරයි** නැත** එකම සැපයුම්කරුගේ සහෝදර ගිණුමකට කරකවන්න.
+- **Cooldown සහ quota pin එක නිදහස් කරයි.** අමුණන ලද සම්බන්ධතාවය සිසිල් වන අතර, කෝටාව අවසන් වී හෝ කෝටා ප්‍රතිපත්තියක් මඟින් අවහිර කර ඇති අතර, පසුව ඉල්ලීම් හරියටම ඇමිණුම් නොකළ ගමනාගමනය මෙන් සැපයුම්කරුගේ අනෙකුත් සම්බන්ධතා වෙත වැටේ.
+- **නොදන්නා හෝ අබල කළ id අසාර්ථකයි.** සපයන්නාගේ සක්‍රිය සංචිතයේ නොමැති (මකා දැමූ, අක්‍රිය කරන ලද හෝ වෙනත් සැපයුම්කරුවෙකුට අයත්) හැඳුනුම්පතක් යෝග්‍ය ගිණුමක් ඉතිරි නොකරයි, එබැවින් වෙනත් ස්ථානයකට නිශ්ශබ්දව ගමන් කිරීම වෙනුවට ඉල්ලීම අසාර්ථක වේ.
 
-Claude Code custom headers යවන්නේ `ANTHROPIC_CUSTOM_HEADERS` හරහාය. එය `~/.claude/settings.json` හි `env` block එකට, හෝ එක් එක් project එකට වෙනස් account එකක් pin කිරීමට project-level `.claude/settings.json` වෙත එක් කරන්න:
+Claude කේතය `ANTHROPIC_CUSTOM_HEADERS` හරහා අභිරුචි ශීර්ෂ යවයි. එය `~/.claude/settings.json` හි `env` බ්ලොක් එකේ හෝ ව්‍යාපෘතියකට වෙනස් ගිණුමක් ඇමිණීමට ව්‍යාපෘති මට්ටමේ `.claude/settings.json` තුළ තබන්න:
 
 ```jsonc
 {
@@ -120,12 +120,11 @@ Claude Code custom headers යවන්නේ `ANTHROPIC_CUSTOM_HEADERS` හර�
 }
 ```
 
-මූලාශ්රය: `src/sse/handlers/chat.ts` (header read), `src/sse/services/auth.ts` සහ
-`src/sse/services/sessionAffinityPin.ts` (pin release සහ pool එකෙන් නොමැතිදැයි පරීක්ෂා කිරීම).
+මූලාශ්‍රය: `src/sse/handlers/chat.ts` (ශීර්ෂ කියවීම), `src/sse/services/auth.ts` සහ `src/sse/services/sessionAffinityPin.ts` (පින් මුදා හැරීම සහ සංචිතයෙන් අතුරුදහන් වූ චෙක්පත).
 
-> **පිරිවැය telemetry headers:** streaming නොවන සාර්ථක responses ද `X-OmniRoute-*` cost-telemetry කට්ටලය රැගෙන එයි — `X-OmniRoute-Response-Cost` (USD, ස්ථිර දශම ස්ථාන 10ක්; නොමිලේ/මිල නියම කර නොමැති විට `0.0000000000`), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit`, සහ `X-OmniRoute-Fallback-Attempts` (0 ට වැඩි විට පමණක්), එමෙන්ම `X-OmniRoute-Request-Id` සහ `X-OmniRoute-Version`. මේවා chat completions, `/v1/responses`, `/v1/messages`, **සහ media endpoints** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations`, සහ `/v1/moderations` — මඟින් නිකුත් කරයි (`/v1/moderations` සඳහා පිරිවැය සැමවිටම `0` වේ). Pricing ලබා ගත හැකි විට media පිරිවැය එක් එක් modality එක අනුව (එක් image එකකට, තත්පරයකට, character එකකට, එක් search-unit එකකට) ගණනය කෙරේ; එසේ නොමැති විට එය `0` වේ (fail-open).
+> **පිරිවැය දුරස්ථ ශීර්ෂ:** ප්‍රවාහ නොවන සාර්ථක ප්‍රතිචාර ද `X-OmniRoute-*` පිරිවැය-ටෙලිමෙට්‍රි කට්ටලය — `X-OmniRoute-Response-Cost` (USD, ස්ථාවර දශම 10; free/unpriced සඳහා `0.0000000000` ), `X-OmniRoute-Tokens-In` > `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider` `X-OmniRoute-Version` `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit`, සහ `X-OmniRoute-Request-Id` `X-OmniRoute-Fallback-Attempts` මේවා විමෝචනය කරනු ලබන්නේ කතාබස් සම්පූර්ණ කිරීම්, `/v1/responses`, `/v1/messages`,** සහ මාධ්‍ය අවසාන ලක්ෂ්‍ය** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations`, සහ `/v1/moderations` (සෑම විටම පිරිවැය `0`). මාධ්‍ය පිරිවැය මිලකරණය ලබා ගත හැකි විට ක්‍රමයකට (රූපයකට, තත්පරයකට, අක්ෂරයකට, සෙවුම් ඒකකයකට) ගණනය කරනු ලැබේ, එසේ නොමැති නම් `0` (fail-open).
 
-> **Cache-hit පිරිවැය අර්ථකථනය:** semantic-cache HIT එකකදී (`X-OmniRoute-Cache-Hit: true`) upstream call එකක් සිදු නොවන බැවින්, `X-OmniRoute-Response-Cost` හි අගය `0.0000000000` වේ (hit එක ලබා දීමේ **incremental** පිරිවැය). මුල්/සිදු වීමට තිබූ පිරිවැය `X-OmniRoute-Cost-Saved` තුළ වෙනම වාර්තා වේ. Billing consumers විසින් `X-OmniRoute-Response-Cost` එකතුව ගත යුතුය (hits සඳහා පිරිවැයක් නොමැත); cache analytics මඟින් `X-OmniRoute-Cost-Saved` එකතුව කළ හැක.
+> **හැඹිලි-හිට් පිරිවැය අර්ථකථනය:** semantic-cache HIT (`X-OmniRoute-Cache-Hit: true`) මත උඩුගං බලා ඇමතුමක් සිදු නොකෙරේ, එබැවින් `X-OmniRoute-Response-Cost` යනු `0.0000000000` (ද** වර්ධක** පහරට සේවය කිරීමේ පිරිවැය). original/would-have-been පිරිවැය වෙන වෙනම `X-OmniRoute-Cost-Saved` හි වාර්තා කර ඇත. බිල්පත් පාරිභෝගිකයින් `X-OmniRoute-Response-Cost` එකතු කළ යුතුය (පහර කිසිවක් වැය නොවේ); හැඹිලි විශ්ලේෂණ මගින් `X-OmniRoute-Cost-Saved` එකතු කළ හැක.
 
 ## සුවිශේෂී කළමනාකරණය කළ සැසි ලීසිං
 
@@ -327,7 +326,9 @@ Content-Type: application/json
 
 පවතින සැපයුම්කරුවන් අතර OpenAI (GPT Image 2), xAI (Grok Image), Together AI (FLUX), Fireworks AI, Nebius (FLUX), Hyperbolic, NanoBanana,**OpenRouter** ,**ZenMux** , SD WebUI (දේශීය), ComfyUI (දේශීය).
 
-`n` `data[]` හි `n` රූප ලබා දෙයි. එක් ඇමතුමකට upstream API එක් රූපයක් ලබා දෙන සැපයුම්කරුවන්ට (Black Forest Labs, Stability AI, Leonardo, Ideogram, Haiper, Hyperbolic, Magnific/Freepik, NVIDIA NIM, Cloudflare Workers AI) `n` වෙනම උඩුගං ඇමතුම් ලබා ගනී, වැඩිම 4 ගුවන් ගමන්වලදී. ස්ථාවර `seed` ඇමතුම් දර්ශකය (`seed`, `seed + 1`, …) මගින් හිලව් කරනු ලැබේ, එබැවින් රූප වෙනස් වන නමුත් නැවත ප්‍රතිනිෂ්පාදනය කළ හැකිය. `n` 10 ට සීමා කර ඇත. කිසියම් ඇමතුමක් අසාර්ථක වුවහොත් ඉල්ලීම සමස්තයක් ලෙස අසාර්ථක වේ. Fan-out ආකෘති ලැයිස්තුව `open-sse/handlers/imageGeneration/fanOut.ts` හි `SINGLE_IMAGE_FANOUT_FORMATS` වේ.
+`n` `data[]` හි `n` රූප ලබා දෙයි. එක් ඇමතුමකට upstream API එක් රූපයක් ලබා දෙන සැපයුම්කරුවන්ට (Black Forest Labs, Stability AI, Leonardo, Ideogram, Haiper, Hyperbolic, Magnific/Freepik, NVIDIA NIM, Cloudflare Workers AI) `n` වෙනම උඩුගං ඇමතුම් ලබා ගනී, වැඩිම 4 ගුවන් ගමන්වලදී. ස්ථාවර `seed` ඇමතුම් දර්ශකය (`seed`, `seed + 1`, …) මගින් හිලව් කරනු ලැබේ, එබැවින් රූප වෙනස් නමුත් නැවත ප්‍රතිනිෂ්පාදනය කළ හැකිය. `n` 10 ට සීමා කර ඇත. කිසියම් ඇමතුමක් අසාර්ථක වුවහොත් ඉල්ලීම සමස්තයක් ලෙස අසාර්ථක වේ. Fan-out ආකෘති ලැයිස්තුව `open-sse/handlers/imageGeneration/fanOut.ts` හි `SINGLE_IMAGE_FANOUT_FORMATS` වේ.
+
+Codex GPT රූප ආකෘති (`codex/gpt-image-*`) ආපසු PNG පමණක්: `jpeg` හෝ `webp` ඉල්ලූ විට පවා ඉහළ ධාරාව `200` PNG බයිට් සමඟ පිළිතුරු දෙයි. වෙනත් ඕනෑම `output_format` (`webp`, `jpeg`, ...) සමඟ ඉල්ලීමක් නිහඬව නොසලකා හැරීම වෙනුවට HTTP 400 සමඟ ප්‍රතික්ෂේප කරනු ලැබේ; එය ඉවත් කරන්න හෝ `png` යවන්න. `output_compression` යවන්නේ නැත.
 
 ZenMux දැනට පවතින API-යතුරු සම්බන්ධතාවය නැවත භාවිතා කරන අතර `zenmux/` හෝ `zm/` උපසර්ග පිළිගනී:
 
@@ -335,7 +336,7 @@ ZenMux දැනට පවතින API-යතුරු සම්බන්ධත
 - `zm/meta/muse-image-1.0` වැනි අනෙකුත් ප්‍රකාශකයින් ZenMux හි Vertex AI `:predict` අන්ත ලක්ෂ්‍යය භාවිතා කරයි. `n` සිතියම් `sampleCount` වෙත, `aspect_ratio` සිට `aspectRatio` දක්වා සහ `image_size` (`1K`, `2K`, `4K`) සිට `sampleImageSize` දක්වා. පික්සල් `size` සපයනු ලබන්නේ දර්ශන අනුපාතයක් පමණි, සහතික කළ පික්සල් මානයන් නොවේ. සහාය දක්වන අනුපාත, විභේදන සහ ගණන් මාදිලි අනුව වෙනස් වේ.
 - `zm/inclusionai/ming-image-0.1-design` තමන්ගේම මානයන් තෝරා ගනී. `size`, `aspect_ratio` සහ `image_size` අත්හැර දමන්න; පැහැදිලි අගයන් HTTP 400 ලබා දෙයි. PNG, JPEG, සහ WebP `output_format` සමඟ ඉල්ලා සිටිය හැක.
 
-මෙම අනුකලනය පෙළ-පින්තූර උත්පාදනය සඳහා සහය දක්වයි, යොමු-රූප සංස්කරණයට නොවේ. Vertex ප්රතිදානය `data[].b64_json` වෙත සාමාන්යකරණය කර ඇත; `response_format: "url"` රූප බයිට් පමණක් ඇති විට upstream HTTPS URL හෝ base64 දත්ත URL ලබා දෙයි. Empty/filtered නිමැවුම් හිස් සාර්ථකත්වයට වඩා දෝෂයක් ලබා දෙයි. ආදර්ශ ප්රවේශය ZenMux ගිණුම මත රඳා පවතී. [ZenMux හි Vertex API](https://docs.zenmux.ai/api/vertexai/generate-images) සහ [OpenAI පින්තූර API](https://docs.zenmux.ai/api/openai/generate-an-image) බලන්න.
+මෙම අනුකලනය පෙළ-පින්තූර උත්පාදනය සඳහා සහය දක්වයි, යොමු-රූප සංස්කරණයට නොවේ. Vertex ප්රතිදානය `data[].b64_json` වෙත සාමාන්යකරණය කර ඇත; `response_format: "url"` රූප බයිට් පමණක් ඇති විට උඩු ගංවතුර HTTPS URL හෝ base64 දත්ත URL ලබා දෙයි. Empty/filtered නිමැවුම් හිස් සාර්ථකත්වයට වඩා දෝෂයක් ලබා දෙයි. ආදර්ශ ප්රවේශය ZenMux ගිණුම මත රඳා පවතී. [ZenMux හි Vertex API](https://docs.zenmux.ai/api/vertexai/generate-images) සහ [OpenAI පින්තූර API](https://docs.zenmux.ai/api/openai/generate-an-image) බලන්න.
 
 Microsoft 365 Copilot පුරනය සම්බන්ධතාවක් Copilot හි බිල්ට් රූප මෙවලම හරහා `copilot-m365-web/m365-copilot-image` සේවය කරයි: එක් රූපයකට එක් Copilot හැරීමක් (`n` 1–4), `size` සුක්කානම පමණක් දිශානතිය, සහ රූප පේළිගතව ආපසු (`b64_json`, හෝ `response_format: "url"` සඳහා දත්ත URL ). [Microsoft 365 Copilot](../providers/COPILOT-M365.md#image-generation) බලන්න.
 
@@ -346,7 +347,7 @@ GET /v1/images/generations
 
 ---
 
-## ලේඛන OCR
+## ලේඛනය OCR
 
 ```bash
 POST /v1/ocr
@@ -362,17 +363,15 @@ Content-Type: application/json
 }
 ```
 
-`model` මඟින් `provider/model` prefix එකක් හරහා OCR provider තෝරා ගනී; හිස් model id එකක් (උදා.
-`mistral-ocr-latest`) එහි ලියාපදිංචි provider වෙත resolve වන අතර, `model` නොසපයා ඇති විට default එක ලෙස
-Mistral (`mistral-ocr-latest`) භාවිත වේ. ලියාපදිංචි providers (`open-sse/config/ocrRegistry.ts`):
+`model` OCR සපයන්නා `provider/model` උපසර්ගයක් හරහා තෝරා ගනී; හිස් ආකෘති හැඳුනුම්පතක් (උදා `mistral-ocr-latest`) එහි ලියාපදිංචි සපයන්නාට විසඳන අතර, අත්හැර දැමූ `model` පෙරනිමිය Mistral (`mistral-ocr-latest`) වෙත ලබා දෙයි. ලියාපදිංචි සපයන්නන් (`open-sse/config/ocrRegistry.ts`):
 
-| Provider id                   | Model id             | `model` value                                               | සටහන්                                                                                               |
-| ----------------------------- | -------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `mistral`                     | `mistral-ocr-latest` | `mistral/mistral-ocr-latest` (or bare `mistral-ocr-latest`) | සමමුහුර්ත — ප්රතිචාරය එකම upstream call එකෙන් සෘජුවම ලබා දේ.                                        |
-| `azure-document-intelligence` | `prebuilt-read`      | `azure-document-intelligence/prebuilt-read`                 | අසමමුහුර්ත upstream (`analyze` + poll) — පහත බලන්න.                                                 |
-| `vertex-deepseek-ocr`         | `deepseek-ocr-maas`  | `vertex-deepseek-ocr/deepseek-ocr-maas`                     | සමමුහුර්ත, Vertex AI හි `openapi/chat/completions` partner endpoint හරහා — auth/URL සඳහා පහත බලන්න. |
+| සපයන්නාගේ හැඳුනුම්පත          | ආදර්ශ id                             | `model` අගය                                                 | සටහන්                                                                                                                                                                                                                                  |
+| ----------------------------- | ------------------------------------ | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mistral`                     | `mistral-ocr-latest`                 | `mistral/mistral-ocr-latest` (හෝ හිස් `mistral-ocr-latest`) | සමමුහුර්ත — ප්‍රතිචාරය සෘජුවම තනි උඩු ප්‍රවාහ ඇමතුමෙන් ලබා දෙයි.                                                                                                                                                                       |
+| `azure-document-intelligence` | `prebuilt-read`                      | `azure-document-intelligence/prebuilt-read`                 | Asynchronous upstream (`analyze` + poll) — පහත බලන්න.                                                                                                                                                                                  |
+| `vertex-deepseek-ocr`         | ස්වයං-යෙදවා ඇත (බිල්ට් ආකෘතියක් නැත) | `vertex-deepseek-ocr/<your-deployed-model-id>`              | සමමුහුර්ත, ඔබේම Vertex AI Model Garden DeepSeek-OCR අන්ත ලක්ෂ්‍යය හරහා (`openapi/chat/completions` හැඩය); Google විසින් කළමනාකරණය කරන ලද `deepseek-ocr-maas` 2026-10-21 (#20423) දින විශ්‍රාම ගන්නා ලදී, එවිට හැඳුනුම්පත 400 ලබා දෙයි. |
 
-providers තුනම එකම Mistral-ආකාරයේ body එකකින් ප්රතිචාර දක්වයි:
+සපයන්නන් තිදෙනාම එකම මිස්ට්‍රල් හැඩැති ශරීරයකින් ප්‍රතිචාර දක්වයි:
 
 ```json
 {
@@ -382,23 +381,13 @@ providers තුනම එකම Mistral-ආකාරයේ body එකකින
 }
 ```
 
-### Azure Document Intelligence poll ප්රවාහය
+### Azure Document Intelligence ඡන්ද ප්‍රවාහය
 
-Azure Document Intelligence හි `analyze` API එක අසමමුහුර්ත වේ: ආරම්භක request එක body එකක් වෙනුවට
-`Operation-Location` header එකක් ලබා දෙන අතර, ප්රතිඵලය poll කළ යුතුය. handler එක
-(`open-sse/handlers/ocr.ts`) එම URL එක සෑම තත්පරයකට වරක් attempts 30ක් දක්වා poll කරයි, non-`ok` poll response එකක් හෝ `"failed"` status එකක් ලැබුණු විට ඉක්මනින් අසාර්ථක වේ (තවදුරටත් poll නොකරයි), සහ attempt budget එක අවසන් වූ පසුවත් operation එක ක්රියාත්මක නම් `504` ලබා දේ. අවසන් Azure response එක caller වෙත ලබා දීමට පෙර Mistral විසින් භාවිත කරන එකම `pages`/`markdown` ආකෘතියට සාමාන්යකරණය කෙරෙන බැවින්, client code එකට provider එක අනුව විශේෂ හැසිරීමක් අවශ්ය නොවේ.
+Azure Document Intelligence හි `analyze` API අසමමිතික වේ: මූලික ඉල්ලීම මඟින් ශරීරයක් වෙනුවට `Operation-Location` ශීර්ෂයක් ලබා දෙන අතර ප්‍රතිඵලය සඳහා ඡන්ද විමසීමක් කළ යුතුය. උත්සාහයන් 30ක් දක්වා සෑම තත්පරයකම URL,`ok` නොවන ඡන්ද ප්‍රතිචාරයක් හෝ `"failed"` තත්ත්‍වයක් මත වේගයෙන් අසාර්ථක වන (ඡන්දය තබා නොගන්නා) හසුරුවන්නා (`open-sse/handlers/ocr.ts`) ඡන්ද විමසයි, උත්සාහය අයවැය අවසන් වූ පසුවත් මෙහෙයුම ක්‍රියාත්මක වන්නේ නම් `504` ආපසු ලබා දෙයි. අවසාන Azure ප්‍රතිචාරය ඇමතුම්කරු වෙත ආපසු ලබා දීමට පෙර Mistral විසින් භාවිතා කරන ලද `pages`/`markdown` හැඩයටම සාමාන්‍යකරණය කර ඇත, එබැවින් සේවාදායක කේතය සපයන්නාට විශේෂ අවස්ථා අවශ්‍ය නොවේ.
 
 ### Vertex AI DeepSeek OCR auth සහ endpoint resolution
 
-`vertex-deepseek-ocr` chat/image traffic සඳහා OmniRoute දැනටමත් සහාය දක්වන එකම Vertex AI authentication නැවත භාවිත කරයි
-(`open-sse/executors/vertex.ts`): connection හි API key එක Service Account JSON credential එකක් (JWT-bearer
-flow හරහා කෙටි කාලීන OAuth access token එකකට හුවමාරු කරනු ලබන) හෝ එලෙසම භාවිත කරන දැනටමත් mint කර ඇති OAuth access token එකක් විය හැක. upstream endpoint URL එක Vertex හි සාමාන්ය
-`openapi/chat/completions` partner endpoint එක වන අතර, එය connection හි project සහ
-region මත පදනම්ව ගොඩනගනු ලැබේ — පැහැදිලි `providerSpecificData.project`/`providerSpecificData.region` අගයන් සෑම විටම ප්රමුඛ වේ;
-එසේ නොමැති නම් project එක Service Account JSON හි `project_id` වෙතින් ලබා ගන්නා අතර region එක
-`us-central1` ලෙස default වේ. මෙම resolutions දෙකම `open-sse/handlers/ocr.ts` හි
-(`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`) සිදු කෙරෙන අතර, `handleOcr` වෙත dispatch කිරීමට පෙර
-`src/app/api/v1/ocr/route.ts` මඟින් භාවිත කරයි.
+`vertex-deepseek-ocr` එම Vertex AI සත්‍යාපනය නැවත භාවිතා කරයි OmniRoute දැනටමත් chat/image ගමනාගමනය සඳහා සහය දක්වයි (`open-sse/executors/vertex.ts`): සම්බන්ධතාවයේ API යතුර එක්කෝ සේවා ගිණුමක් JSON අක්තපත්‍රයක් (JWT-දරන්නා ප්‍රවාහය හරහා කෙටි කාලීන OAuth ප්‍රවේශ ටෝකනයක් සඳහා හුවමාරු කර ඇත OAuth හෝ දැනටමත් භාවිතා කර ඇත. upstream endpoint URL යනු Vertex හි සාමාන්‍ය `openapi/chat/completions` හවුල්කාර අන්ත ලක්ෂ්‍යය වන අතර, සම්බන්ධතාවයේ ව්‍යාපෘතියෙන් ගොඩනගා ඇති අතර — කලාපයෙන් පැහැදිලි `providerSpecificData.project`/`providerSpecificData.region` සෑම විටම ජය ගනී; එසේ නොමැති නම් ව්‍යාපෘතිය JSON හි `project_id` සේවා ගිණුමෙන් ව්‍යුත්පන්න වන අතර කලාපය පෙරනිමියෙන් `us-central1` වෙත යයි. විභේදන දෙකම සිදු වන්නේ `open-sse/handlers/ocr.ts` (`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`), `handleOcr` වෙත යැවීමට පෙර `src/app/api/v1/ocr/route.ts` විසින් පරිභෝජනය කරයි.
 
 ---
 

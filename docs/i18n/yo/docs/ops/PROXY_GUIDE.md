@@ -269,114 +269,114 @@ Ibi ìpamọ́ key_value àtijọ́ → proxy_registry + proxy_assignments
 
 ---
 
-## Ọjà Aṣojú Ọ̀fẹ́ 1proxy
+## 1aṣoju Ọfẹ Ọjà
 
-> 🆕 **Ìfikún láti ọwọ́ [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Ọ̀ràn [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Ti pese nipasẹ [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (oro [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute ṣepọ̀ mọ́ pèpéle àwùjọ **[1proxy](https://1proxy-api.aitradepulse.com)** láti pèsè ààyè sí **ọ̀pọ̀ ọgọ́rùn-ún àwọn aṣojú ọ̀fẹ́ tí a ti fọwọ́sí** láti gbogbo àgbáyé. Èyí dára gan-an fún àwọn aṣàmúlò tí kò ní ohun amáyédẹrùn aṣojú tiwọn.
+OmniRoute ṣepọ pẹlu awọn** [1aṣoju](https://1proxy-api.aitradepulse.com)** Syeed agbegbe lati pese iraye si** awọn ọgọọgọrun ọfẹ, awọn aṣoju ti a fọwọsi** lati kakiri aye. Eyi jẹ pipe fun awọn olumulo ti ko ni awọn amayederun aṣoju tiwọn.
 
-### Bí Ó Ṣe Ń Ṣiṣẹ́
+### Bawo ni O Nṣiṣẹ
 
 ```
-┌─────────────┐    Múdọ́gba   ┌─────────────────┐    Yípadà    ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Olùpèsè  │
-│  (òde)      │ tó 500 péré   │  source=oneproxy │ nípa dídára  │   API    │
-└─────────────┘    aṣojú      └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Múdọ́gba** — OmniRoute máa ń gba àwọn aṣojú tí a ti fọwọ́sí láti 1proxy API
-2. **Tọ́jú** — A máa ń fi àwọn aṣojú pamọ́ sínú tábìlì `proxy_registry` kan náà pẹ̀lú `source = 'oneproxy'`
-3. **Ṣàsẹ̀** — Ṣàsẹ̀ nípa ìlànà ìbánisọ̀rọ̀, orílẹ̀-èdè, àti àmì dídára
-4. **Yípadà** — Yan aṣojú tó dára jù lọ nípa lílo dídára, àṣàyàn láìlétòlétò, tàbí àwọn ọgbọ́n títẹ̀lé ara wọn
-5. **Dín dídára kù láìfọwọ́ṣe** — A máa ń dín àmì dídára àwọn aṣojú tí ó kùnà kù; nígbà tó bá wà lábẹ́ ààlà → a máa samisi rẹ̀ gẹ́gẹ́ bí aláìṣiṣẹ́
+1. **Amuṣiṣẹpọ** — OmniRoute fetches awọn aṣoju ti a fọwọsi lati 1proxy API
+2. **Itaja** — Awọn aṣoju ti wa ni fipamọ ni tabili `proxy_registry` kanna pẹlu `source = 'oneproxy'`
+3. **Àlẹmọ** Ajọ — nipasẹ ilana, orilẹ-ede, Dimegilio didara
+4. **Yiyi** — Yan aṣoju ti o dara julọ nipa lilo didara, laileto, tabi awọn ilana ilana-tẹle
+5. **Aifọwọyi-rẹwẹsi** — Awọn aṣoju ti kuna gba Dimegilio didara wọn dinku; ni isalẹ ala → samisi aisise
 
-### Mímú Àwọn Aṣojú Dọ́gba
+### Awọn aṣoju amuṣiṣẹpọ
 
-**Nípasẹ̀ Dasibodu:**
+**Nipasẹ Dasibodu:**
 
-1. Lọ sí táàbù **Settings → 1proxy**
-2. Tẹ **"Sync Now"**
-3. Wo àwọn ìṣirò: àpapọ̀ àwọn aṣojú, iye àwọn tó ń ṣiṣẹ́, àárín àmì dídára, àti ìpín gẹ́gẹ́ bí orílẹ̀-èdè
+1. Lọ si** Eto → 1aṣoju** taabu
+2. Tẹ** "Muṣiṣẹpọ Bayi"**
+3. Wo awọn iṣiro: lapapọ awọn aṣoju, kika ti nṣiṣe lọwọ, didara apapọ, didenukole nipasẹ orilẹ-ede
 
-**Nípasẹ̀ API:**
+**Nipasẹ API:**
 
 ```bash
-# Bẹ̀rẹ̀ ìmúdọ́gba
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Ìdáhùn:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### Ṣíṣe Àṣàyàn Àwọn Aṣojú
+### Sisẹ Awọn aṣoju
 
 ```bash
-# Ṣàsẹ̀ nípa ìlànà ìbánisọ̀rọ̀
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Ṣàsẹ̀ nípa orílẹ̀-èdè
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Ṣàsẹ̀ nípa àmì dídára tó kéré jù lọ
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Darapọ̀ àwọn àsẹ̀
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Àwọn Àmì Dídára Aṣojú
+### Aṣoju Didara Ikun
 
-Aṣojú 1proxy kọ̀ọ̀kan ní metadata:
+Aṣoju aṣoju 1 kọọkan wa pẹlu metadata:
 
-| Pápá            | Àpèjúwe                                  |
+| Aaye            | Apejuwe                                  |
 | --------------- | ---------------------------------------- |
-| `qualityScore`  | Ìwọ̀n 0-100 láti inú ìfọwọ́sí 1proxy       |
-| `latencyMs`     | Ìdádúró nẹ́tíwọ́ọ̀kì tí a wọ̀n               |
-| `anonymity`     | `transparent`, `anonymous`, tàbí `elite` |
-| `googleAccess`  | Bóyá aṣojú náà lè wọ àwọn iṣẹ́ Google     |
-| `countryCode`   | Kóòdù orílẹ̀-èdè ISO onílẹ́tà méjì         |
-| `lastValidated` | Àmì àkókò ìfọwọ́sí tó ṣẹ̀ṣẹ̀ jù lọ          |
+| `qualityScore`  | 0-100 Rating lati 1aṣoju afọwọsi         |
+| `latencyMs`     | Wiwọn lairi nẹtiwọki                     |
+| `anonymity`     | `transparent`, `anonymous`, tabi `elite` |
+| `googleAccess`  | Boya aṣoju le wọle si awọn iṣẹ Google    |
+| `countryCode`   | koodu orilẹ-ede ISO -meji                |
+| `lastValidated` | Timestamp ti o kẹhin afọwọsi             |
 
-A máa ń ṣàtúnṣe àwọn àmì dídára lọ́nà alágbára:
+Awọn ikun didara jẹ atunṣe ni agbara:
 
-- **Àwọn ìbéèrè tó kùnà** máa ń dín àmì náà kù ní àmì 10
-- **Àmì bá lọ sí ≤10** → a máa samisi aṣojú náà gẹ́gẹ́ bí `inactive`
-- A kì í fi àwọn aṣojú aláìṣiṣẹ́ sínú ìyípadà
+- **Awọn ibeere ti kuna** din Dimegilio nipa 10 ojuami
+- **Dimegilio ju silẹ si ≤ 10** → aṣoju ti samisi `inactive`
+- Awọn aṣoju aiṣiṣẹ ni a yọkuro lati yiyi
 
-### Àwọn Ọgbọ́n Ìyípadà
+### Yiyi ogbon
 
 ```bash
-# Yípadà nípa dídára (aṣojú tó dára jù lọ ni yóò kọ́kọ́ wá) — àkọ́ṣe
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Ìyípadà láìlétòlétò
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Títẹ̀lé ara wọn (èyí tí a kò tíì fọwọ́sí láìpẹ́ jù lọ ni yóò kọ́kọ́ wá)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### Olùdásí Ìyíká
+### Circuit fifọ
 
-Ìmúdọ́gba 1proxy ní olùdásí ìyíká tí a kọ́ sínú rẹ̀:
+Amuṣiṣẹpọ aṣoju aṣoju 1 naa ni fifọ iyika ti a ṣe sinu:
 
-- Lẹ́yìn **ìkùnà ìmúdọ́gba márùn-ún léraléra**, a máa dí àwọn ìgbìyànjú ìmúdọ́gba míì
-- Tún un ṣe pẹ̀lú: `resetOneproxyCircuitBreaker()` tàbí tún olupin náà bẹ̀rẹ̀
-- Ipò ìmúdọ́gba wà ní `GET /api/settings/oneproxy?action=status`
+- Lẹhin** Awọn ikuna amuṣiṣẹpọ 5 ni itẹlera** , awọn igbiyanju amuṣiṣẹpọ siwaju ti dina
+- Tunto pẹlu: `resetOneproxyCircuitBreaker()` tabi tun olupin naa bẹrẹ
+- Ipo amuṣiṣẹpọ wa ni `GET /api/settings/oneproxy?action=status`
 
-### Pípa Àwọn Aṣojú 1proxy Rẹ́
+### Pa awọn aṣoju aṣoju aṣoju kuro
 
 ```bash
-# Pa aṣojú 1proxy kan ṣoṣo rẹ́
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Pa GBOGBO àwọn aṣojú 1proxy rẹ́ (àwọn aṣojú àfọwọ́ṣe kò ní yípadà)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 

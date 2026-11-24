@@ -270,150 +270,150 @@ Dette sker én gang ved den første opstart efter opgraderingen. Brug `migrateLe
 
 ---
 
-## 1proxy-markedsplads for gratis proxyer
+## 1proxy gratis proxy markedsplads
 
-> 🆕 **Bidraget af [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847) (Issue [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788))
+> 🆕** Bidraget af [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) (udgave [#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) )
 
-OmniRoute integrerer med fællesskabsplatformen **[1proxy](https://1proxy-api.aitradepulse.com)** for at give adgang til **hundredvis af gratis, validerede proxyer** fra hele verden. Dette er perfekt til brugere, der ikke har deres egen proxyinfrastruktur.
+OmniRoute integreres med** [1 proxy](https://1proxy-api.aitradepulse.com)** fællesskabsplatform at give adgang til** hundredvis af gratis, validerede fuldmagter** fra hele verden. Dette er perfekt til brugere, der ikke har deres egen proxy-infrastruktur.
 
-### Sådan fungerer det
+### Hvordan det virker
 
 ```
-┌─────────────┐  Synkroniser  ┌─────────────────┐    Rotér      ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Udbyder  │
-│  (ekstern)  │   op til 500  │  source=oneproxy │  efter kvalitet│   API    │
-└─────────────┘    proxyer     └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **Synkroniser** — OmniRoute henter validerede proxyer fra 1proxy-API'et
-2. **Gem** — Proxyer gemmes i den samme `proxy_registry`-tabel med `source = 'oneproxy'`
-3. **Filtrér** — Filtrér efter protokol, land og kvalitetsscore
-4. **Rotér** — Vælg den bedste proxy ved hjælp af kvalitetsbaserede, tilfældige eller sekventielle strategier
-5. **Automatisk nedgradering** — Mislykkede proxyer får reduceret deres kvalitetsscore; under grænsen → markeres som inaktive
+1. **Synkroniser** — OmniRoute henter validerede proxyer fra 1proxy API
+2. **Butik** — Proxies gemmes i den samme `proxy_registry` tabel som `source = 'oneproxy'`
+3. **Filter** — Filtrer efter protokol, land, kvalitetsscore
+4. **Rotere** — Vælg den bedste proxy ved hjælp af kvalitets-, tilfældige eller sekventielle strategier
+5. **Automatisk nedbrydning** — Mislykkede fuldmagter får deres kvalitetsscore reduceret; under tærskel → markeret inaktiv
 
-### Synkronisering af proxyer
+### Synkroniserer proxyer
 
-**Via kontrolpanelet:**
+**Via Dashboard:**
 
-1. Gå til fanen **Indstillinger → 1proxy**
-2. Klik på **"Synkroniser nu"**
-3. Se statistik: samlet antal proxyer, antal aktive, gennemsnitlig kvalitet og fordeling efter land
+1. Gå til** Indstillinger → 1proxy** fanen
+2. Klik** "Synkroniser nu"**
+3. Se statistikker: samlede fuldmagter, aktivt antal, gennemsnitlig kvalitet, opdeling efter land
 
 **Via API:**
 
 ```bash
-# Start synkronisering
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Svar:
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
 ### Filtrering af proxyer
 
 ```bash
-# Filtrér efter protokol
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# Filtrér efter land
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# Filtrér efter minimumskvalitetsscore
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# Kombiner filtre
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### Kvalitetsscorer for proxyer
+### Proxy kvalitetsresultater
 
-Hver 1proxy-proxy leveres med metadata:
+Hver 1proxy proxy leveres med metadata:
 
-| Felt            | Beskrivelse                                |
-| --------------- | ------------------------------------------ |
-| `qualityScore`  | Bedømmelse fra 0-100 fra 1proxy-validering |
-| `latencyMs`     | Målt netværksforsinkelse                   |
-| `anonymity`     | `transparent`, `anonymous` eller `elite`   |
-| `googleAccess`  | Om proxyen kan tilgå Google-tjenester      |
-| `countryCode`   | ISO-landekode på to bogstaver              |
-| `lastValidated` | Tidsstempel for seneste validering         |
+| Felt            | Beskrivelse                                   |
+| --------------- | --------------------------------------------- |
+| `qualityScore`  | 0-100 rating fra 1 proxy validering           |
+| `latencyMs`     | Målt netværksforsinkelse                      |
+| `anonymity`     | `transparent`, `anonymous` eller `elite`      |
+| `googleAccess`  | Om proxyen kan få adgang til Google tjenester |
+| `countryCode`   | To bogstaver ISO landekode                    |
+| `lastValidated` | Tidsstempel for sidste validering             |
 
-Kvalitetsscorer justeres dynamisk:
+Kvalitetsresultater justeres dynamisk:
 
-- **Mislykkede anmodninger** reducerer scoren med 10 point
-- **Scoren falder til ≤10** → proxyen markeres som `inactive`
-- Inaktive proxyer udelukkes fra rotationen
+- **Mislykkede anmodninger** reducere scoren med 10 point
+- **Resultatet falder til ≤ 10** → proxy er markeret med `inactive`
+- Inaktive fuldmagter er udelukket fra rotation
 
 ### Rotationsstrategier
 
 ```bash
-# Rotér efter kvalitet (bedste proxy først) — standard
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# Tilfældig rotation
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# Sekventiel (den mindst nyligt validerede først)
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
-### Kredsløbsafbryder
+### Strømafbryder
 
-1proxy-synkroniseringen har en indbygget kredsløbsafbryder:
+1proxy sync har en indbygget afbryder:
 
-- Efter **5 synkroniseringsfejl i træk** blokeres yderligere synkroniseringsforsøg
+- Efter** 5 på hinanden følgende synkroniseringsfejl** , blokeres yderligere synkroniseringsforsøg
 - Nulstil med: `resetOneproxyCircuitBreaker()` eller genstart serveren
 - Synkroniseringsstatus er tilgængelig på `GET /api/settings/oneproxy?action=status`
 
-### Rydning af 1proxy-proxyer
+### Rydning af 1 proxy proxyer
 
 ```bash
-# Slet en enkelt 1proxy-proxy
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# Ryd ALLE 1proxy-proxyer (manuelle proxyer berøres ikke)
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## Antidetektion og stealth
+## Anti-detektion og stealth
 
-OmniRoute dirigerer ikke blot trafik gennem en proxy — det får trafikken til at se legitim ud:
+OmniRoute dirigerer ikke kun trafik gennem en proxy — det får trafikken til at se legitim ud:
 
-### Spoofing af TLS-fingeraftryk
+### TLS Fingeraftrykspoofing
 
-Bruger `wreq-js` til at generere browserlignende TLS-fingeraftryk og dermed omgå botdetektionssystemer, der markerer TLS-handshakes, som ikke stammer fra browsere.
+Bruger `wreq-js` til at generere browserlignende TLS -fingeraftryk og omgår botdetektionssystemer, der markerer ikke-browser TLS håndtryk.
 
-### Matchning af CLI-fingeraftryk
+### CLI Fingerprint Matching
 
-**CLI-fingeraftrykskontakten** (`Indstillinger → Sikkerhed`) ændrer rækkefølgen af HTTP-headere og felter i JSON-bodyen, så de matcher den præcise signatur fra native CLI-programfiler (Claude Code, Codex osv.). Dette fungerer **oven på** proxyen:
+De**CLI Fingerprint Toggle** (`Settings → Security`) omarrangerer HTTP -overskrifter og JSON -legemefelter for at matche den nøjagtige signatur af native CLI binære filer (Claude kode, Codex, osv.). Dette virker** ovenpå** proxy:
 
 ```
-Din IP (blokeret) → Proxy-IP (USA) → Udbyder-API
-                    + TLS-spoofing
-                    + CLI-fingeraftryk
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-Du får både **IP-maskering** og **autentiske anmodninger** samtidigt.
+Du får begge dele**IP maskering** og** anmode om ægthed** samtidigt.
 
-### Bevarelse af proxy-IP
+### Proxy IP Bevarelse
 
-Farvekodede badges i kontrolpanelet viser, hvilket proxyniveau der er aktivt:
+Farvekodede badges i dashboardet viser, hvilket proxyniveau der er aktivt:
 
-| Badge | Niveau      | Betydning                                          |
-| ----- | ----------- | -------------------------------------------------- |
-| 🟢    | Globalt     | Al trafik går gennem denne proxy                   |
-| 🟡    | Udbyder     | Kun denne udbyders trafik dirigeres gennem proxyen |
-| 🔵    | Forbindelse | Denne specifikke nøgle/konto bruger denne proxy    |
+| Badge | Niveau      | Mening                                          |
+| ----- | ----------- | ----------------------------------------------- |
+| 🟢    | Global      | Al trafik går gennem denne proxy                |
+| 🟡    | Udbyder     | Kun denne udbyders trafik er proxy              |
+| 🔵    | Forbindelse | Denne specifikke key/account bruger denne proxy |
 
-Badget viser også den fundne proxy-IP til bekræftelse.
+Badget viser også den løste proxy IP til verifikation.
 
 ---
 

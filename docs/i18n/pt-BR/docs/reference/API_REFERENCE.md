@@ -49,7 +49,7 @@ Cada implantação disponibiliza sua própria cópia da especificação em `/ope
 
 ---
 
-## Conclusões de Chat
+## Conclusões de bate-papo
 
 ```bash
 POST /v1/chat/completions
@@ -65,35 +65,34 @@ Content-Type: application/json
 }
 ```
 
-### Cabeçalhos Personalizados
+### Cabeçalhos personalizados
 
-| Cabeçalho                | Direção     | Descrição                                                                                                                                                                                                                         |
-| ------------------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `X-OmniRoute-No-Cache`   | Solicitação | Defina como `true` para ignorar o cache                                                                                                                                                                                           |
-| `x-omniroute-no-memory`  | Solicitação | Defina como `true` para ignorar a injeção de memória + habilidades nesta solicitação (espelha no-cache; evita a sobrecarga de tokens/custo por chamada)                                                                           |
-| `X-OmniRoute-Progress`   | Solicitação | Defina como `true` para eventos de progresso                                                                                                                                                                                      |
-| `X-Session-Id`           | Solicitação | Chave de sessão persistente para afinidade de sessão externa                                                                                                                                                                      |
-| `x_session_id`           | Solicitação | A variante com sublinhado também é aceita (HTTP direto)                                                                                                                                                                           |
-| `X-OmniRoute-Session-Id` | Solicitação | Tag de sessão/conversa fornecida pelo chamador (também alimenta a memória). Quando presente, é persistida literalmente em `call_logs.session_tag` para atribuição de custos por sessão (#8249) — nunca sintetizada quando ausente |
-| `Idempotency-Key`        | Solicitação | Chave de deduplicação (janela de 5s)                                                                                                                                                                                              |
-| `X-Request-Id`           | Solicitação | Chave de deduplicação alternativa                                                                                                                                                                                                 |
-| `x-omniroute-connection` | Solicitação | Fixa uma solicitação de modelo único a uma conexão de provedor (conta) por seu ID — consulte [Fixação de conta por solicitação](#account-pinning-per-request)                                                                     |
-| `X-OmniRoute-Cache`      | Resposta    | `HIT` ou `MISS` (sem streaming)                                                                                                                                                                                                   |
-| `X-OmniRoute-Idempotent` | Resposta    | `true` se deduplicada                                                                                                                                                                                                             |
-| `X-OmniRoute-Progress`   | Resposta    | `enabled` se o acompanhamento do progresso estiver ativado                                                                                                                                                                        |
-| `X-OmniRoute-Session-Id` | Resposta    | ID de sessão efetivo usado pelo OmniRoute                                                                                                                                                                                         |
-| `X-OmniRoute-Request-Id` | Resposta    | ID de correlação da solicitação (quando conhecido)                                                                                                                                                                                |
-| `X-OmniRoute-Version`    | Resposta    | Versão da compilação do OmniRoute (sempre presente)                                                                                                                                                                               |
-| `X-OmniRoute-Cost-Saved` | Resposta    | USD que o cache evitou em um `HIT` (somente acertos de cache)                                                                                                                                                                     |
-| `X-OmniRoute-Decision`   | Resposta    | Rastreamento do roteamento: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` é a estratégia combinada ou `single` para uma solicitação que não seja combinada) — sempre presente nas respostas de conclusão          |
+| Cabeçalho                | Direção   | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `X-OmniRoute-No-Cache`   | Solicitar | Defina como `true` para ignorar o cache                                                                                                                                                                                                                                                                                                                                                                                  |
+| `x-omniroute-no-memory`  | Solicitar | Defina como `true` para ignorar a injeção de habilidades + de memória para esta solicitação (espelha sem cache; evita a sobrecarga token/cost por chamada)                                                                                                                                                                                                                                                               |
+| `x-omniroute-no-log`     | Solicitar | Defina como `true` para omitir cargas request/response dos logs de chamadas para esta solicitação de inferência (todas as rotas da família de bate-papo: conclusões de bate-papo, respostas, mensagens, conclusões, Gemini). Registro de data e hora, modelo, status, duração e contagem de tokens ainda são registrados. Combine com `x-omniroute-no-memory` e `x-omniroute-no-cache` para cancelar o conteúdo completo |
+| `X-OmniRoute-Progress`   | Solicitar | Defina como `true` para eventos de progresso                                                                                                                                                                                                                                                                                                                                                                             |
+| `X-Session-Id`           | Solicitar | Chave de sessão fixa para afinidade de sessão externa                                                                                                                                                                                                                                                                                                                                                                    |
+| `x_session_id`           | Solicitar | Variante de sublinhado também aceita ( HTTP direto)                                                                                                                                                                                                                                                                                                                                                                      |
+| `X-OmniRoute-Session-Id` | Solicitar | Tag session/conversation fornecida pelo chamador (também alimenta memória). Quando presente, persistido literalmente em `call_logs.session_tag` para atribuição de custo por sessão (#8249) — nunca sintetizado quando ausente                                                                                                                                                                                           |
+| `Idempotency-Key`        | Solicitar | Chave de desduplicação (janela 5s)                                                                                                                                                                                                                                                                                                                                                                                       |
+| `X-Request-Id`           | Solicitar | Chave de desduplicação alternativa                                                                                                                                                                                                                                                                                                                                                                                       |
+| `x-omniroute-connection` | Solicitar | Fixe uma solicitação de modelo único em uma conexão de provedor (conta) por seu ID — consulte [Fixação de conta por solicitação](#account-pinning-per-request)                                                                                                                                                                                                                                                           |
+| `X-OmniRoute-Cache`      | Resposta  | `HIT` ou `MISS` (sem streaming)                                                                                                                                                                                                                                                                                                                                                                                          |
+| `X-OmniRoute-Idempotent` | Resposta  | `true` se desduplicado                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `X-OmniRoute-Progress`   | Resposta  | `enabled` se o acompanhamento do progresso estiver ativado                                                                                                                                                                                                                                                                                                                                                               |
+| `X-OmniRoute-Session-Id` | Resposta  | Sessão efetiva ID usada pelo OmniRoute                                                                                                                                                                                                                                                                                                                                                                                   |
+| `X-OmniRoute-Request-Id` | Resposta  | Solicitar ID de correlação (quando conhecido)                                                                                                                                                                                                                                                                                                                                                                            |
+| `X-OmniRoute-Version`    | Resposta  | versão OmniRoute build (sempre presente)                                                                                                                                                                                                                                                                                                                                                                                 |
+| `X-OmniRoute-Cost-Saved` | Resposta  | USD o cache evitado em um HIT (somente ocorrências de cache)                                                                                                                                                                                                                                                                                                                                                             |
+| `X-OmniRoute-Decision`   | Resposta  | Rastreamento de roteamento: `strategy=<name>; provider=<alias>; latency_ms=<n>` (`<name>` é a estratégia de combinação ou `single` para uma solicitação não combinada) — sempre presente nas respostas de conclusão                                                                                                                                                                                                      |
 
-> Observação sobre o Nginx: se você depender de cabeçalhos com sublinhado (por exemplo, `x_session_id`), ative `underscores_in_headers on;`.
+> Nota Nginx: se você depende de cabeçalhos de sublinhado (por exemplo `x_session_id`), habilite `underscores_in_headers on;`.
 
 #### Fixação de conta por solicitação
 
-Quando um provedor tem várias conexões (contas ou chaves), o OmniRoute normalmente escolhe uma
-por meio de sua estratégia de seleção de contas. Em vez disso, uma solicitação pode fixar uma conexão específica
-com o cabeçalho `x-omniroute-connection`:
+Quando um provedor tem diversas conexões (contas ou chaves), OmniRoute normalmente escolhe uma por meio de sua estratégia de seleção de conta. Em vez disso, uma solicitação pode fixar uma conexão específica com o cabeçalho `x-omniroute-connection` :
 
 ```bash
 curl http://localhost:20128/v1/chat/completions \
@@ -103,25 +102,13 @@ curl http://localhost:20128/v1/chat/completions \
   -d '{"model": "codex/gpt-5.5", "messages": [{"role": "user", "content": "hi"}]}'
 ```
 
-- **Onde encontrar o id.** Abra a página do provedor no dashboard
-  (**Dashboard → Providers → <provider>**) e clique no chip de id `xxxxxxxx…` em uma linha de
-  conexão — isso copia o id completo da conexão.
-- **Quais solicitações o respeitam.** Solicitações de modelo único (`provider/model`) em
-  `/v1/chat/completions`, `/v1/messages` e `/v1/responses`. As combinações ignoram o cabeçalho:
-  fixe uma conta por etapa da combinação usando a própria conexão da etapa.
-- **A fixação é estrita, não uma preferência.** A conexão fixada é usada exclusivamente. Uma
-  falha durante a solicitação registra o cooldown da conta, mas **não** alterna para uma conta
-  irmã do mesmo provedor.
-- **Cooldown e cota liberam a fixação.** Enquanto a conexão fixada estiver em cooldown,
-  com a cota esgotada ou bloqueada por uma política de cota, as solicitações posteriores recorrem
-  às outras conexões do provedor, exatamente como o tráfego não fixado.
-- **Ids desconhecidos ou desativados falham.** Um id que não esteja no pool ativo do provedor
-  (excluído, desativado ou pertencente a outro provedor) não deixa nenhuma conta elegível, portanto
-  a solicitação falha em vez de ser roteada silenciosamente para outro local.
+- **Onde encontrar o ID.** Abra a página do provedor no painel (** Provedores → do painel → <provider>** ) e clique no chip `xxxxxxxx…` id em uma linha de conexão — ele copia o ID de conexão completo.
+- **Quais solicitações o honram.** Solicitações de modelo único (`provider/model`) em `/v1/chat/completions`, `/v1/messages` e `/v1/responses`. Os combos ignoram o cabeçalho: em vez disso, fixe uma conta por etapa do combo por meio da própria conexão da etapa.
+- **O pin é estrito, não uma preferência.** A conexão fixada é usada exclusivamente. Uma falha dentro da solicitação registra o tempo de espera da conta, mas não** não** gire para uma conta irmã do mesmo provedor.
+- **Cooldown e cota liberam o pin.** Enquanto a conexão fixada está esfriando, esgotada a cota ou bloqueada por uma política de cota, as solicitações posteriores voltam para as outras conexões do provedor, exatamente como o tráfego não fixado.
+- **IDs desconhecidos ou desativados falham.** Um ID que não está no pool ativo do provedor (excluído, desativado ou pertencente a outro provedor) não deixa nenhuma conta elegível, portanto, a solicitação falha em vez de ser roteada silenciosamente para outro lugar.
 
-O Claude Code envia cabeçalhos personalizados por meio de `ANTHROPIC_CUSTOM_HEADERS`. Coloque-o no bloco
-`env` de `~/.claude/settings.json` ou em um `.claude/settings.json` no nível do projeto para fixar uma
-conta diferente por projeto:
+O código Claude envia cabeçalhos personalizados por meio de `ANTHROPIC_CUSTOM_HEADERS`. Coloque-o no bloco `env` do `~/.claude/settings.json` ou em um `.claude/settings.json` no nível do projeto para fixar uma conta diferente por projeto:
 
 ```jsonc
 {
@@ -133,12 +120,11 @@ conta diferente por projeto:
 }
 ```
 
-Fonte: `src/sse/handlers/chat.ts` (leitura do cabeçalho), `src/sse/services/auth.ts` e
-`src/sse/services/sessionAffinityPin.ts` (liberação da fixação e verificação de ausência no pool).
+Fonte: `src/sse/handlers/chat.ts` (leitura do cabeçalho), `src/sse/services/auth.ts` e `src/sse/services/sessionAffinityPin.ts` (liberação do pino e verificação de falta do pool).
 
-> **Cabeçalhos de telemetria de custo:** as respostas de sucesso sem streaming também carregam o conjunto de telemetria de custo `X-OmniRoute-*` — `X-OmniRoute-Response-Cost` (USD, 10 casas decimais fixas; `0.0000000000` para conteúdo gratuito/sem preço), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit` e `X-OmniRoute-Fallback-Attempts` (somente quando > 0), além de `X-OmniRoute-Request-Id` e `X-OmniRoute-Version`. Eles são emitidos por chat completions, `/v1/responses`, `/v1/messages` **e pelos endpoints de mídia** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations` e `/v1/moderations` (sempre com custo `0`). O custo de mídia é calculado por modalidade (por imagem, por segundo, por caractere, por unidade de pesquisa) quando houver informações de preço disponíveis; caso contrário, é `0` (fail-open).
+> **Cabeçalhos de telemetria de custo:** respostas de sucesso sem streaming também carregam o conjunto de telemetria de custo `X-OmniRoute-*` — `X-OmniRoute-Response-Cost` (USD, 10 decimais fixos; `0.0000000000` para free/unpriced), `X-OmniRoute-Tokens-In` / `X-OmniRoute-Tokens-Out`, `X-OmniRoute-Model`, `X-OmniRoute-Provider`, `X-OmniRoute-Latency-Ms`, `X-OmniRoute-Cache-Hit` e `X-OmniRoute-Fallback-Attempts` (somente quando > 0), mais `X-OmniRoute-Request-Id` e `X-OmniRoute-Version`. Eles são emitidos pelas conclusões do chat, `/v1/responses`, `/v1/messages`,** e os pontos de extremidade de mídia** — `/v1/embeddings`, `/v1/images/generations`, `/v1/audio/speech`, `/v1/audio/transcriptions`, `/v1/rerank`, `/v1/videos/generations`, `/v1/music/generations` e `/v1/moderations` (sempre custa `0`). O custo de mídia é calculado por modalidade (por imagem, por segundo, por caractere, por unidade de pesquisa) quando o preço está disponível, caso contrário, `0` (fail-open).
 
-> **Semântica do custo de acerto de cache:** em um HIT do cache semântico (`X-OmniRoute-Cache-Hit: true`), nenhuma chamada upstream é feita, portanto `X-OmniRoute-Response-Cost` é `0.0000000000` (o custo **incremental** de atender ao acerto). O custo original/que teria sido cobrado é informado separadamente em `X-OmniRoute-Cost-Saved`. Os consumidores de cobrança devem somar `X-OmniRoute-Response-Cost` (acertos não têm custo); as análises de cache podem agregar `X-OmniRoute-Cost-Saved`.
+> **Semântica de custo de acerto de cache:** em um cache semântico HIT (`X-OmniRoute-Cache-Hit: true`) nenhuma chamada upstream é feita, então `X-OmniRoute-Response-Cost` é `0.0000000000` (o** incremental** custo de servir o acerto). O custo original/would-have-been é relatado separadamente em `X-OmniRoute-Cost-Saved`. O faturamento dos consumidores deverá somar `X-OmniRoute-Response-Cost` (os acertos não custam nada); a análise de cache pode agregar `X-OmniRoute-Cost-Saved`.
 
 ## Concessões Exclusivas de Sessão Gerenciada
 
@@ -344,6 +330,8 @@ Os provedores disponíveis incluem OpenAI (GPT Image 2), xAI (Grok Image), Toget
 
 `n` retorna imagens `n` em `data[]`. Provedores cujo API upstream retorna uma imagem por chamada (Black Forest Labs, Stability AI, Leonardo, Ideogram, Haiper, Hyperbolic, Magnific/Freepik, NVIDIA NIM, Cloudflare Workers AI) recebem `n` chamadas upstream separadas, no máximo 4 em andamento. Um `seed` fixo é compensado pelo índice de chamada (`seed`, `seed + 1`,…), então as imagens diferem, mas permanecem reproduzíveis. `n` é limitado a 10. A solicitação falhará como um todo se alguma chamada falhar. A lista de formatos de distribuição é `SINGLE_IMAGE_FANOUT_FORMATS` em `open-sse/handlers/imageGeneration/fanOut.ts`.
 
+Codex GPT Os modelos de imagem (`codex/gpt-image-*`) retornam apenas PNG : o upstream responde `200` com PNG bytes mesmo quando `jpeg` ou `webp` é solicitado. Uma solicitação com qualquer outro `output_format` (`webp`, `jpeg`, ...) é rejeitada com HTTP 400 em vez de ser ignorada silenciosamente; omita ou envie `png`. `output_compression` não é encaminhado.
+
 ZenMux reutiliza a conexão de chave de API existente e aceita prefixos `zenmux/` ou `zm/` :
 
 - `zenmux/openai/gpt-image-2` usa imagens ZenMux do OpenAI API. As opções incluem `size`, `quality`, `n`, `output_format`, `output_compression`, `background` e `response_format`.
@@ -361,7 +349,7 @@ GET /v1/images/generations
 
 ---
 
-## OCR de documentos
+## Documento OCR
 
 ```bash
 POST /v1/ocr
@@ -377,18 +365,15 @@ Content-Type: application/json
 }
 ```
 
-`model` seleciona o provedor de OCR por meio de um prefixo `provider/model`; um id de modelo sem
-prefixo (por exemplo, `mistral-ocr-latest`) é resolvido para seu provedor registrado, e um `model`
-omitido usa o Mistral por padrão (`mistral-ocr-latest`). Provedores registrados
-(`open-sse/config/ocrRegistry.ts`):
+`model` seleciona o provedor OCR por meio de um prefixo `provider/model` ; um ID de modelo simples (por exemplo, `mistral-ocr-latest`) é resolvido para seu provedor registrado, e um `model` omitido é padronizado como Mistral (`mistral-ocr-latest`). Provedores registrados (`open-sse/config/ocrRegistry.ts`):
 
-| ID do provedor                | ID do modelo         | Valor de `model`                                       | Observações                                                                                                                       |
-| ----------------------------- | -------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| `mistral`                     | `mistral-ocr-latest` | `mistral/mistral-ocr-latest` (ou `mistral-ocr-latest`) | Síncrono — a resposta é retornada diretamente da única chamada upstream.                                                          |
-| `azure-document-intelligence` | `prebuilt-read`      | `azure-document-intelligence/prebuilt-read`            | Upstream assíncrono (`analyze` + poll) — veja abaixo.                                                                             |
-| `vertex-deepseek-ocr`         | `deepseek-ocr-maas`  | `vertex-deepseek-ocr/deepseek-ocr-maas`                | Síncrono, por meio do endpoint parceiro `openapi/chat/completions` do Vertex AI — veja abaixo informações sobre autenticação/URL. |
+| ID do provedor                | ID do modelo                          | valor `model`                                                  | Notas                                                                                                                                                                                                                  |
+| ----------------------------- | ------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mistral`                     | `mistral-ocr-latest`                  | `mistral/mistral-ocr-latest` (ou `mistral-ocr-latest` simples) | Síncrono — a resposta é retornada diretamente da única chamada upstream.                                                                                                                                               |
+| `azure-document-intelligence` | `prebuilt-read`                       | `azure-document-intelligence/prebuilt-read`                    | Upstream assíncrono (`analyze` + poll) — veja abaixo.                                                                                                                                                                  |
+| `vertex-deepseek-ocr`         | autoimplantado (sem modelo integrado) | `vertex-deepseek-ocr/<your-deployed-model-id>`                 | Síncrono, por meio de seu próprio endpoint Vertex AI Model Garden DeepSeek-OCR (formato `openapi/chat/completions` ); Google retirou o `deepseek-ocr-maas` gerenciado em 21/10/2026 (#20423), para que id retorne 400. |
 
-Os três provedores respondem no mesmo corpo no formato do Mistral:
+Todos os três provedores respondem no mesmo corpo em formato de Mistral:
 
 ```json
 {
@@ -398,28 +383,13 @@ Os três provedores respondem no mesmo corpo no formato do Mistral:
 }
 ```
 
-### Fluxo de polling do Azure Document Intelligence
+### Fluxo de pesquisa do Azure Document Intelligence
 
-A API `analyze` do Azure Document Intelligence é assíncrona: a solicitação inicial retorna um
-cabeçalho `Operation-Location` em vez de um corpo, e o resultado deve ser consultado por polling. O handler
-(`open-sse/handlers/ocr.ts`) consulta essa URL a cada segundo por até 30 tentativas, falha rapidamente (não
-continua consultando) quando a resposta de polling não é `ok` ou quando o status é `"failed"`, e retorna
-`504` se a operação ainda estiver em execução após o esgotamento do limite de tentativas. A resposta final
-do Azure é normalizada para o mesmo formato `pages`/`markdown` usado pelo Mistral antes de ser retornada ao
-chamador, portanto o código cliente não precisa tratar o provedor de maneira especial.
+`analyze` API do Azure Document Intelligence é assíncrono: a solicitação inicial retorna um cabeçalho `Operation-Location` em vez de um corpo, e o resultado deve ser pesquisado. O manipulador (`open-sse/handlers/ocr.ts`) pesquisa esse URL a cada segundo por até 30 tentativas, falha rapidamente (não mantém a pesquisa) em uma resposta de pesquisa não `ok` ou em um status `"failed"` e retorna `504` se a operação ainda estiver em execução após o esgotamento do orçamento de tentativas. A resposta final do Azure é normalizada no mesmo formato `pages`/`markdown` usado pelo Mistral antes de ser retornada ao chamador, portanto, o código do cliente não precisa de um caso especial do provedor.
 
-### Autenticação e resolução do endpoint do Vertex AI DeepSeek OCR
+### Vertex AI DeepSeek OCR autenticação e resolução de endpoint
 
-`vertex-deepseek-ocr` reutiliza a mesma autenticação do Vertex AI que o OmniRoute já oferece para
-tráfego de chat/imagem (`open-sse/executors/vertex.ts`): a chave de API da conexão é uma credencial JSON de
-Service Account (trocada por um token de acesso OAuth de curta duração por meio do fluxo JWT-bearer) ou um
-token de acesso OAuth já emitido, usado como está. A URL do endpoint upstream é o endpoint parceiro
-genérico `openapi/chat/completions` do Vertex, construído a partir do projeto e da região da conexão —
-um `providerSpecificData.project`/`providerSpecificData.region` explícito sempre tem prioridade; caso
-contrário, o projeto é derivado de `project_id` do JSON da Service Account e a região usa `us-central1`
-por padrão. Ambas as resoluções ocorrem em `open-sse/handlers/ocr.ts`
-(`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`) e são consumidas por
-`src/app/api/v1/ocr/route.ts` antes do despacho para `handleOcr`.
+`vertex-deepseek-ocr` reutiliza a mesma autenticação Vertex AI OmniRoute já suporta para tráfego chat/image (`open-sse/executors/vertex.ts`): a chave API da conexão é uma credencial JSON da conta de serviço (trocada por um token de acesso OAuth de curta duração por meio do fluxo do portador JWT) ou um token de acesso OAuth já cunhado usado como está. O endpoint upstream URL é o endpoint genérico do parceiro `openapi/chat/completions` da Vertex, construído a partir do projeto e da região da conexão — um `providerSpecificData.project`/`providerSpecificData.region` explícito sempre vence; caso contrário, o projeto será derivado do `project_id` da conta de serviço JSON e o padrão da região será `us-central1`. Ambas as resoluções acontecem em `open-sse/handlers/ocr.ts` (`resolveVertexOcrAccessToken`, `resolveVertexOcrBaseUrl`), consumidas por `src/app/api/v1/ocr/route.ts` antes de serem despachadas para `handleOcr`.
 
 ---
 

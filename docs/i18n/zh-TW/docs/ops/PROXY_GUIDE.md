@@ -269,150 +269,150 @@ curl -X POST http://localhost:20128/api/v1/management/proxies/bulk-assign \
 
 ---
 
-## 1proxy 免費代理伺服器市集
+## 1proxy 免費代理市場
 
-> 🆕 **由 [@oyi77](https://github.com/oyi77) 貢獻** — PR [#1847](https://github.com/diegosouzapw/OmniRoute/pull/1847)（Issue [#1788](https://github.com/diegosouzapw/OmniRoute/issues/1788)）
+> 🆕**貢獻者： [@oyi77](https://github.com/oyi77)** — PR [#1847](https://github.com/cheaper-inference/OmniRoute/pull/1847) （問題[#1788](https://github.com/cheaper-inference/OmniRoute/issues/1788) ）
 
-OmniRoute 整合了 **[1proxy](https://1proxy-api.aitradepulse.com)** 社群平台，可存取來自世界各地**數百個經過驗證的免費代理伺服器**。這非常適合沒有自有代理伺服器基礎設施的使用者。
+OmniRoute與**[1個代理](https://1proxy-api.aitradepulse.com)**社區平台提供訪問**數百個免費且經過驗證的代理**來自世界各地。這對於沒有自己的代理基礎設施的用戶來說是完美的。
 
-### 運作方式
+### 它是如何運作的
 
 ```
-┌─────────────┐     同步      ┌─────────────────┐    輪替      ┌──────────┐
-│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ 提供者   │
-│  （外部）   │   最多 500 個  │  source=oneproxy │  依品質      │   API    │
-└─────────────┘   代理伺服器   └─────────────────┘               └──────────┘
+┌─────────────┐     Sync      ┌─────────────────┐    Rotate     ┌──────────┐
+│  1proxy API │ ────────────▶ │  proxy_registry  │ ────────────▶ │ Provider │
+│  (external) │   up to 500   │  source=oneproxy │  by quality   │   API    │
+└─────────────┘    proxies    └─────────────────┘               └──────────┘
 ```
 
-1. **同步** — OmniRoute 從 1proxy API 擷取經過驗證的代理伺服器
-2. **儲存** — 代理伺服器會儲存在相同的 `proxy_registry` 資料表中，並設為 `source = 'oneproxy'`
-3. **篩選** — 依通訊協定、國家及品質分數進行篩選
-4. **輪替** — 使用品質、隨機或循序策略選擇最佳代理伺服器
-5. **自動降級** — 失敗的代理伺服器會降低品質分數；低於門檻值 → 標記為停用
+1. **同步**— OmniRoute從 1proxy API取得經過驗證的代理
+2. **店鋪**—代理與`source = 'oneproxy'`保存在同一個`proxy_registry`表中
+3. **篩選**—按協議、國家/地區、品質分數過濾
+4. **旋轉**—使用品質、隨機或順序策略選擇最佳代理
+5. **自動降解**—失敗的代理人的品質分數會降低；低於閾值→標記為非活動狀態
 
-### 同步代理伺服器
+### 同步代理
 
 **透過儀表板：**
 
-1. 前往 **設定 → 1proxy** 分頁
-2. 按一下 **「立即同步」**
-3. 檢視統計資料：代理伺服器總數、啟用數量、平均品質，以及各國家／地區的分布明細
+1. 前往**設定→ 1proxy**選項卡
+2. 點選**“立即同步”**
+3. 查看統計數據：代理總數、活躍數量、平均品質、按國家/地區細分
 
-**透過 API：**
+**透過API：**
 
 ```bash
-# 觸發同步
+# Trigger sync
 curl -X POST http://localhost:20128/api/settings/oneproxy \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# 回應：
+# Response:
 # { "success": true, "added": 127, "updated": 45, "failed": 2, "total": 172 }
 ```
 
-### 篩選代理伺服器
+### 過濾代理
 
 ```bash
-# 依通訊協定篩選
+# Filter by protocol
 curl "http://localhost:20128/api/settings/oneproxy?protocol=socks5"
 
-# 依國家／地區篩選
+# Filter by country
 curl "http://localhost:20128/api/settings/oneproxy?countryCode=US"
 
-# 依最低品質分數篩選
+# Filter by minimum quality score
 curl "http://localhost:20128/api/settings/oneproxy?minQuality=80"
 
-# 組合篩選條件
+# Combine filters
 curl "http://localhost:20128/api/settings/oneproxy?protocol=http&countryCode=DE&minQuality=70"
 ```
 
-### 代理伺服器品質分數
+### 代理品質得分
 
-每個 1proxy 代理伺服器都包含中繼資料：
+每個 1proxy 代理程式都帶有元資料：
 
-| 欄位            | 說明                                  |
-| --------------- | ------------------------------------- |
-| `qualityScore`  | 由 1proxy 驗證得出的 0-100 評分       |
-| `latencyMs`     | 測得的網路延遲                        |
-| `anonymity`     | `transparent`、`anonymous` 或 `elite` |
-| `googleAccess`  | 代理伺服器是否可以存取 Google 服務    |
-| `countryCode`   | 兩個字母的 ISO 國家／地區代碼         |
-| `lastValidated` | 上次驗證的時間戳記                    |
+| 場地            | 描述                                 |
+| --------------- | ------------------------------------ |
+| `qualityScore`  | 1proxy 驗證的 0-100 評級             |
+| `latencyMs`     | 測量的網路延遲                       |
+| `anonymity`     | `transparent`、 `anonymous`或`elite` |
+| `googleAccess`  | proxy是否可以存取Google服務          |
+| `countryCode`   | 兩個字母的ISO國家/地區代碼           |
+| `lastValidated` | 上次驗證的時間戳                     |
 
-品質分數會動態調整：
+品質分數動態調整：
 
-- **失敗的請求**會使分數降低 10 分
-- **分數降至 ≤10** → 代理伺服器會標記為 `inactive`
-- 停用的代理伺服器會從輪替中排除
+- **失敗的請求**降低10分
+- **≤分數降至 10** →代理標記為`inactive`
+- 不活動的代理被排除在輪換之外
 
-### 輪替策略
+### 輪換策略
 
 ```bash
-# 依品質輪替（最佳代理伺服器優先）— 預設值
+# Rotate by quality (best proxy first) — default
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -H "Content-Type: application/json" \
   -d '{"strategy": "quality"}'
 
-# 隨機輪替
+# Random rotation
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "random"}'
 
-# 循序輪替（最近最少驗證者優先）
+# Sequential (least recently validated first)
 curl -X POST http://localhost:20128/api/settings/oneproxy/rotate \
   -d '{"strategy": "sequential"}'
 ```
 
 ### 斷路器
 
-1proxy 同步功能內建斷路器：
+1proxy 同步有一個內建斷路器：
 
-- **連續同步失敗 5 次**後，將封鎖後續的同步嘗試
-- 使用 `resetOneproxyCircuitBreaker()` 重設，或重新啟動伺服器
-- 可透過 `GET /api/settings/oneproxy?action=status` 取得同步狀態
+- 後**連續 5 次同步失敗**，進一步的同步嘗試被阻止
+- 重置： `resetOneproxyCircuitBreaker()`或重新啟動伺服器
+- 同步狀態可在`GET /api/settings/oneproxy?action=status`上取得
 
-### 清除 1proxy 代理伺服器
+### 清除1proxy代理
 
 ```bash
-# 刪除單一 1proxy 代理伺服器
+# Delete a single 1proxy proxy
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?id=proxy-uuid"
 
-# 清除所有 1proxy 代理伺服器（手動設定的代理伺服器不受影響）
+# Clear ALL 1proxy proxies (manual proxies are untouched)
 curl -X DELETE "http://localhost:20128/api/settings/oneproxy?clearAll=1"
 ```
 
 ---
 
-## 反偵測與隱匿
+## 反偵測與隱身
 
-OmniRoute 不只是透過代理路由流量，還能讓流量看起來合法：
+OmniRoute不僅透過代理—路由流量，它還使流量看起來合法：
 
-### TLS 指紋偽裝
+### TLS指紋欺騙
 
-使用 `wreq-js` 產生類似瀏覽器的 TLS 指紋，繞過會標記非瀏覽器 TLS 握手的機器人偵測系統。
+使用`wreq-js`產生類似瀏覽器的TLS指紋，繞過標記非瀏覽器TLS握手的機器人偵測系統。
 
-### CLI 指紋比對
+### CLI指紋比對
 
-**CLI 指紋切換開關**（`設定 → 安全性`）會重新排列 HTTP 標頭與 JSON 主體欄位，以符合原生 CLI 二進位檔（Claude Code、Codex 等）的確切特徵。此功能會在代理之上運作：
+這**CLI指紋切換**(`Settings → Security`) 重新排序HTTP標頭和JSON正文欄位以符合本機CLI二進位檔案的確切簽章（Claude Code、 Codex等）。這有效**在上面**代理：
 
 ```
-您的 IP（遭封鎖）→ 代理 IP（美國）→ 提供者 API
-                    + TLS 偽裝
-                    + CLI 指紋
+Your IP (blocked) → Proxy IP (US) → Provider API
+                    + TLS spoof
+                    + CLI fingerprint
 ```
 
-您可以同時獲得 **IP 遮蔽**與**請求真實性**。
+你兩者都得到**IP掩碼**和**要求真實性**同時地。
 
-### 代理 IP 保留
+### 代理IP保存
 
-儀表板中以不同顏色標示的徽章會顯示目前啟用的代理層級：
+儀表板中的顏色編碼徽章顯示哪個代理級別處於活動狀態：
 
-| 徽章 | 層級   | 含義                         |
-| ---- | ------ | ---------------------------- |
-| 🟢   | 全域   | 所有流量都會透過此代理       |
-| 🟡   | 提供者 | 僅此提供者的流量會透過代理   |
-| 🔵   | 連線   | 此特定金鑰／帳戶會使用此代理 |
+| 徽章 | 等級   | 意義                              |
+| ---- | ------ | --------------------------------- |
+| 🟢   | 全球的 | 所有流量都經過此代理              |
+| 🟡   | 提供者 | 僅代理該提供者的流量              |
+| 🔵   | 聯繫   | 這個特定的key/account使用這個代理 |
 
-徽章也會顯示解析後的代理 IP，以供驗證。
+徽章也顯示已解析的代理程式IP以供驗證。
 
 ---
 
